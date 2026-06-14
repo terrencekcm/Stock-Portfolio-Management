@@ -31,7 +31,7 @@
                     <p id="headerCashDetail" class="text-xs text-gray-400">正在計算...</p>
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-indigo-500">
-                    <p class="text-sm text-gray-500 font-medium">📊 證券持倉市值 / 總資產</p>
+                    <p class="text-sm text-gray-500 font-medium"> Bars 證券持倉總市值</p>
                     <p id="headerAllocation" class="text-2xl font-bold text-gray-800">$0.00</p>
                     <p id="headerTotalAsset" class="text-xs text-gray-400">正在計算...</p>
                 </div>
@@ -48,11 +48,11 @@
                     <table class="min-w-full text-left text-sm">
                         <thead class="bg-gray-50 text-gray-500 font-medium text-xs uppercase">
                             <tr>
-                                <th class="px-4 py-2.5">資產大類 (市場)</th>
+                                <th class="px-4 py-2.5">資產大類</th>
                                 <th class="px-4 py-2.5">計劃分配權重 %</th>
                                 <th class="px-4 py-2.5">真實實際權重 %</th>
                                 <th class="px-4 py-2.5">計劃偏離度 %</th>
-                                <th class="px-4 py-2.5">當前實際總市值 (含現金)</th>
+                                <th class="px-4 py-2.5">當前實際總價值</th>
                             </tr>
                         </thead>
                         <tbody id="assetPlanTable" class="divide-y divide-gray-100 text-gray-700"></tbody>
@@ -66,19 +66,19 @@
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">資產類別</label>
                         <select id="txCategory" onchange="toggleFormFields()" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 text-sm focus:outline-blue-500">
-                            <option value="STOCK">📈 證券交易 (標標/股票/債券/金)</option>
-                            <option value="CASH">💵 現金存取 (Deposit / Withdraw)</option>
+                            <option value="STOCK">📈 證券交易 (股票/債券/金)</option>
+                            <option value="CASH">💵 現金存取 (美金/港幣本金)</option>
                         </select>
                     </div>
                     <form id="txForm" class="space-y-4 text-sm">
                         <div>
                             <label id="marketLabel" class="block text-sm font-medium text-gray-700">資產大類 / 市場</label>
                             <select id="txMarket" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
-                                <option value="US">🇺🇸 美股 / 美金資產 (US)</option>
-                                <option value="HK">🇭🇰 港股 / 港幣資產 (HK)</option>
-                                <option value="BOND_L">📉 長期債券 (BOND_L)</option>
-                                <option value="BOND_S">⏱️ 短期債券 (BOND_S)</option>
-                                <option value="GOLD">🪙 黃金資產 (GOLD)</option>
+                                <option value="US">🇺🇸 美股 (US)</option>
+                                <option value="HK">🇭🇰 港股 (HK)</option>
+                                <option value="BOND_L">📉 US 長債 (BOND_L)</option>
+                                <option value="BOND_S">⏱️ US 短債 (BOND_S)</option>
+                                <option value="GOLD">🪙 金 (GOLD)</option>
                             </select>
                         </div>
                         <div id="stockFields" class="space-y-4">
@@ -121,7 +121,7 @@
                                 <thead class="bg-gray-50 text-gray-500 font-medium uppercase">
                                     <tr>
                                         <th class="px-2 py-3">代號</th>
-                                        <th class="px-2 py-3">大類</th>
+                                        <th class="px-2 py-3">市場</th>
                                         <th class="px-2 py-3">持股</th>
                                         <th class="px-2 py-3">成本</th>
                                         <th class="px-2 py-3">現價</th>
@@ -177,8 +177,7 @@
                             <span>🌍 1. 宏觀資產大類計劃比重</span>
                             <span id="assetTotalCheck" class="text-xs text-blue-600">總計: 0%</span>
                         </h3>
-                        <div class="space-y-3 text-sm" id="assetSettingInputs">
-                            </div>
+                        <div class="space-y-3 text-sm" id="assetSettingInputs"></div>
                     </div>
 
                     <div class="md:col-span-2 bg-gray-50 p-5 rounded-xl border border-gray-200">
@@ -196,8 +195,7 @@
                                         <th class="px-3 py-2">操作</th>
                                     </tr>
                                 </thead>
-                                <tbody id="stockPlanSettingRows" class="divide-y divide-gray-300">
-                                    </tbody>
+                                <tbody id="stockPlanSettingRows" class="divide-y divide-gray-300"></tbody>
                             </table>
                         </div>
                     </div>
@@ -210,13 +208,25 @@
         // ⚠️【重要】請替換為你的新版 GAS 部署應用程式 URL
         const API_URL = "https://script.google.com/macros/s/AKfycbzsDE79EEEn1EpdYYTg44A8HeXzIEXs1hpV4JSjQUXeWo8uzeucaKndIm-RWce_l3Gy/exec";
 
+        // 全球統一中文化 Labels 映射對照表
+        const assetLabels = {
+            "US": "美股",
+            "HK": "港股",
+            "BOND_L": "US 長債",
+            "BOND_S": "US 短債",
+            "GOLD": "金",
+            "CASH_TOTAL": "現金（HKD）"
+        };
+
         let transactions = [];
         let prices = {};
         let exchangeRate = 7.82;
-        let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5 }; // 預設防呆
+        let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
+        let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
         let stockPlan = [];
 
-        // 頁籤切換
+        document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
+
         function switchTab(tabId) {
             if (tabId === 'dashboard-tab') {
                 document.getElementById('tab-dashboard').classList.remove('hidden');
@@ -261,7 +271,12 @@
                 transactions = data.transactions || [];
                 prices = data.prices || {};
                 exchangeRate = data.exchangeRate || 7.82;
-                if (data.assetPlan && Object.keys(data.assetPlan).length > 0) assetPlan = data.assetPlan;
+                
+                // 讀取大類計劃與隱藏設定
+                for (const key in assetLabels) {
+                    if (data.assetPlan && data.assetPlan[key] !== undefined) assetPlan[key] = data.assetPlan[key];
+                    assetHidden[key] = data.assetHidden && data.assetHidden[key] ? true : false;
+                }
                 stockPlan = data.stockPlan || [];
                 
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -273,7 +288,6 @@
             }
         }
 
-        // 核心模型：模擬持倉、現金，並注入「未買入計劃持倉」
         function calculatePortfolio() {
             let cashBalances = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0 };
             let positions = {};
@@ -287,8 +301,6 @@
                 const price = parseFloat(t.price) || 0;
                 const qty = parseFloat(t.qty) || 0;
                 const amt = price * qty;
-
-                if (!cashBalances[marketStr]) cashBalances[marketStr] = 0;
 
                 if (codeStr === 'CASH') {
                     if (typeStr === 'DEPOSIT') cashBalances[marketStr] += qty;
@@ -309,18 +321,18 @@
                     if (typeStr === 'BUY') {
                         pos.shares += qty;
                         pos.totalCost += amt;
-                        cashBalances[marketStr] -= amt;
+                        cashBalances[marketStr] -= amt; // 消耗該市場的現金
                         if (!pos.firstBuyDate || new Date(t.date) < new Date(pos.firstBuyDate)) pos.firstBuyDate = t.date;
                     } else if (typeStr === 'SELL') {
                         pos.shares -= qty;
-                        cashBalances[marketStr] += amt;
+                        cashBalances[marketStr] += amt; // 回填該市場的現金
                         if (pos.shares <= 0) delete positions[codeStr];
                         else pos.totalCost = pos.shares * (pos.totalCost / (pos.shares + qty));
                     }
                 }
             });
 
-            // 🌟 智能特點：將計劃持倉中「還未入倉」的代號強制注入，方便操盤者觀察
+            // 觀察名單強制注入
             stockPlan.forEach(s => {
                 if (!positions[s.code]) {
                     let yahooSymbol = s.code;
@@ -341,10 +353,9 @@
         function renderComponents() {
             const { cashBalances, positions } = calculatePortfolio();
             
-            // 計算大類資產實際淨值 (換算港幣)
-            let assetRealValuesHkd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0 };
+            // ⭐ 核心運算重構：大類重組，股票與現金完全解耦
+            let assetRealValuesHkd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "CASH_TOTAL": 0 };
             
-            // 計入個股持倉市值
             let computedStocks = [];
             let totalStockMarketValueHkd = 0;
             let totalStockCostHkd = 0;
@@ -365,7 +376,7 @@
                     holdingDays = diff < 0 ? 0 : diff;
                 }
 
-                if (!assetRealValuesHkd[p.market]) assetRealValuesHkd[p.market] = 0;
+                // 💡 股票大類只累加純股票市值，不再包含現金
                 assetRealValuesHkd[p.market] += mktValHkd;
 
                 totalStockMarketValueHkd += mktValHkd;
@@ -374,16 +385,16 @@
                 computedStocks.push({ ...p, avgPrice, livePrice, mktValHkd, plHkd, holdingDays });
             }
 
-            // 計入現金餘額到大類
+            // 💡 所有的現金庫存（美金及港幣等）全數歸入獨立的 CASH_TOTAL 大類
             let totalCashHkd = 0;
             for (const mkt in cashBalances) {
                 const rate = (mkt === 'US') ? exchangeRate : 1;
                 const cashHkd = cashBalances[mkt] * rate;
-                if (!assetRealValuesHkd[mkt]) assetRealValuesHkd[mkt] = 0;
-                assetRealValuesHkd[mkt] += cashHkd;
                 totalCashHkd += cashHkd;
             }
+            assetRealValuesHkd["CASH_TOTAL"] = totalCashHkd;
 
+            // 總資產淨值 (NAV)
             const totalAssetHkd = totalStockMarketValueHkd + totalCashHkd;
 
             // 渲染頂部 Dashboard 看板
@@ -396,30 +407,32 @@
             document.getElementById('headerTotalPl').innerText = `${totalPlPercent >= 0 ? '+' : ''}${totalPlPercent.toFixed(2)}%`;
             document.getElementById('headerTotalPlHkd').innerText = `持倉未實現盈虧: HKD $${(totalStockMarketValueHkd - totalStockCostHkd).toLocaleString(undefined, {maximumFractionDigits:2})}`;
 
-            // 渲染 Section 5: 大類資產計劃偏離度表格
+            // 渲染「🌍 宏觀資產大類計劃偏離度表格」
             const assetPlanTable = document.getElementById('assetPlanTable');
             assetPlanTable.innerHTML = '';
             
-            // 合併所有大類 Key
-            const allAssetClasses = Array.from(new Set([...Object.keys(assetPlan), ...Object.keys(assetRealValuesHkd)]));
-            allAssetClasses.forEach(ac => {
+            for (const ac in assetLabels) {
+                // 👁️ 隱藏核心功能：如果使用者在設定頁剔選了隱藏，直接不渲染該行
+                if (assetHidden[ac] === true) continue;
+
                 const pWeight = assetPlan[ac] || 0;
                 const rVal = assetRealValuesHkd[ac] || 0;
                 const rWeight = totalAssetHkd > 0 ? (rVal / totalAssetHkd * 100) : 0;
                 const deviation = rWeight - pWeight;
+                const showLabel = assetLabels[ac]; // 顯示中文化名稱
 
                 assetPlanTable.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100">
-                        <td class="px-4 py-2.5 font-bold">${ac}</td>
+                        <td class="px-4 py-2.5 font-bold text-gray-800">${showLabel}</td>
                         <td class="px-4 py-2.5 font-semibold text-blue-600">${pWeight.toFixed(1)}%</td>
                         <td class="px-4 py-2.5 font-semibold text-indigo-600">${rWeight.toFixed(1)}%</td>
                         <td class="px-4 py-2.5 font-bold ${deviation >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}%</td>
                         <td class="px-4 py-2.5 text-gray-500">HKD $${rVal.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                     </tr>
                 `;
-            });
+            }
 
-            // 渲染 Section 6: 精密版個股持倉明細表格
+            // 渲染「💼 目前證券持倉與觀察名單」
             const posTableBody = document.getElementById('positionTable');
             posTableBody.innerHTML = '';
 
@@ -427,23 +440,23 @@
                 const isUS = p.market === 'US';
                 const cSign = isUS ? 'USD $' : 'HKD $';
                 
-                // 1. 資產計劃佔比 (在該大類當中的計劃比重)
                 const sPlanObj = stockPlan.find(s => s.code === p.code && s.market === p.market);
                 const assetPlannedWeight = sPlanObj ? sPlanObj.target_weight : 0;
 
-                // 2. 資產真實佔比 = 個股市值 / 該大類總市值
-                const assetClassTotal = assetRealValuesHkd[p.market] || 0;
-                const assetRealWeight = assetClassTotal > 0 ? (p.mktValHkd / assetClassTotal * 100) : 0;
+                // 💡 資產真實佔比 = 個股市值 / 所屬資產大類純證券市值 (不再受負數現金干擾，回歸純個股比重)
+                const assetClassTotalValue = assetRealValuesHkd[p.market] || 0;
+                const assetRealWeight = assetClassTotalValue > 0 ? (p.mktValHkd / assetClassTotalValue * 100) : 0;
 
-                // 3. 全倉真實佔比 = 個股市值 / 總資產規模
+                // 全倉真實佔比
                 const totalRealWeight = totalAssetHkd > 0 ? (p.mktValHkd / totalAssetHkd * 100) : 0;
+                const showMarketLabel = assetLabels[p.market] || p.market;
 
                 posTableBody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100 ${p.isPlannedOnly ? 'bg-amber-50/40 opacity-70' : ''}">
                         <td class="px-2 py-3 font-bold text-blue-700">
-                            ${p.code} ${p.isPlannedOnly ? '<span class="text-[10px] block font-normal text-amber-600">[計劃持倉]</span>' : ''}
+                            ${p.code} ${p.isPlannedOnly ? '<span class="text-[10px] block font-normal text-amber-600">[觀察名單]</span>' : ''}
                         </td>
-                        <td class="px-2 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-700">${p.market}</span></td>
+                        <td class="px-2 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-700">${showMarketLabel}</span></td>
                         <td class="px-2 py-3 font-semibold">${p.shares.toLocaleString()}</td>
                         <td class="px-2 py-3 text-gray-500">${p.isPlannedOnly ? '---' : cSign + p.avgPrice.toFixed(2)}</td>
                         <td class="px-2 py-3 font-semibold">${cSign + (p.livePrice ? p.livePrice.toFixed(2) : '---')}</td>
@@ -457,7 +470,6 @@
                 `;
             });
 
-            // 歷史流水帳表格生成 (省略部分重複渲染細節以保長度，邏輯與之前防禦版完全相同)
             renderHistoryRows();
         }
 
@@ -469,12 +481,13 @@
                 let badge = t.type === 'BUY' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
                 if(t.type === 'DEPOSIT') badge = 'bg-emerald-100 text-emerald-800';
                 if(t.type === 'WITHDRAW') badge = 'bg-orange-100 text-orange-800';
+                const showMkt = assetLabels[t.market] || t.market;
                 
                 historyTableBody.innerHTML += `
                     <tr class="border-b border-gray-100 hover:bg-gray-50">
                         <td class="px-3 py-1.5">${t.date}</td>
-                        <td class="px-3 py-1.5 font-bold">${t.code}</td>
-                        <td class="px-3 py-1.5">${t.market}</td>
+                        <td class="px-3 py-1.5 font-bold">${t.code === 'CASH' ? '💵 現金流水' : t.code}</td>
+                        <td class="px-3 py-1.5 font-medium text-gray-500">${showMkt}</td>
                         <td class="px-3 py-1.5"><span class="px-1.5 py-0.5 rounded font-semibold ${badge}">${t.type}</span></td>
                         <td class="px-3 py-1.5">$${Number(t.price).toFixed(2)}</td>
                         <td class="px-3 py-1.5">${Number(t.qty).toLocaleString()}</td>
@@ -484,40 +497,48 @@
             });
         }
 
-        // ⚙️ 設定頁面渲染與動態操作 (Section 4)
+        // ⚙️ 渲染設定頁面（加入顯示/隱藏核取方塊）
         function renderSettingsPage() {
-            // 1. 大類資產輸入框
             const container = document.getElementById('assetSettingInputs');
             container.innerHTML = '';
             let total = 0;
-            for (const ac in assetPlan) {
-                total += assetPlan[ac];
+            
+            for (const ac in assetLabels) {
+                total += assetPlan[ac] || 0;
+                const isChecked = assetHidden[ac] ? 'checked' : '';
+                const showName = assetLabels[ac];
+
                 container.innerHTML += `
-                    <div class="flex justify-between items-center bg-white p-2 rounded shadow-sm">
-                        <span class="font-bold text-gray-700">${ac}</span>
-                        <div class="flex items-center gap-1">
-                            <input type="number" step="any" value="${assetPlan[ac]}" data-asset="${ac}" onchange="checkAssetTotal()" class="asset-plan-input w-20 text-right rounded border border-gray-300 p-1 font-semibold text-blue-600 focus:outline-blue-500"> %
+                    <div class="flex flex-col bg-white p-3 rounded-lg shadow-sm gap-2 border border-gray-100">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-gray-800">${showName}</span>
+                            <label class="inline-flex items-center text-xs text-gray-500 cursor-pointer select-none">
+                                <input type="checkbox" data-asset="${ac}" class="asset-hide-checkbox mr-1" ${isChecked}> 👁️ 隱藏此資產
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-end gap-1">
+                            <input type="number" step="any" value="${assetPlan[ac] || 0}" data-asset="${ac}" onchange="checkAssetTotal()" class="asset-plan-input w-24 text-right rounded border border-gray-300 p-1 font-semibold text-blue-600 focus:outline-blue-500"> %
                         </div>
                     </div>
                 `;
             }
             document.getElementById('assetTotalCheck').innerText = `總計: ${total.toFixed(1)}%`;
 
-            // 2. 個股計劃比重行
+            // 渲染個股計劃
             const tbody = document.getElementById('stockPlanSettingRows');
             tbody.innerHTML = '';
             stockPlan.forEach((s, index) => {
+                let optionsHtml = '';
+                for(const key in assetLabels) {
+                    if (key === 'CASH_TOTAL') continue; // 個股不可以隸屬於現金大類
+                    optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`;
+                }
+
                 tbody.innerHTML += `
-                    <tr data-index="${index}" class="stock-plan-row">
+                    <tr class="stock-plan-row">
                         <td class="px-3 py-2"><input type="text" value="${s.code}" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold"></td>
                         <td class="px-3 py-2">
-                            <select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium">
-                                <option value="US" ${s.market==='US'?'selected':''}>US</option>
-                                <option value="HK" ${s.market==='HK'?'selected':''}>HK</option>
-                                <option value="BOND_L" ${s.market==='BOND_L'?'selected':''}>BOND_L</option>
-                                <option value="BOND_S" ${s.market==='BOND_S'?'selected':''}>BOND_S</option>
-                                <option value="GOLD" ${s.market==='GOLD'?'selected':''}>GOLD</option>
-                            </select>
+                            <select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium">${optionsHtml}</select>
                         </td>
                         <td class="px-3 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-24 p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"> %</td>
                         <td class="px-3 py-2"><button onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium">移除</button></td>
@@ -528,9 +549,7 @@
 
         function checkAssetTotal() {
             let total = 0;
-            document.querySelectorAll('.asset-plan-input').forEach(input => {
-                total += parseFloat(input.value) || 0;
-            });
+            document.querySelectorAll('.asset-plan-input').forEach(input => { total += parseFloat(input.value) || 0; });
             const indicator = document.getElementById('assetTotalCheck');
             indicator.innerText = `總計: ${total.toFixed(1)}%`;
             indicator.className = Math.abs(total - 100) < 0.01 ? "text-xs text-emerald-600 font-bold" : "text-xs text-rose-500 font-bold animate-pulse";
@@ -538,55 +557,44 @@
 
         function addStockPlanRow() {
             const tbody = document.getElementById('stockPlanSettingRows');
-            
-            // 使用 template string 建立新的一行
+            let optionsHtml = '';
+            for(const key in assetLabels) {
+                if (key === 'CASH_TOTAL') continue;
+                optionsHtml += `<option value="${key}">${assetLabels[key]}</option>`;
+            }
+
             const newRowHtml = `
                 <tr class="stock-plan-row bg-amber-50/30">
-                    <td class="px-3 py-2">
-                        <input type="text" placeholder="如: GOOG" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold">
-                    </td>
-                    <td class="px-3 py-2">
-                        <select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium">
-                            <option value="US">US</option>
-                            <option value="HK">HK</option>
-                            <option value="BOND_L">BOND_L</option>
-                            <option value="BOND_S">BOND_S</option>
-                            <option value="GOLD">GOLD</option>
-                        </select>
-                    </td>
-                    <td class="px-3 py-2">
-                        <input type="number" step="any" value="0" class="sp-weight w-24 p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"> %
-                    </td>
-                    <td class="px-3 py-2">
-                        <button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button>
-                    </td>
+                    <td class="px-3 py-2"><input type="text" placeholder="如: GOOG" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold"></td>
+                    <td class="px-3 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium">${optionsHtml}</select></td>
+                    <td class="px-3 py-2"><input type="number" step="any" value="0" class="sp-weight w-24 p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"> %</td>
+                    <td class="px-3 py-2"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
                 </tr>
             `;
-            
-            // 💡 關鍵修復：用 beforeend 插入，完全保留你之前喺畫面打咗嘅所有資料
             tbody.insertAdjacentHTML('beforeend', newRowHtml);
         }
 
-        // 將設定打包發送到 Google Sheet 雲端儲存
         async function saveAllSettings() {
-            updateStatus("🚀 正在儲存參數至雲端...", "loading");
+            updateStatus("🚀 正在儲存參數與隱藏設定至雲端...", "loading");
             
-            // 收集大類
             let newAssetPlan = {};
+            let newAssetHidden = {};
             document.querySelectorAll('.asset-plan-input').forEach(input => {
                 const asset = input.getAttribute('data-asset');
                 newAssetPlan[asset] = parseFloat(input.value) || 0;
             });
 
-            // 收集個股
+            document.querySelectorAll('.asset-hide-checkbox').forEach(cb => {
+                const asset = cb.getAttribute('data-asset');
+                newAssetHidden[asset] = cb.checked;
+            });
+
             let newStockPlan = [];
             document.querySelectorAll('.stock-plan-row').forEach(row => {
                 const code = row.querySelector('.sp-code').value.trim();
                 const market = row.querySelector('.sp-market').value;
                 const weight = parseFloat(row.querySelector('.sp-weight').value) || 0;
-                if (code) {
-                    newStockPlan.push({ code, market, target_weight: weight });
-                }
+                if (code) newStockPlan.push({ code, market, target_weight: weight });
             });
 
             try {
@@ -597,26 +605,22 @@
                     body: JSON.stringify({
                         action: "SAVE_SETTINGS",
                         assetPlan: newAssetPlan,
+                        assetHidden: newAssetHidden,
                         stockPlan: newStockPlan
                     })
                 });
 
-                // 回填本地數據
                 assetPlan = newAssetPlan;
+                assetHidden = newAssetHidden;
                 stockPlan = newStockPlan;
                 
-                updateStatus("✅ 計劃參數儲存成功！正在重新精算中...", "success");
-                setTimeout(async () => {
-                    await loadData();
-                    switchTab('dashboard-tab');
-                }, 1500);
+                updateStatus("✅ 配置參數已永久儲存！正在重新精算...", "success");
+                setTimeout(async () => { await loadData(); switchTab('dashboard-tab'); }, 1200);
             } catch(e) {
-                console.error(e);
                 updateStatus("❌ 參數儲存失敗", "error");
             }
         }
 
-        // 原有交易提交表單/刪除邏輯
         document.getElementById('txForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const submitBtn = document.getElementById('submitBtn');
@@ -639,15 +643,14 @@
                 await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(tx) });
                 transactions.unshift(tx);
                 renderComponents();
-                updateStatus("✅ 交易寫入成功！刷新報邊...", "success");
+                updateStatus("✅ 交易寫入成功！正在刷新即時報價...", "success");
                 document.getElementById('stockCode').value = '';
                 document.getElementById('txPrice').value = '';
                 document.getElementById('txQty').value = '';
                 document.getElementById('cashAmount').value = '';
                 setTimeout(loadData, 2000);
-            } catch (error) {
-                updateStatus("❌ 寫入失敗", "error");
-            } finally { submitBtn.disabled = false; }
+            } catch (error) { updateStatus("❌ 寫入失敗", "error"); }
+            finally { submitBtn.disabled = false; }
         });
 
         async function deleteTx(id) {
