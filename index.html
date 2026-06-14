@@ -184,7 +184,7 @@
                     <div class="md:col-span-2 bg-gray-50 p-5 rounded-xl border border-gray-200">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-bold text-gray-700 text-sm">🎯 2. 個股在所屬資產大類內部計劃佔比 (%)</h3>
-                            <button onclick="addStockPlanRow()" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">+ 新增計劃標的</button>
+                            <button type="button" onclick="addStockPlanRow()" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">+ 新增計劃標的</button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-left text-sm">
@@ -539,7 +539,7 @@
         function addStockPlanRow() {
             const tbody = document.getElementById('stockPlanSettingRows');
             
-            // ⭐ 安全修復：改用 HTML 範本區塊注入，避免使用 innerHTML += 導致原先輸入的文字被刷新抹除
+            // 使用 template string 建立新的一行
             const newRowHtml = `
                 <tr class="stock-plan-row bg-amber-50/30">
                     <td class="px-3 py-2">
@@ -558,12 +558,12 @@
                         <input type="number" step="any" value="0" class="sp-weight w-24 p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"> %
                     </td>
                     <td class="px-3 py-2">
-                        <button onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button>
+                        <button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button>
                     </td>
                 </tr>
             `;
             
-            // 插入到 tbody 的最後面，完全保留已有輸入框的用戶輸入狀態
+            // 💡 關鍵修復：用 beforeend 插入，完全保留你之前喺畫面打咗嘅所有資料
             tbody.insertAdjacentHTML('beforeend', newRowHtml);
         }
 
