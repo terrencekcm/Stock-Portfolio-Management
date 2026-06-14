@@ -443,11 +443,15 @@
                 const sPlanObj = stockPlan.find(s => s.code === p.code && s.market === p.market);
                 const assetPlannedWeight = sPlanObj ? sPlanObj.target_weight : 0;
 
-                // 💡 資產真實佔比 = 個股市值 / 所屬資產大類純證券市值 (不再受負數現金干擾，回歸純個股比重)
-                const assetClassTotalValue = assetRealValuesHkd[p.market] || 0;
-                const assetRealWeight = assetClassTotalValue > 0 ? (p.mktValHkd / assetClassTotalValue * 100) : 0;
+                // 💡 【核心修正】：資產真實佔比 = 個股市值 / 該資產大類的「計劃總規模 (全倉規模 * 大類計劃%)」
+                const assetPlanWeight = assetPlan[p.market] || 0;
+                const plannedAssetClassTotalHkd = totalAssetHkd * (assetPlanWeight / 100);
+                const assetRealWeight = plannedAssetClassTotalHkd > 0 ? (p.mktValHkd / plannedAssetClassTotalHkd * 100) : 0;
 
-                // 全倉真實佔比
+                // 🎯 【新增】：目標達成率 (建倉進度 %) = 資產真實佔比 / 資產計劃佔比
+                const progressPercent = assetPlannedWeight > 0 ? (assetRealWeight / assetPlannedWeight * 100) : 0;
+
+                // 全倉真實佔比 = 個股市值 / 總資產規模
                 const totalRealWeight = totalAssetHkd > 0 ? (p.mktValHkd / totalAssetHkd * 100) : 0;
                 const showMarketLabel = assetLabels[p.market] || p.market;
 
@@ -461,9 +465,16 @@
                         <td class="px-2 py-3 text-gray-500">${p.isPlannedOnly ? '---' : cSign + p.avgPrice.toFixed(2)}</td>
                         <td class="px-2 py-3 font-semibold">${cSign + (p.livePrice ? p.livePrice.toFixed(2) : '---')}</td>
                         <td class="px-2 py-3 font-medium">HKD $${p.mktValHkd.toLocaleString(undefined, {maximumFractionDigits:1})}</td>
+                        
                         <td class="px-1 py-3 font-bold text-blue-600 bg-blue-50/40">${assetPlannedWeight.toFixed(1)}%</td>
-                        <td class="px-1 py-3 font-bold text-indigo-600 bg-indigo-50/40">${assetRealWeight.toFixed(1)}%</td>
+                        
+                        <td class="px-1 py-3 font-bold text-indigo-600 bg-indigo-50/40">
+                            ${assetRealWeight.toFixed(1)}%
+                            ${assetPlannedWeight > 0 ? `<span class="text-[10px] block font-normal text-gray-500">進度: ${progressPercent.toFixed(1)}%</span>` : ''}
+                        </td>
+                        
                         <td class="px-1 py-3 font-bold text-emerald-600 bg-emerald-50/40">${totalRealWeight.toFixed(1)}%</td>
+                        
                         <td class="px-2 py-3 font-bold ${p.plHkd >= 0 ? 'text-emerald-600':'text-rose-600'}">${p.isPlannedOnly ? '---' : (p.plHkd >= 0 ? '+': '') + 'HKD $' + p.plHkd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                         <td class="px-1 py-3 text-gray-400">${p.isPlannedOnly ? '---' : p.holdingDays + '天'}</td>
                     </tr>
