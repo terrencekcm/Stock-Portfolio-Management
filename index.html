@@ -538,18 +538,33 @@
 
         function addStockPlanRow() {
             const tbody = document.getElementById('stockPlanSettingRows');
-            tbody.innerHTML += `
+            
+            // ⭐ 安全修復：改用 HTML 範本區塊注入，避免使用 innerHTML += 導致原先輸入的文字被刷新抹除
+            const newRowHtml = `
                 <tr class="stock-plan-row bg-amber-50/30">
-                    <td class="px-3 py-2"><input type="text" placeholder="如: GOOG" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold"></td>
+                    <td class="px-3 py-2">
+                        <input type="text" placeholder="如: GOOG" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold">
+                    </td>
                     <td class="px-3 py-2">
                         <select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium">
-                            <option value="US">US</option><option value="HK">HK</option><option value="BOND_L">BOND_L</option><option value="BOND_S">BOND_S</option><option value="GOLD">GOLD</option>
+                            <option value="US">US</option>
+                            <option value="HK">HK</option>
+                            <option value="BOND_L">BOND_L</option>
+                            <option value="BOND_S">BOND_S</option>
+                            <option value="GOLD">GOLD</option>
                         </select>
                     </td>
-                    <td class="px-3 py-2"><input type="number" step="any" value="0" class="sp-weight w-24 p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"> %</td>
-                    <td class="px-3 py-2"><button onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium">移除</button></td>
+                    <td class="px-3 py-2">
+                        <input type="number" step="any" value="0" class="sp-weight w-24 p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"> %
+                    </td>
+                    <td class="px-3 py-2">
+                        <button onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button>
+                    </td>
                 </tr>
             `;
+            
+            // 插入到 tbody 的最後面，完全保留已有輸入框的用戶輸入狀態
+            tbody.insertAdjacentHTML('beforeend', newRowHtml);
         }
 
         // 將設定打包發送到 Google Sheet 雲端儲存
