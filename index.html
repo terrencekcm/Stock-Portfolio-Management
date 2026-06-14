@@ -12,7 +12,7 @@
         <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">📊 全球資產配置與計劃管理系統</h1>
-                <p class="text-sm text-gray-500">宏觀大類資產動態平衡 & 個股三層權重追蹤</p>
+                <p class="text-sm text-gray-500">宏觀大類資產動態平衡 & 個股與板塊計劃追蹤</p>
             </div>
             <div class="flex items-center gap-3">
                 <nav class="flex bg-gray-100 p-1 rounded-lg text-sm font-medium">
@@ -31,7 +31,7 @@
                     <p id="headerCashDetail" class="text-xs text-gray-400">正在計算...</p>
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-indigo-500">
-                    <p class="text-sm text-gray-500 font-medium"> Bars 證券持倉總市值</p>
+                    <p class="text-sm text-gray-500 font-medium">📈 證券持倉總市值</p>
                     <p id="headerAllocation" class="text-2xl font-bold text-gray-800">$0.00</p>
                     <p id="headerTotalAsset" class="text-xs text-gray-400">正在計算...</p>
                 </div>
@@ -108,7 +108,7 @@
                             </div>
                             <div><label class="block text-sm font-medium text-gray-700">流動金額</label><input type="number" id="cashAmount" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
                         </div>
-                        <div><label class="block text-sm font-medium text-gray-700">異動日期</label><input type="date" id="txDate" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-gray-400" required></div>
+                        <div><label class="block text-sm font-medium text-gray-700">異動日期</label><input type="date" id="txDate" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500" required></div>
                         <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 font-medium disabled:bg-gray-400 cursor-pointer">儲存變更</button>
                     </form>
                 </div>
@@ -139,18 +139,20 @@
                     </div>
 
                     <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
-                        <h3 class="text-md font-bold text-gray-700 mb-3">🧱 美股持倉自定義板塊集中度 (Within US Portfolio)</h3>
+                        <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度 (Within Planned US Portfolio)</h3>
+                        <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模（全倉規模 × 美股計劃%）</p>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-left text-xs">
                                 <thead class="bg-gray-50 text-gray-500">
                                     <tr>
-                                        <th class="px-4 py-2">板塊分類名稱</th>
-                                        <th class="px-4 py-2">板塊總市值 (HKD)</th>
-                                        <th class="px-4 py-2">佔美股整體真實比重 %</th>
+                                        <th class="px-4 py-2.5">板塊分類名稱</th>
+                                        <th class="px-4 py-2.5 text-blue-600 font-bold">計劃分配比重 %</th>
+                                        <th class="px-4 py-2.5 text-indigo-600 font-bold">真實實際比重 %</th>
+                                        <th class="px-4 py-2.5">板塊當前總持倉市值 (HKD)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="sectorBreakdownTable" class="divide-y divide-gray-100 text-gray-800">
-                                    <tr><td colspan="3" class="px-4 py-3 text-center text-gray-400">正在統計美股持倉板塊...</td></tr>
+                                    <tr><td colspan="4" class="px-4 py-3 text-center text-gray-400">正在統計美股持倉板塊...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -210,7 +212,7 @@
                                         <th class="px-3 py-2">標的代號 (如: GOOG)</th>
                                         <th class="px-3 py-2">隸屬資產大類</th>
                                         <th class="px-3 py-2">大類內部計劃佔比 %</th>
-                                        <th class="px-3 py-2 text-amber-700">🏷️ 自定義板塊 (如: AI/晶片)</th>
+                                        <th class="px-3 py-2 text-amber-700">🏷️ 自定義板塊 (如: semiconductors)</th>
                                         <th class="px-3 py-2">操作</th>
                                     </tr>
                                 </thead>
@@ -224,7 +226,8 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzsDE79EEEn1EpdYYTg44A8HeXzIEXs1hpV4JSjQUXeWo8uzeucaKndIm-RWce_l3Gy/exec";
+        // ⚠️【重要】請將下方網址換成你在第一步重新部署後的 GAS Web App URL
+        const API_URL = "填入你個_GOOGLE_APPS_SCRIPT_URL_喺度";
 
         const assetLabels = {
             "US": "美股", "HK": "港股", "BOND_L": "US 長債", "BOND_S": "US 短債", "GOLD": "金", "CASH_TOTAL": "現金（HKD）"
@@ -344,9 +347,19 @@
             let assetRealValuesHkd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "CASH_TOTAL": 0 };
             let computedStocks = []; let totalStockMarketValueHkd = 0; let totalStockCostHkd = 0;
             
-            // ⭐ 用於計算美股內部的板塊分配統計數據
-            let usSectorMarketValues = {};
-            let totalActualUsStockValueHkd = 0;
+            // 💡 建立全新美股板塊統計物件結構
+            let usSectorsData = {};
+
+            // 💡 修正規則 A：從計劃書 (stockPlan) 先抓出所有美股板塊並加總「計劃比重」
+            stockPlan.forEach(s => {
+                if (s.market === 'US') {
+                    let sec = s.sector ? s.sector.trim() : "未分類";
+                    if (!usSectorsData[sec]) {
+                        usSectorsData[sec] = { plannedWeight: 0, actualValueHkd: 0 };
+                    }
+                    usSectorsData[sec].plannedWeight += parseFloat(s.target_weight) || 0;
+                }
+            });
 
             for (const code in positions) {
                 const p = positions[code];
@@ -366,12 +379,15 @@
 
                 computedStocks.push({ ...p, avgPrice, livePrice, mktValHkd, plHkd, holdingDays });
 
-                // ⭐ 核心板塊精算：如果是真實持有嘅「美股」，開始統計板塊市值
+                // 💡 修正規則 B：如果是真實持有嘅美股，將市值歸入對應板塊 (確保也容錯未分類股票)
                 if (p.market === 'US' && !p.isPlannedOnly && p.shares > 0) {
-                    totalActualUsStockValueHkd += mktValHkd;
                     let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
-                    let tagSector = (matchPlan && matchPlan.sector) ? matchPlan.sector : "未分類";
-                    usSectorMarketValues[tagSector] = (usSectorMarketValues[tagSector] || 0) + mktValHkd;
+                    let sec = (matchPlan && matchPlan.sector) ? matchPlan.sector.trim() : "未分類";
+                    
+                    if (!usSectorsData[sec]) {
+                        usSectorsData[sec] = { plannedWeight: 0, actualValueHkd: 0 };
+                    }
+                    usSectorsData[sec].actualValueHkd += mktValHkd;
                 }
             }
 
@@ -380,7 +396,7 @@
             assetRealValuesHkd["CASH_TOTAL"] = totalCashHkd;
             const totalAssetHkd = totalStockMarketValueHkd + totalCashHkd;
 
-            // 頂部儀表板渲染
+            // 頂部儀表板與大類資產渲染
             document.getElementById('headerCash').innerText = `HKD $${totalCashHkd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashDetail').innerText = `🇭🇰 HKD: $${(cashBalances['HK']||0).toLocaleString()} | 🇺🇸 USD: $${(cashBalances['US']||0).toLocaleString()}`;
             document.getElementById('headerAllocation').innerText = `HKD $${totalStockMarketValueHkd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
@@ -389,7 +405,6 @@
             document.getElementById('headerTotalPl').innerText = `${totalPlPercent >= 0 ? '+' : ''}${totalPlPercent.toFixed(2)}%`;
             document.getElementById('headerTotalPlHkd').innerText = `持倉未實現盈虧: HKD $${(totalStockMarketValueHkd - totalStockCostHkd).toLocaleString(undefined, {maximumFractionDigits:2})}`;
 
-            // 大類資產表格渲染
             const assetPlanTable = document.getElementById('assetPlanTable'); assetPlanTable.innerHTML = '';
             for (const ac in assetLabels) {
                 if (assetHidden[ac] === true) continue;
@@ -405,30 +420,37 @@
                     </tr>`;
             }
 
-            // ⭐ 渲染全新看板：「🧱 美股持倉自定義板塊集中度」
+            // 💡 修正規則 C：渲染板塊表格，分母改為「美股計劃總配額規模」
             const sectorTableBody = document.getElementById('sectorBreakdownTable');
             sectorTableBody.innerHTML = '';
-            const sectorKeys = Object.keys(usSectorMarketValues);
+            const sectorNames = Object.keys(usSectorsData);
             
-            if (sectorKeys.length === 0) {
-                sectorTableBody.innerHTML = `<tr><td colspan="3" class="px-4 py-3 text-center text-gray-400">目前美股持倉中沒有設定任何板塊數據</td></tr>`;
+            // 計算美股計劃倉位的總配額規模港幣 (例如 500,000 * 70% = 350,000)
+            const usAssetPlanWeight = assetPlan["US"] || 0;
+            const plannedUsTotalHkd = totalAssetHkd * (usAssetPlanWeight / 100);
+
+            if (sectorNames.length === 0) {
+                sectorTableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-center text-gray-400">目前美股持倉或計劃中沒有任何板塊數據</td></tr>`;
             } else {
-                // 按板塊市值從大到小排序
-                sectorKeys.sort((a, b) => usSectorMarketValues[b] - usSectorMarketValues[a]);
-                sectorKeys.forEach(sec => {
-                    const sVal = usSectorMarketValues[sec];
-                    // 分母精準定義為：美股純證券總市值 (p.market === 'US' 的持倉總和)
-                    const sWeight = totalActualUsStockValueHkd > 0 ? (sVal / totalActualUsStockValueHkd * 100) : 0;
+                // 照計劃配額從大到小排序
+                sectorNames.sort((a, b) => usSectorsData[b].plannedWeight - usSectorsData[a].plannedWeight);
+                
+                sectorNames.forEach(sec => {
+                    const data = usSectorsData[sec];
+                    // 核心精算：板塊持倉市值 / 美股計劃總配額
+                    const sActualWeight = plannedUsTotalHkd > 0 ? (data.actualValueHkd / plannedUsTotalHkd * 100) : 0;
+                    
                     sectorTableBody.innerHTML += `
                         <tr class="hover:bg-gray-50 border-b border-gray-100">
-                            <td class="px-4 py-2 font-bold text-gray-700">🏷️ ${sec}</td>
-                            <td class="px-4 py-2 font-medium">HKD $${sVal.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                            <td class="px-4 py-2 font-bold text-amber-600 bg-amber-50/20">${sWeight.toFixed(1)}%</td>
+                            <td class="px-4 py-2.5 font-bold text-gray-700">🏷️ ${sec}</td>
+                            <td class="px-4 py-2.5 font-bold text-blue-600 bg-blue-50/30">${data.plannedWeight.toFixed(1)}%</td>
+                            <td class="px-4 py-2.5 font-bold text-indigo-600 bg-indigo-50/30">${sActualWeight.toFixed(1)}%</td>
+                            <td class="px-4 py-2.5 text-gray-500 font-medium">HKD $${data.actualValueHkd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                         </tr>`;
                 });
             }
 
-            // 三層權重個股持倉表格渲染
+            // 三層權個股持倉表格渲染
             const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
                 const isUS = p.market === 'US'; const cSign = isUS ? 'USD $' : 'HKD $';
@@ -506,13 +528,12 @@
                     if (key === 'CASH_TOTAL') continue;
                     optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`;
                 }
-                // ⭐ 新增：渲染 sp-sector 欄位
                 tbody.innerHTML += `
                     <tr class="stock-plan-row">
                         <td class="px-3 py-2"><input type="text" value="${s.code}" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold"></td>
                         <td class="px-3 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium">${optionsHtml}</select></td>
                         <td class="px-3 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-24 p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"> %</td>
-                        <td class="px-3 py-2"><input type="text" value="${s.sector || '未分類'}" placeholder="例如: AI/晶片" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
+                        <td class="px-3 py-2"><input type="text" value="${s.sector || '未分類'}" placeholder="例如: semiconductors" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
                         <td class="px-3 py-2"><button onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium">移除</button></td>
                     </tr>`;
             });
@@ -528,13 +549,12 @@
             const tbody = document.getElementById('stockPlanSettingRows');
             let optionsHtml = '';
             for(const key in assetLabels) { if (key === 'CASH_TOTAL') continue; optionsHtml += `<option value="${key}">${assetLabels[key]}</option>`; }
-            // ⭐ 新增：增加 sp-sector 的輸入框範本
             const newRowHtml = `
                 <tr class="stock-plan-row bg-amber-50/30">
                     <td class="px-3 py-2"><input type="text" placeholder="如: GOOG" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold"></td>
                     <td class="px-3 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium">${optionsHtml}</select></td>
                     <td class="px-3 py-2"><input type="number" step="any" value="0" class="sp-weight w-24 p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"> %</td>
-                    <td class="px-3 py-2"><input type="text" placeholder="例如: 軟體/雲端" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
+                    <td class="px-3 py-2"><input type="text" placeholder="例如: semiconductors" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
                     <td class="px-3 py-2"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
                 </tr>`;
             tbody.insertAdjacentHTML('beforeend', newRowHtml);
@@ -551,7 +571,7 @@
                 const code = row.querySelector('.sp-code').value.trim();
                 const market = row.querySelector('.sp-market').value;
                 const weight = parseFloat(row.querySelector('.sp-weight').value) || 0;
-                const sector = row.querySelector('.sp-sector') ? row.querySelector('.sp-sector').value.trim() : "未分類"; // ⭐ 收集板塊文字
+                const sector = row.querySelector('.sp-sector') ? row.querySelector('.sp-sector').value.trim() : "未分類";
                 if (code) newStockPlan.push({ code, market, target_weight: weight, sector: sector });
             });
 
