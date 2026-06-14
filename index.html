@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票倉位管理 App (Google Sheet DB 版)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 font-sans p-6">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">📊 股票倉位管理系統</h1>
+                <p class="text-gray-600">數據已與 Google Sheet 雲端同步</p>
+            </div>
+            <div id="statusIndicator" class="text-sm px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 font-medium">
+                🔄 連線中...
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="bg-white p-6 rounded-lg shadow-md h-fit">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">✍️ 新增交易紀錄</h2>
+                <form id="txForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">股票代號</label>
+                        <input type="text" id="stockCode" placeholder="0700.HK, AAPL" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 focus:outline-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">交易類型</label>
+                        <select id="txType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 focus:outline-blue-500">
+                            <option value="BUY">🟢 買入 (BUY)</option>
+                            <option value="SELL">🔴 賣出 (SELL)</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">交易價格</label>
+                            <input type="number" id="txPrice" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 focus:outline-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">交易數量</label>
+                            <input type="number" id="txQty" step="any" placeholder="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 focus:outline-blue-500" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">交易日期</label>
+                        <input type="date" id="txDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 focus:outline-blue-500" required>
+                    </div>
+                    <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition font-medium disabled:bg-gray-400">儲存紀錄</button>
+                </form>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-700">💼 目前持倉 (Positions)</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 text-left">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">股票</th>
+                                    <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">持股量</th>
+                                    <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">平均成本</th>
+                                    <th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase">總投入金額</th>
+                                </tr>
+                            </thead>
+                            <tbody id="positionTable" class="divide-y divide-gray-200 text-sm text-gray-900"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-700">📜 歷史交易紀錄 (唯讀)</h2>
+                    <div class="overflow-x-auto max-h-60 overflow-y-auto">
+                        <table class="min-w-full divide-y divide-gray-200 text-left">
+                            <thead class="bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase">日期</th>
+                                    <th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase">股票</th>
+                                    <th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase">類型</th>
+                                    <th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase">價格</th>
+                                    <th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase">數量</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTable" class="divide-y divide-gray-200 text-sm text-gray-600"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ 【重要】請將下方網址換成你在第一步複製的 Google Apps Script Web App URL
+        const API_URL = "填入你個_GOOGLE_APPS_SCRIPT_URL_喺度";
+
+        let transactions = [];
+        document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
+
+        // 狀態顯示功能
+        function updateStatus(text, type) {
+            const el = document.getElementById('statusIndicator');
+            el.innerText = text;
+            el.className = `text-sm px-3 py-1 rounded-full font-medium ${
+                type === 'success' ? 'bg-green-100 text-green-800' :
+                type === 'error' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+            }`;
+        }
+
+        // 從 Google Sheet 載入數據
+        async function loadData() {
+            try {
+                updateStatus("🔄 讀取 Google Sheet 中...", "loading");
+                const response = await fetch(API_URL);
+                transactions = await response.json();
+                
+                // 排序：由新到舊
+                transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                renderComponents();
+                updateStatus("✅ 雲端已同步", "success");
+            } catch (err) {
+                console.error(err);
+                updateStatus("❌ 讀取失敗，請檢查 URL 設定", "error");
+            }
+        }
+
+        // 提交新交易去 Google Sheet
+        document.getElementById('txForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            updateStatus("🚀 正在寫入雲端...", "loading");
+
+            const tx = {
+                id: Date.now().toString(), // 轉字串方便傳輸
+                code: document.getElementById('stockCode').value.trim().toUpperCase(),
+                type: document.getElementById('txType').value,
+                price: document.getElementById('txPrice').value,
+                qty: document.getElementById('txQty').value,
+                date: document.getElementById('txDate').value
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    mode: "no-cors", // 解決 Apps Script 重新導向的跨網域問題
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(tx)
+                });
+
+                // 因為使用 no-cors，前端無法讀取 response body，但通常 200 狀態就代表寫入成功。
+                // 為了用戶體驗，我們先手動將新數據推入本地陣列，然後重新渲染。
+                transactions.unshift(tx); 
+                renderComponents();
+                
+                updateStatus("✅ 成功寫入 Google Sheet！", "success");
+                
+                // 清空輸入框
+                document.getElementById('txPrice').value = '';
+                document.getElementById('txQty').value = '';
+                
+                // 隔 3 秒後重新從雲端抓取最新狀態確保正確性
+                setTimeout(loadData, 2000);
+            } catch (error) {
+                console.error(error);
+                updateStatus("❌ 寫入失敗", "error");
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        // 計算持倉邏輯 (保持不變)
+        function calculatePositions() {
+            const positions = {};
+            const chronologicalTx = [...transactions].reverse();
+
+            chronologicalTx.forEach(t => {
+                if (!positions[t.code]) {
+                    positions[t.code] = { shares: 0, totalCost: 0, avgPrice: 0 };
+                }
+                const pos = positions[t.code];
+                const price = parseFloat(t.price);
+                const qty = parseFloat(t.qty);
+                
+                if (t.type === 'BUY') {
+                    pos.shares += qty;
+                    pos.totalCost += (qty * price);
+                    pos.avgPrice = pos.shares > 0 ? (pos.totalCost / pos.shares) : 0;
+                } else if (t.type === 'SELL') {
+                    pos.shares -= qty;
+                    if (pos.shares <= 0) {
+                        pos.shares = 0;
+                        pos.totalCost = 0;
+                        pos.avgPrice = 0;
+                    } else {
+                        pos.totalCost = pos.shares * pos.avgPrice;
+                    }
+                }
+            });
+            return positions;
+        }
+
+        // 渲染畫面
+        function renderComponents() {
+            const positions = calculatePositions();
+            
+            // 1. 持倉表格
+            const posTableBody = document.getElementById('positionTable');
+            posTableBody.innerHTML = '';
+            let hasPosition = false;
+            for (const code in positions) {
+                const pos = positions[code];
+                if (pos.shares > 0) {
+                    hasPosition = true;
+                    posTableBody.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-semibold text-blue-600">${code}</td>
+                            <td class="px-4 py-3">${pos.shares.toLocaleString()}</td>
+                            <td class="px-4 py-3">$${Number(pos.avgPrice).toFixed(2)}</td>
+                            <td class="px-4 py-3">$${Number(pos.totalCost).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        </tr>
+                    `;
+                }
+            }
+            if (!hasPosition) {
+                posTableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-center text-gray-400">暫無持倉紀錄</td></tr>`;
+            }
+
+            // 2. 歷史流水帳
+            const historyTableBody = document.getElementById('historyTable');
+            historyTableBody.innerHTML = '';
+            if (transactions.length === 0) {
+                historyTableBody.innerHTML = `<tr><td colspan="5" class="px-4 py-4 text-center text-gray-400">暫無交易歷史</td></tr>`;
+            } else {
+                transactions.forEach(t => {
+                    // 格式化日期（防止 Google Sheet 傳回時間戳格式）
+                    const dateStr = typeof t.date === 'string' ? t.date.split('T')[0] : new Date(t.date).toISOString().split('T')[0];
+                    const typeBadge = t.type === 'BUY' 
+                        ? `<span class="px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800">買入</span>`
+                        : `<span class="px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800">賣出</span>`;
+                    
+                    historyTableBody.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2">${dateStr}</td>
+                            <td class="px-4 py-2 font-medium">${t.code}</td>
+                            <td class="px-4 py-2">${typeBadge}</td>
+                            <td class="px-4 py-2">$${Number(t.price).toFixed(2)}</td>
+                            <td class="px-4 py-2">${Number(t.qty).toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // 初始化載入
+        loadData();
+    </script>
+</body>
+</html>
