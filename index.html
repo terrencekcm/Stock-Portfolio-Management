@@ -30,7 +30,7 @@
                 <p id="headerAllocation" class="text-2xl font-bold text-gray-800">0.0% / 0.0%</p>
                 <p id="headerTotalAsset" class="text-xs text-gray-400">總資產價值: HKD $0.00</p>
             </div>
-            <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-emerald-500" id="headerPlContainer">
+            <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-gray-400" id="headerPlContainer">
                 <p class="text-sm text-gray-500 font-medium">📈 整體持倉賺蝕 (%)</p>
                 <p id="headerTotalPl" class="text-2xl font-bold text-gray-800">0.00%</p>
                 <p id="headerTotalPlHkd" class="text-xs text-gray-400">未實現盈虧: HKD $0.00</p>
@@ -158,7 +158,7 @@
 
         let transactions = [];
         let prices = {};
-        let exchangeRate = 7.82; // 預設匯率
+        let exchangeRate = 7.82; 
 
         document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
 
@@ -194,7 +194,11 @@
                 prices = data.prices || {};
                 exchangeRate = data.exchangeRate || 7.82;
                 
-                transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                transactions.sort((a, b) => {
+                    if (!a.date || !b.date) return 0;
+                    return new Date(b.date) - new Date(a.date);
+                });
+
                 renderComponents();
                 updateStatus("✅ 雲端即時報價已同步", "success");
             } catch (err) {
@@ -241,7 +245,6 @@
                 renderComponents();
                 updateStatus("✅ 成功寫入！正在刷新即時報價...", "success");
                 
-                // 清空輸入
                 document.getElementById('stockCode').value = '';
                 document.getElementById('txPrice').value = '';
                 document.getElementById('txQty').value = '';
@@ -274,53 +277,64 @@
             }
         }
 
-        // 核心運算：計算現金、持倉、盈虧、持倉日數
         function calculatePortfolio() {
             let hkdCash = 0;
             let usdCash = 0;
             let positions = {};
 
-            // 按時間正序（從舊到新）模擬資產流向
             const chronological = [...transactions].reverse();
 
             chronological.forEach(t => {
+                if (!t.code) return; 
+
+                const codeStr = String(t.code).trim().toUpperCase();
+                const typeStr = String(t.type).trim().toUpperCase();
+                const marketStr = String(t.market).trim().toUpperCase();
+                
                 const price = parseFloat(t.price) || 0;
                 const qty = parseFloat(t.qty) || 0;
                 const totalAmount = price * qty;
 
-                if (t.code === 'CASH') {
-                    if (t.type === 'DEPOSIT') {
-                        if (t.market === 'US') usdCash += qty; else hkdCash += qty;
-                    } else if (t.type === 'WITHDRAW') {
-                        if (t.market === 'US') usdCash -= qty; else hkdCash -= qty;
+                if (codeStr === 'CASH') {
+                    if (typeStr === 'DEPOSIT') {
+                        if (marketStr === 'US') usdCash += qty; else hkdCash += qty;
+                    } else if (typeStr === 'WITHDRAW') {
+                        if (marketStr === 'US') usdCash -= qty; else hkdCash -= qty;
                     }
                 } else {
-                    // 股票帳務
-                    if (!positions[t.code]) {
-                        // 轉換成 Yahoo 格式
-                        let yahooSymbol = t.code.toUpperCase();
-                        if (t.market === 'HK') {
-                            if (/^\d+$/.test(yahooSymbol)) { while (yahooSymbol.length < 4) yahooSymbol = "0" + yahooSymbol; }
-                            if (!yahooSymbol.endsWith(".HK")) yahooSymbol += ".HK";
+                    if (!positions[codeStr]) {
+                        let yahooSymbol = codeStr;
+                        if (marketStr === 'HK') {
+                            var pureCode = yahooSymbol.replace(".HK", "").trim();
+                            if (/^\d+$/.test(pureCode)) { 
+                                while (pureCode.length < 4) pureCode = "0" + pureCode; 
+                                yahooSymbol = pureCode + ".HK";
+                            }
                         }
-                        positions[t.code] = { code: t.code, shares: 0, totalCost: 0, market: t.market, yahooSymbol: yahooSymbol, firstBuyDate: t.date };
+                        positions[codeStr] = { 
+                            code: codeStr, 
+                            shares: 0, 
+                            totalCost: 0, 
+                            market: marketStr, 
+                            yahooSymbol: yahooSymbol, 
+                            firstBuyDate: t.date 
+                        };
                     }
                     
-                    const pos = positions[t.code];
+                    const pos = positions[codeStr];
 
-                    if (t.type === 'BUY') {
+                    if (typeStr === 'BUY') {
                         pos.shares += qty;
                         pos.totalCost += totalAmount;
-                        if (t.market === 'US') usdCash -= totalAmount; else hkdCash -= totalAmount;
-                        // 紀錄最早持倉日數
+                        if (marketStr === 'US') usdCash -= totalAmount; else hkdCash -= totalAmount;
                         if (!pos.firstBuyDate || new Date(t.date) < new Date(pos.firstBuyDate)) pos.firstBuyDate = t.date;
-                    } else if (t.type === 'SELL') {
+                    } else if (typeStr === 'SELL') {
                         pos.shares -= qty;
-                        if (t.market === 'US') usdCash += totalAmount; else hkdCash += totalAmount;
+                        if (marketStr === 'US') usdCash += totalAmount; else hkdCash += totalAmount;
                         if (pos.shares <= 0) {
-                            delete positions[t.code]; // 平倉則移除該持倉
+                            delete positions[codeStr]; 
                         } else {
-                            pos.totalCost = pos.shares * (pos.totalCost / (pos.shares + qty)); // 等比例調整剩餘成本
+                            pos.totalCost = pos.shares * (pos.totalCost / (pos.shares + qty)); 
                         }
                     }
                 }
@@ -332,17 +346,13 @@
         function renderComponents() {
             const { hkdCash, usdCash, positions } = calculatePortfolio();
             
-            // 計算現金結餘 (HKD 總計)
             const totalCashHkd = hkdCash + (usdCash * exchangeRate);
             document.getElementById('headerCash').innerText = `HKD $${totalCashHkd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashDetail').innerText = `🇭🇰 HKD 現金: $${hkdCash.toLocaleString()} | 🇺🇸 USD 現金: $${usdCash.toLocaleString()}`;
 
-            // 計算股票持倉總市值與總投入成本 (換算為 HKD)
             let totalStockMarketValueHkd = 0;
             let totalStockCostHkd = 0;
-            let positionRowsHtml = '';
 
-            // 先整理出每家個股的即時運算數據
             let computedPositions = [];
             for (const code in positions) {
                 const pos = positions[code];
@@ -355,7 +365,6 @@
                 const totalCostHkdItem = pos.totalCost * rate;
                 const unrealizedPlHkd = currentMarketValueHkd - totalCostHkdItem;
 
-                // 計算持倉日數
                 const dayDiff = Math.floor((new Date() - new Date(pos.firstBuyDate)) / (1000 * 60 * 60 * 24));
                 const holdingDays = dayDiff < 0 ? 0 : dayDiff;
 
@@ -367,16 +376,13 @@
                 });
             }
 
-            // 總資產 = 股票總市值 + 現金總額
             const totalAssetHkd = totalStockMarketValueHkd + totalCashHkd;
             document.getElementById('headerTotalAsset').innerText = `總資產價值: HKD $${totalAssetHkd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
 
-            // 整個倉位佔比 (股票 % / 現金 %)
             const stockWeightAll = totalAssetHkd > 0 ? ((totalStockMarketValueHkd / totalAssetHkd) * 100).toFixed(1) : "0.0";
             const cashWeightAll = totalAssetHkd > 0 ? ((totalCashHkd / totalAssetHkd) * 100).toFixed(1) : "0.0";
             document.getElementById('headerAllocation').innerText = `${stockWeightAll}% / ${cashWeightAll}%`;
 
-            // 整體持倉賺蝕 %
             const totalUnrealizedPlHkd = totalStockMarketValueHkd - totalStockCostHkd;
             const totalPlPercent = totalStockCostHkd > 0 ? ((totalUnrealizedPlHkd / totalStockCostHkd) * 100) : 0;
             
@@ -384,7 +390,6 @@
             document.getElementById('headerTotalPl').innerText = plText;
             document.getElementById('headerTotalPlHkd').innerText = `未實現盈虧: HKD $${totalUnrealizedPlHkd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
             
-            // 頂欄賺蝕顏色渲染
             const plContainer = document.getElementById('headerPlContainer');
             if(totalUnrealizedPlHkd > 0) {
                 plContainer.className = "bg-white p-5 rounded-xl shadow-md border-l-4 border-emerald-500 text-emerald-600";
@@ -394,7 +399,6 @@
                 plContainer.className = "bg-white p-5 rounded-xl shadow-md border-l-4 border-gray-400 text-gray-800";
             }
 
-            // 渲染 6. Portfolio 個股表格
             const posTableBody = document.getElementById('positionTable');
             posTableBody.innerHTML = '';
             
@@ -424,27 +428,36 @@
                 });
             }
 
-            // 渲染歷史紀錄表格
             const historyTableBody = document.getElementById('historyTable');
             historyTableBody.innerHTML = '';
             if (transactions.length === 0) {
                 historyTableBody.innerHTML = `<tr><td colspan="7" class="px-3 py-4 text-center text-gray-400">暫無資產異動流水帳</td></tr>`;
             } else {
                 transactions.forEach(t => {
-                    const isCash = t.code === 'CASH';
-                    const isUS = t.market === 'US';
+                    if (!t.code) return;
+                    const codeStr = String(t.code).trim().toUpperCase();
+                    const typeStr = String(t.type).trim().toUpperCase();
+                    const marketStr = String(t.market).trim().toUpperCase();
+                    
+                    const isCash = codeStr === 'CASH';
+                    const isUS = marketStr === 'US';
                     const currency = isUS ? 'USD' : 'HKD';
                     
                     let actionBadge = '';
-                    if (t.type === 'BUY') actionBadge = `<span class="px-2 py-0.5 text-xs font-semibold rounded bg-green-100 text-green-800">買入</span>`;
-                    else if (t.type === 'SELL') actionBadge = `<span class="px-2 py-0.5 text-xs font-semibold rounded bg-red-100 text-red-800">賣出</span>`;
-                    else if (t.type === 'DEPOSIT') actionBadge = `<span class="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-100 text-emerald-800">存入現金</span>`;
-                    else if (t.type === 'WITHDRAW') actionBadge = `<span class="px-2 py-0.5 text-xs font-semibold rounded bg-orange-100 text-orange-800">提取現金</span>`;
+                    if (typeStr === 'BUY') actionBadge = `<span class="px-2 py-0.5 text-xs font-semibold rounded bg-green-100 text-green-800">買入</span>`;
+                    else if (typeStr === 'SELL') actionBadge = `<span class="px-2 py-0.5 text-xs font-semibold rounded bg-red-100 text-red-800">賣出</span>`;
+                    else if (typeStr === 'DEPOSIT') actionBadge = `<span class="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-100 text-emerald-800">存入現金</span>`;
+                    else if (typeStr === 'WITHDRAW') actionBadge = `<span class="px-2 py-0.5 text-xs font-semibold rounded bg-orange-100 text-orange-800">提取現金</span>`;
+
+                    let dateStr = '';
+                    try {
+                        dateStr = typeof t.date === 'string' ? t.date.split('T')[0] : new Date(t.date).toISOString().split('T')[0];
+                    } catch(e) { dateStr = t.date; }
 
                     historyTableBody.innerHTML += `
                         <tr class="hover:bg-gray-50 text-xs text-gray-600">
-                            <td class="px-3 py-2">${t.date}</td>
-                            <td class="px-3 py-2 font-bold text-gray-700">${isCash ? '💵 CASH' : t.code}</td>
+                            <td class="px-3 py-2">${dateStr}</td>
+                            <td class="px-3 py-2 font-bold text-gray-700">${isCash ? '💵 CASH' : codeStr}</td>
                             <td class="px-3 py-2 font-medium">${currency}</td>
                             <td class="px-3 py-2">${actionBadge}</td>
                             <td class="px-3 py-2">$${Number(t.price).toFixed(2)}</td>
@@ -458,7 +471,6 @@
             }
         }
 
-        // 初始化
         loadData();
     </script>
 </body>
