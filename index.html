@@ -108,7 +108,7 @@
                             </div>
                             <div><label class="block text-sm font-medium text-gray-700">流動金額</label><input type="number" id="cashAmount" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
                         </div>
-                        <div><label class="block text-sm font-medium text-gray-700">異動日期</label><input type="date" id="txDate" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500" required></div>
+                        <div><label class="block text-sm font-medium text-gray-700">異動日期</label><input type="date" id="txDate" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-gray-400" required></div>
                         <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 font-medium disabled:bg-gray-400 cursor-pointer">儲存變更</button>
                     </form>
                 </div>
@@ -138,9 +138,27 @@
                         </div>
                     </div>
 
+                    <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
+                        <h3 class="text-md font-bold text-gray-700 mb-3">🧱 美股持倉自定義板塊集中度 (Within US Portfolio)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-left text-xs">
+                                <thead class="bg-gray-50 text-gray-500">
+                                    <tr>
+                                        <th class="px-4 py-2">板塊分類名稱</th>
+                                        <th class="px-4 py-2">板塊總市值 (HKD)</th>
+                                        <th class="px-4 py-2">佔美股整體真實比重 %</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sectorBreakdownTable" class="divide-y divide-gray-100 text-gray-800">
+                                    <tr><td colspan="3" class="px-4 py-3 text-center text-gray-400">正在統計美股持倉板塊...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明細流水帳</h2>
-                        <div class="overflow-x-auto max-h-60 overflow-y-auto">
+                        <div class="overflow-x-auto max-h-48 overflow-y-auto">
                             <table class="min-w-full text-left text-xs text-gray-600">
                                 <thead class="bg-gray-50 sticky top-0 font-medium">
                                     <tr>
@@ -182,7 +200,7 @@
 
                     <div class="md:col-span-2 bg-gray-50 p-5 rounded-xl border border-gray-200">
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-gray-700 text-sm">🎯 2. 個股在所屬資產大類內部計劃佔比 (%)</h3>
+                            <h3 class="font-bold text-gray-700 text-sm">🎯 2. 個股在所屬資產大類內部計劃佔比 (%) ＆ 自定義板塊</h3>
                             <button type="button" onclick="addStockPlanRow()" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">+ 新增計劃標的</button>
                         </div>
                         <div class="overflow-x-auto">
@@ -192,6 +210,7 @@
                                         <th class="px-3 py-2">標的代號 (如: GOOG)</th>
                                         <th class="px-3 py-2">隸屬資產大類</th>
                                         <th class="px-3 py-2">大類內部計劃佔比 %</th>
+                                        <th class="px-3 py-2 text-amber-700">🏷️ 自定義板塊 (如: AI/晶片)</th>
                                         <th class="px-3 py-2">操作</th>
                                     </tr>
                                 </thead>
@@ -205,22 +224,13 @@
     </div>
 
     <script>
-        // ⚠️【重要】請替換為你的新版 GAS 部署應用程式 URL
-        const API_URL = "https://script.google.com/macros/s/AKfycbzsDE79EEEn1EpdYYTg44A8HeXzIEXs1hpV4JSjQUXeWo8uzeucaKndIm-RWce_l3Gy/exec";
+        const API_URL = "填入你個_GOOGLE_APPS_SCRIPT_URL_喺度";
 
-        // 全球統一中文化 Labels 映射對照表
         const assetLabels = {
-            "US": "美股",
-            "HK": "港股",
-            "BOND_L": "US 長債",
-            "BOND_S": "US 短債",
-            "GOLD": "金",
-            "CASH_TOTAL": "現金（HKD）"
+            "US": "美股", "HK": "港股", "BOND_L": "US 長債", "BOND_S": "US 短債", "GOLD": "金", "CASH_TOTAL": "現金（HKD）"
         };
 
-        let transactions = [];
-        let prices = {};
-        let exchangeRate = 7.82;
+        let transactions = []; let prices = {}; let exchangeRate = 7.82;
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
         let stockPlan = [];
@@ -267,40 +277,30 @@
                 updateStatus("🔄 讀取即時數據中...", "loading");
                 const response = await fetch(API_URL);
                 const data = await response.json();
-                
-                transactions = data.transactions || [];
-                prices = data.prices || {};
-                exchangeRate = data.exchangeRate || 7.82;
-                
-                // 讀取大類計劃與隱藏設定
+                transactions = data.transactions || []; prices = data.prices || {}; exchangeRate = data.exchangeRate || 7.82;
                 for (const key in assetLabels) {
                     if (data.assetPlan && data.assetPlan[key] !== undefined) assetPlan[key] = data.assetPlan[key];
                     assetHidden[key] = data.assetHidden && data.assetHidden[key] ? true : false;
                 }
                 stockPlan = data.stockPlan || [];
-                
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 renderComponents();
                 updateStatus("✅ 雲端配置與報價已同步", "success");
             } catch (err) {
-                console.error(err);
-                updateStatus("❌ 讀取失敗，請核對網址", "error");
+                console.error(err); updateStatus("❌ 讀取失敗，請核對網址", "error");
             }
         }
 
         function calculatePortfolio() {
             let cashBalances = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0 };
             let positions = {};
-
             const chronological = [...transactions].reverse();
             chronological.forEach(t => {
                 if (!t.code) return;
                 const codeStr = String(t.code).trim().toUpperCase();
                 const typeStr = String(t.type).trim().toUpperCase();
                 const marketStr = String(t.market).trim().toUpperCase();
-                const price = parseFloat(t.price) || 0;
-                const qty = parseFloat(t.qty) || 0;
-                const amt = price * qty;
+                const price = parseFloat(t.price) || 0; const qty = parseFloat(t.qty) || 0; const amt = price * qty;
 
                 if (codeStr === 'CASH') {
                     if (typeStr === 'DEPOSIT') cashBalances[marketStr] += qty;
@@ -310,219 +310,184 @@
                         let yahooSymbol = codeStr;
                         if (marketStr === 'HK') {
                             var pureCode = yahooSymbol.replace(".HK", "").trim();
-                            if (/^\d+$/.test(pureCode)) {
-                                while (pureCode.length < 4) pureCode = "0" + pureCode;
-                                yahooSymbol = pureCode + ".HK";
-                            }
+                            if (/^\d+$/.test(pureCode)) { while (pureCode.length < 4) pureCode = "0" + pureCode; yahooSymbol = pureCode + ".HK"; }
                         }
                         positions[codeStr] = { code: codeStr, shares: 0, totalCost: 0, market: marketStr, yahooSymbol: yahooSymbol, firstBuyDate: t.date, isPlannedOnly: false };
                     }
                     const pos = positions[codeStr];
                     if (typeStr === 'BUY') {
-                        pos.shares += qty;
-                        pos.totalCost += amt;
-                        cashBalances[marketStr] -= amt; // 消耗該市場的現金
+                        pos.shares += qty; pos.totalCost += amt; cashBalances[marketStr] -= amt;
                         if (!pos.firstBuyDate || new Date(t.date) < new Date(pos.firstBuyDate)) pos.firstBuyDate = t.date;
                     } else if (typeStr === 'SELL') {
-                        pos.shares -= qty;
-                        cashBalances[marketStr] += amt; // 回填該市場的現金
+                        pos.shares -= qty; cashBalances[marketStr] += amt;
                         if (pos.shares <= 0) delete positions[codeStr];
                         else pos.totalCost = pos.shares * (pos.totalCost / (pos.shares + qty));
                     }
                 }
             });
 
-            // 觀察名單強制注入
             stockPlan.forEach(s => {
                 if (!positions[s.code]) {
                     let yahooSymbol = s.code;
                     if (s.market === 'HK') {
                         var pureCode = yahooSymbol.replace(".HK", "").trim();
-                        if (/^\d+$/.test(pureCode)) {
-                            while (pureCode.length < 4) pureCode = "0" + pureCode;
-                            yahooSymbol = pureCode + ".HK";
-                        }
+                        if (/^\d+$/.test(pureCode)) { while (pureCode.length < 4) pureCode = "0" + pureCode; yahooSymbol = pureCode + ".HK"; }
                     }
                     positions[s.code] = { code: s.code, shares: 0, totalCost: 0, market: s.market, yahooSymbol: yahooSymbol, firstBuyDate: '---', isPlannedOnly: true };
                 }
             });
-
             return { cashBalances, positions };
         }
 
         function renderComponents() {
             const { cashBalances, positions } = calculatePortfolio();
-            
-            // ⭐ 核心運算重構：大類重組，股票與現金完全解耦
             let assetRealValuesHkd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "CASH_TOTAL": 0 };
+            let computedStocks = []; let totalStockMarketValueHkd = 0; let totalStockCostHkd = 0;
             
-            let computedStocks = [];
-            let totalStockMarketValueHkd = 0;
-            let totalStockCostHkd = 0;
+            // ⭐ 用於計算美股內部的板塊分配統計數據
+            let usSectorMarketValues = {};
+            let totalActualUsStockValueHkd = 0;
 
             for (const code in positions) {
                 const p = positions[code];
                 const livePrice = prices[p.yahooSymbol] || 0;
                 const rate = (p.market === 'US') ? exchangeRate : 1;
-                
                 const avgPrice = p.shares > 0 ? (p.totalCost / p.shares) : 0;
                 const mktValHkd = p.shares * livePrice * rate;
-                const costHkd = p.totalCost * rate;
-                const plHkd = mktValHkd - costHkd;
+                const costHkd = p.totalCost * rate; const plHkd = mktValHkd - costHkd;
 
                 let holdingDays = 0;
                 if(p.firstBuyDate !== '---') {
-                    const diff = Math.floor((new Date() - new Date(p.firstBuyDate)) / (1000 * 60 * 60 * 24));
-                    holdingDays = diff < 0 ? 0 : diff;
+                    const diff = Math.floor((new Date() - new Date(p.firstBuyDate)) / (1000 * 60 * 60 * 24)); holdingDays = diff < 0 ? 0 : diff;
                 }
 
-                // 💡 股票大類只累加純股票市值，不再包含現金
                 assetRealValuesHkd[p.market] += mktValHkd;
-
-                totalStockMarketValueHkd += mktValHkd;
-                totalStockCostHkd += costHkd;
+                totalStockMarketValueHkd += mktValHkd; totalStockCostHkd += costHkd;
 
                 computedStocks.push({ ...p, avgPrice, livePrice, mktValHkd, plHkd, holdingDays });
+
+                // ⭐ 核心板塊精算：如果是真實持有嘅「美股」，開始統計板塊市值
+                if (p.market === 'US' && !p.isPlannedOnly && p.shares > 0) {
+                    totalActualUsStockValueHkd += mktValHkd;
+                    let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
+                    let tagSector = (matchPlan && matchPlan.sector) ? matchPlan.sector : "未分類";
+                    usSectorMarketValues[tagSector] = (usSectorMarketValues[tagSector] || 0) + mktValHkd;
+                }
             }
 
-            // 💡 所有的現金庫存（美金及港幣等）全數歸入獨立的 CASH_TOTAL 大類
             let totalCashHkd = 0;
-            for (const mkt in cashBalances) {
-                const rate = (mkt === 'US') ? exchangeRate : 1;
-                const cashHkd = cashBalances[mkt] * rate;
-                totalCashHkd += cashHkd;
-            }
+            for (const mkt in cashBalances) { totalCashHkd += (cashBalances[mkt] * ((mkt === 'US') ? exchangeRate : 1)); }
             assetRealValuesHkd["CASH_TOTAL"] = totalCashHkd;
-
-            // 總資產淨值 (NAV)
             const totalAssetHkd = totalStockMarketValueHkd + totalCashHkd;
 
-            // 渲染頂部 Dashboard 看板
+            // 頂部儀表板渲染
             document.getElementById('headerCash').innerText = `HKD $${totalCashHkd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashDetail').innerText = `🇭🇰 HKD: $${(cashBalances['HK']||0).toLocaleString()} | 🇺🇸 USD: $${(cashBalances['US']||0).toLocaleString()}`;
             document.getElementById('headerAllocation').innerText = `HKD $${totalStockMarketValueHkd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
             document.getElementById('headerTotalAsset').innerText = `總資產規模價值 (NAV): HKD $${totalAssetHkd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
-
             const totalPlPercent = totalStockCostHkd > 0 ? ((totalStockMarketValueHkd - totalStockCostHkd) / totalStockCostHkd * 100) : 0;
             document.getElementById('headerTotalPl').innerText = `${totalPlPercent >= 0 ? '+' : ''}${totalPlPercent.toFixed(2)}%`;
             document.getElementById('headerTotalPlHkd').innerText = `持倉未實現盈虧: HKD $${(totalStockMarketValueHkd - totalStockCostHkd).toLocaleString(undefined, {maximumFractionDigits:2})}`;
 
-            // 渲染「🌍 宏觀資產大類計劃偏離度表格」
-            const assetPlanTable = document.getElementById('assetPlanTable');
-            assetPlanTable.innerHTML = '';
-            
+            // 大類資產表格渲染
+            const assetPlanTable = document.getElementById('assetPlanTable'); assetPlanTable.innerHTML = '';
             for (const ac in assetLabels) {
-                // 👁️ 隱藏核心功能：如果使用者在設定頁剔選了隱藏，直接不渲染該行
                 if (assetHidden[ac] === true) continue;
-
-                const pWeight = assetPlan[ac] || 0;
-                const rVal = assetRealValuesHkd[ac] || 0;
-                const rWeight = totalAssetHkd > 0 ? (rVal / totalAssetHkd * 100) : 0;
-                const deviation = rWeight - pWeight;
-                const showLabel = assetLabels[ac]; // 顯示中文化名稱
-
+                const pWeight = assetPlan[ac] || 0; const rVal = assetRealValuesHkd[ac] || 0;
+                const rWeight = totalAssetHkd > 0 ? (rVal / totalAssetHkd * 100) : 0; const deviation = rWeight - pWeight;
                 assetPlanTable.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100">
-                        <td class="px-4 py-2.5 font-bold text-gray-800">${showLabel}</td>
+                        <td class="px-4 py-2.5 font-bold text-gray-800">${assetLabels[ac]}</td>
                         <td class="px-4 py-2.5 font-semibold text-blue-600">${pWeight.toFixed(1)}%</td>
                         <td class="px-4 py-2.5 font-semibold text-indigo-600">${rWeight.toFixed(1)}%</td>
                         <td class="px-4 py-2.5 font-bold ${deviation >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}%</td>
                         <td class="px-4 py-2.5 text-gray-500">HKD $${rVal.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                    </tr>
-                `;
+                    </tr>`;
             }
 
-            // 渲染「💼 目前證券持倉與觀察名單」
-            const posTableBody = document.getElementById('positionTable');
-            posTableBody.innerHTML = '';
+            // ⭐ 渲染全新看板：「🧱 美股持倉自定義板塊集中度」
+            const sectorTableBody = document.getElementById('sectorBreakdownTable');
+            sectorTableBody.innerHTML = '';
+            const sectorKeys = Object.keys(usSectorMarketValues);
+            
+            if (sectorKeys.length === 0) {
+                sectorTableBody.innerHTML = `<tr><td colspan="3" class="px-4 py-3 text-center text-gray-400">目前美股持倉中沒有設定任何板塊數據</td></tr>`;
+            } else {
+                // 按板塊市值從大到小排序
+                sectorKeys.sort((a, b) => usSectorMarketValues[b] - usSectorMarketValues[a]);
+                sectorKeys.forEach(sec => {
+                    const sVal = usSectorMarketValues[sec];
+                    // 分母精準定義為：美股純證券總市值 (p.market === 'US' 的持倉總和)
+                    const sWeight = totalActualUsStockValueHkd > 0 ? (sVal / totalActualUsStockValueHkd * 100) : 0;
+                    sectorTableBody.innerHTML += `
+                        <tr class="hover:bg-gray-50 border-b border-gray-100">
+                            <td class="px-4 py-2 font-bold text-gray-700">🏷️ ${sec}</td>
+                            <td class="px-4 py-2 font-medium">HKD $${sVal.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                            <td class="px-4 py-2 font-bold text-amber-600 bg-amber-50/20">${sWeight.toFixed(1)}%</td>
+                        </tr>`;
+                });
+            }
 
+            // 三層權重個股持倉表格渲染
+            const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
-                const isUS = p.market === 'US';
-                const cSign = isUS ? 'USD $' : 'HKD $';
-                
+                const isUS = p.market === 'US'; const cSign = isUS ? 'USD $' : 'HKD $';
                 const sPlanObj = stockPlan.find(s => s.code === p.code && s.market === p.market);
                 const assetPlannedWeight = sPlanObj ? sPlanObj.target_weight : 0;
 
-                // 💡 【核心修正】：資產真實佔比 = 個股市值 / 該資產大類的「計劃總規模 (全倉規模 * 大類計劃%)」
                 const assetPlanWeight = assetPlan[p.market] || 0;
                 const plannedAssetClassTotalHkd = totalAssetHkd * (assetPlanWeight / 100);
                 const assetRealWeight = plannedAssetClassTotalHkd > 0 ? (p.mktValHkd / plannedAssetClassTotalHkd * 100) : 0;
-
-                // 🎯 【新增】：目標達成率 (建倉進度 %) = 資產真實佔比 / 資產計劃佔比
                 const progressPercent = assetPlannedWeight > 0 ? (assetRealWeight / assetPlannedWeight * 100) : 0;
-
-                // 全倉真實佔比 = 個股市值 / 總資產規模
                 const totalRealWeight = totalAssetHkd > 0 ? (p.mktValHkd / totalAssetHkd * 100) : 0;
-                const showMarketLabel = assetLabels[p.market] || p.market;
 
                 posTableBody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100 ${p.isPlannedOnly ? 'bg-amber-50/40 opacity-70' : ''}">
-                        <td class="px-2 py-3 font-bold text-blue-700">
-                            ${p.code} ${p.isPlannedOnly ? '<span class="text-[10px] block font-normal text-amber-600">[觀察名單]</span>' : ''}
-                        </td>
-                        <td class="px-2 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-700">${showMarketLabel}</span></td>
+                        <td class="px-2 py-3 font-bold text-blue-700">${p.code} ${p.isPlannedOnly ? '<span class="text-[10px] block font-normal text-amber-600">[觀察名單]</span>' : ''}</td>
+                        <td class="px-2 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-700">${assetLabels[p.market]||p.market}</span></td>
                         <td class="px-2 py-3 font-semibold">${p.shares.toLocaleString()}</td>
                         <td class="px-2 py-3 text-gray-500">${p.isPlannedOnly ? '---' : cSign + p.avgPrice.toFixed(2)}</td>
                         <td class="px-2 py-3 font-semibold">${cSign + (p.livePrice ? p.livePrice.toFixed(2) : '---')}</td>
                         <td class="px-2 py-3 font-medium">HKD $${p.mktValHkd.toLocaleString(undefined, {maximumFractionDigits:1})}</td>
-                        
                         <td class="px-1 py-3 font-bold text-blue-600 bg-blue-50/40">${assetPlannedWeight.toFixed(1)}%</td>
-                        
-                        <td class="px-1 py-3 font-bold text-indigo-600 bg-indigo-50/40">
-                            ${assetRealWeight.toFixed(1)}%
-                            ${assetPlannedWeight > 0 ? `<span class="text-[10px] block font-normal text-gray-500">進度: ${progressPercent.toFixed(1)}%</span>` : ''}
-                        </td>
-                        
+                        <td class="px-1 py-3 font-bold text-indigo-600 bg-indigo-50/40">${assetRealWeight.toFixed(1)}% ${assetPlannedWeight > 0 ? `<span class="text-[10px] block font-normal text-gray-500">進度: ${progressPercent.toFixed(1)}%</span>` : ''}</td>
                         <td class="px-1 py-3 font-bold text-emerald-600 bg-emerald-50/40">${totalRealWeight.toFixed(1)}%</td>
-                        
                         <td class="px-2 py-3 font-bold ${p.plHkd >= 0 ? 'text-emerald-600':'text-rose-600'}">${p.isPlannedOnly ? '---' : (p.plHkd >= 0 ? '+': '') + 'HKD $' + p.plHkd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                         <td class="px-1 py-3 text-gray-400">${p.isPlannedOnly ? '---' : p.holdingDays + '天'}</td>
-                    </tr>
-                `;
+                    </tr>`;
             });
-
             renderHistoryRows();
         }
 
         function renderHistoryRows() {
-            const historyTableBody = document.getElementById('historyTable');
-            historyTableBody.innerHTML = '';
+            const historyTableBody = document.getElementById('historyTable'); historyTableBody.innerHTML = '';
             transactions.forEach(t => {
                 if(!t.code) return;
                 let badge = t.type === 'BUY' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
                 if(t.type === 'DEPOSIT') badge = 'bg-emerald-100 text-emerald-800';
                 if(t.type === 'WITHDRAW') badge = 'bg-orange-100 text-orange-800';
-                const showMkt = assetLabels[t.market] || t.market;
-                
                 historyTableBody.innerHTML += `
                     <tr class="border-b border-gray-100 hover:bg-gray-50">
                         <td class="px-3 py-1.5">${t.date}</td>
                         <td class="px-3 py-1.5 font-bold">${t.code === 'CASH' ? '💵 現金流水' : t.code}</td>
-                        <td class="px-3 py-1.5 font-medium text-gray-500">${showMkt}</td>
+                        <td class="px-3 py-1.5 font-medium text-gray-500">${assetLabels[t.market]||t.market}</td>
                         <td class="px-3 py-1.5"><span class="px-1.5 py-0.5 rounded font-semibold ${badge}">${t.type}</span></td>
                         <td class="px-3 py-1.5">$${Number(t.price).toFixed(2)}</td>
                         <td class="px-3 py-1.5">${Number(t.qty).toLocaleString()}</td>
                         <td class="px-3 py-1.5"><button onclick="deleteTx('${t.id}')" class="text-red-500 hover:underline">刪除</button></td>
-                    </tr>
-                `;
+                    </tr>`;
             });
         }
 
-        // ⚙️ 渲染設定頁面（加入顯示/隱藏核取方塊）
         function renderSettingsPage() {
-            const container = document.getElementById('assetSettingInputs');
-            container.innerHTML = '';
+            const container = document.getElementById('assetSettingInputs'); container.innerHTML = '';
             let total = 0;
-            
             for (const ac in assetLabels) {
-                total += assetPlan[ac] || 0;
-                const isChecked = assetHidden[ac] ? 'checked' : '';
-                const showName = assetLabels[ac];
-
+                total += assetPlan[ac] || 0; const isChecked = assetHidden[ac] ? 'checked' : '';
                 container.innerHTML += `
                     <div class="flex flex-col bg-white p-3 rounded-lg shadow-sm gap-2 border border-gray-100">
                         <div class="flex justify-between items-center">
-                            <span class="font-bold text-gray-800">${showName}</span>
+                            <span class="font-bold text-gray-800">${assetLabels[ac]}</span>
                             <label class="inline-flex items-center text-xs text-gray-500 cursor-pointer select-none">
                                 <input type="checkbox" data-asset="${ac}" class="asset-hide-checkbox mr-1" ${isChecked}> 👁️ 隱藏此資產
                             </label>
@@ -530,138 +495,94 @@
                         <div class="flex items-center justify-end gap-1">
                             <input type="number" step="any" value="${assetPlan[ac] || 0}" data-asset="${ac}" onchange="checkAssetTotal()" class="asset-plan-input w-24 text-right rounded border border-gray-300 p-1 font-semibold text-blue-600 focus:outline-blue-500"> %
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }
             document.getElementById('assetTotalCheck').innerText = `總計: ${total.toFixed(1)}%`;
 
-            // 渲染個股計劃
-            const tbody = document.getElementById('stockPlanSettingRows');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('stockPlanSettingRows'); tbody.innerHTML = '';
             stockPlan.forEach((s, index) => {
                 let optionsHtml = '';
                 for(const key in assetLabels) {
-                    if (key === 'CASH_TOTAL') continue; // 個股不可以隸屬於現金大類
+                    if (key === 'CASH_TOTAL') continue;
                     optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`;
                 }
-
+                // ⭐ 新增：渲染 sp-sector 欄位
                 tbody.innerHTML += `
                     <tr class="stock-plan-row">
                         <td class="px-3 py-2"><input type="text" value="${s.code}" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold"></td>
-                        <td class="px-3 py-2">
-                            <select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium">${optionsHtml}</select>
-                        </td>
+                        <td class="px-3 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium">${optionsHtml}</select></td>
                         <td class="px-3 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-24 p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"> %</td>
+                        <td class="px-3 py-2"><input type="text" value="${s.sector || '未分類'}" placeholder="例如: AI/晶片" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
                         <td class="px-3 py-2"><button onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium">移除</button></td>
-                    </tr>
-                `;
+                    </tr>`;
             });
         }
 
         function checkAssetTotal() {
-            let total = 0;
-            document.querySelectorAll('.asset-plan-input').forEach(input => { total += parseFloat(input.value) || 0; });
-            const indicator = document.getElementById('assetTotalCheck');
-            indicator.innerText = `總計: ${total.toFixed(1)}%`;
+            let total = 0; document.querySelectorAll('.asset-plan-input').forEach(input => { total += parseFloat(input.value) || 0; });
+            const indicator = document.getElementById('assetTotalCheck'); indicator.innerText = `總計: ${total.toFixed(1)}%`;
             indicator.className = Math.abs(total - 100) < 0.01 ? "text-xs text-emerald-600 font-bold" : "text-xs text-rose-500 font-bold animate-pulse";
         }
 
         function addStockPlanRow() {
             const tbody = document.getElementById('stockPlanSettingRows');
             let optionsHtml = '';
-            for(const key in assetLabels) {
-                if (key === 'CASH_TOTAL') continue;
-                optionsHtml += `<option value="${key}">${assetLabels[key]}</option>`;
-            }
-
+            for(const key in assetLabels) { if (key === 'CASH_TOTAL') continue; optionsHtml += `<option value="${key}">${assetLabels[key]}</option>`; }
+            // ⭐ 新增：增加 sp-sector 的輸入框範本
             const newRowHtml = `
                 <tr class="stock-plan-row bg-amber-50/30">
                     <td class="px-3 py-2"><input type="text" placeholder="如: GOOG" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold"></td>
                     <td class="px-3 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium">${optionsHtml}</select></td>
                     <td class="px-3 py-2"><input type="number" step="any" value="0" class="sp-weight w-24 p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"> %</td>
+                    <td class="px-3 py-2"><input type="text" placeholder="例如: 軟體/雲端" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
                     <td class="px-3 py-2"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
-                </tr>
-            `;
+                </tr>`;
             tbody.insertAdjacentHTML('beforeend', newRowHtml);
         }
 
         async function saveAllSettings() {
-            updateStatus("🚀 正在儲存參數與隱藏設定至雲端...", "loading");
-            
-            let newAssetPlan = {};
-            let newAssetHidden = {};
-            document.querySelectorAll('.asset-plan-input').forEach(input => {
-                const asset = input.getAttribute('data-asset');
-                newAssetPlan[asset] = parseFloat(input.value) || 0;
-            });
-
-            document.querySelectorAll('.asset-hide-checkbox').forEach(cb => {
-                const asset = cb.getAttribute('data-asset');
-                newAssetHidden[asset] = cb.checked;
-            });
+            updateStatus("🚀 正在儲存參數、隱藏與板塊設定至雲端...", "loading");
+            let newAssetPlan = {}; let newAssetHidden = {};
+            document.querySelectorAll('.asset-plan-input').forEach(input => { newAssetPlan[input.getAttribute('data-asset')] = parseFloat(input.value) || 0; });
+            document.querySelectorAll('.asset-hide-checkbox').forEach(cb => { newAssetHidden[cb.getAttribute('data-asset')] = cb.checked; });
 
             let newStockPlan = [];
             document.querySelectorAll('.stock-plan-row').forEach(row => {
                 const code = row.querySelector('.sp-code').value.trim();
                 const market = row.querySelector('.sp-market').value;
                 const weight = parseFloat(row.querySelector('.sp-weight').value) || 0;
-                if (code) newStockPlan.push({ code, market, target_weight: weight });
+                const sector = row.querySelector('.sp-sector') ? row.querySelector('.sp-sector').value.trim() : "未分類"; // ⭐ 收集板塊文字
+                if (code) newStockPlan.push({ code, market, target_weight: weight, sector: sector });
             });
 
             try {
                 await fetch(API_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        action: "SAVE_SETTINGS",
-                        assetPlan: newAssetPlan,
-                        assetHidden: newAssetHidden,
-                        stockPlan: newStockPlan
-                    })
+                    method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "SAVE_SETTINGS", assetPlan: newAssetPlan, assetHidden: newAssetHidden, stockPlan: newStockPlan })
                 });
-
-                assetPlan = newAssetPlan;
-                assetHidden = newAssetHidden;
-                stockPlan = newStockPlan;
-                
-                updateStatus("✅ 配置參數已永久儲存！正在重新精算...", "success");
+                assetPlan = newAssetPlan; assetHidden = newAssetHidden; stockPlan = newStockPlan;
+                updateStatus("✅ 所有參數與板塊已永久保存！正在刷新精算...", "success");
                 setTimeout(async () => { await loadData(); switchTab('dashboard-tab'); }, 1200);
-            } catch(e) {
-                updateStatus("❌ 參數儲存失敗", "error");
-            }
+            } catch(e) { updateStatus("❌ 參數儲存失敗", "error"); }
         }
 
         document.getElementById('txForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
+            e.preventDefault(); const submitBtn = document.getElementById('submitBtn'); submitBtn.disabled = true;
             updateStatus("🚀 正在寫入交易紀錄...", "loading");
-
             const category = document.getElementById('txCategory').value;
             let tx = { id: Date.now().toString(), date: document.getElementById('txDate').value, market: document.getElementById('txMarket').value };
-
             if (category === 'STOCK') {
-                tx.code = document.getElementById('stockCode').value.trim().toUpperCase();
-                tx.type = document.getElementById('stockType').value;
-                tx.price = document.getElementById('txPrice').value;
-                tx.qty = document.getElementById('txQty').value;
+                tx.code = document.getElementById('stockCode').value.trim().toUpperCase(); tx.type = document.getElementById('stockType').value;
+                tx.price = document.getElementById('txPrice').value; tx.qty = document.getElementById('txQty').value;
             } else {
                 tx.code = 'CASH'; tx.type = document.getElementById('cashType').value; tx.price = '1'; tx.qty = document.getElementById('cashAmount').value;
             }
-
             try {
                 await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(tx) });
-                transactions.unshift(tx);
-                renderComponents();
-                updateStatus("✅ 交易寫入成功！正在刷新即時報價...", "success");
-                document.getElementById('stockCode').value = '';
-                document.getElementById('txPrice').value = '';
-                document.getElementById('txQty').value = '';
-                document.getElementById('cashAmount').value = '';
+                transactions.unshift(tx); renderComponents(); updateStatus("✅ 交易寫入成功！正在刷新...", "success");
+                document.getElementById('stockCode').value = ''; document.getElementById('txPrice').value = ''; document.getElementById('txQty').value = ''; document.getElementById('cashAmount').value = '';
                 setTimeout(loadData, 2000);
-            } catch (error) { updateStatus("❌ 寫入失敗", "error"); }
-            finally { submitBtn.disabled = false; }
+            } catch (error) { updateStatus("❌ 寫入失敗", "error"); } finally { submitBtn.disabled = false; }
         });
 
         async function deleteTx(id) {
@@ -669,10 +590,8 @@
             updateStatus("🗑️ 正在刪除交易...", "loading");
             try {
                 await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "DELETE", id: id }) });
-                transactions = transactions.filter(t => t.id.toString() !== id.toString());
-                renderComponents();
-                updateStatus("✅ 刪除成功", "success");
-                setTimeout(loadData, 2000);
+                transactions = transactions.filter(t => t.id.toString() !== id.toString()); renderComponents();
+                updateStatus("✅ 刪除成功", "success"); setTimeout(loadData, 2000);
             } catch (error) { updateStatus("❌ 刪除失敗", "error"); }
         }
 
