@@ -5,10 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>全球資產配置與計劃管理系統</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="bg-gray-100 font-sans p-6">
 
-    <div class="max-w-7xl mx-auto">
+    <div id="loginWall" class="fixed inset-0 bg-gray-900 flex flex-col justify-center items-center z-50 p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
+            <div class="space-y-2">
+                <h2 class="text-2xl font-bold text-gray-800">🔐 團隊資產管理系統</h2>
+                <p class="text-sm text-gray-400">本系統採用雲端安全防禦，請使用白名單內的 Google 帳戶登入解鎖</p>
+            </div>
+            
+            <div class="flex justify-center">
+                <div id="g_id_onload"
+                     data-client_id="901048418276-gdlfkmis0orcs6b9jbpqceuqupk8b2ht.apps.googleusercontent.com"
+                     data-callback="handleCredentialResponse"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-shape="pill"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainApp" class="max-w-7xl mx-auto hidden">
         <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">📊 全球資產配置與計劃管理系統</h1>
@@ -16,8 +35,8 @@
             </div>
             <div class="flex items-center gap-3">
                 <nav class="flex bg-gray-100 p-1 rounded-lg text-sm font-medium">
-                    <button onclick="switchTab('dashboard-tab')" id="btn-dashboard-tab" class="px-4 py-2 rounded-md bg-white shadow-sm text-blue-600">📊 投資儀表板</button>
-                    <button onclick="switchTab('settings-tab')" id="btn-settings-tab" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900">⚙️ 配置計劃設定</button>
+                    <button id="btn-dashboard-tab" onclick="switchTab('dashboard-tab')" class="px-4 py-2 rounded-md bg-white shadow-sm text-blue-600">📊 投資儀表板</button>
+                    <button id="btn-settings-tab" onclick="switchTab('settings-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900">⚙️ 配置計劃設定</button>
                 </nav>
                 <div id="statusIndicator" class="text-xs px-3 py-2 rounded-full bg-yellow-100 text-yellow-800 font-medium">🔄 同步中...</div>
             </div>
@@ -72,7 +91,7 @@
                     </div>
                     <form id="txForm" class="space-y-4 text-sm">
                         <div>
-                            <label id="marketLabel" class="block text-sm font-medium text-gray-700">資產大類 / 市場</label>
+                            <label class="block text-sm font-medium text-gray-700">資產大類 / 市場</label>
                             <select id="txMarket" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
                                 <option value="US">🇺🇸 美股 (US)</option>
                                 <option value="HK">🇭🇰 港股 (HK)</option>
@@ -226,19 +245,34 @@
     </div>
 
     <script>
-        // ⚠️【重要】請將下方網址換成你在第一步重新部署後的 GAS Web App URL
+        // ⚠️ 【全網頁核心變數配置】
         const API_URL = "https://script.google.com/macros/s/AKfycbzsDE79EEEn1EpdYYTg44A8HeXzIEXs1hpV4JSjQUXeWo8uzeucaKndIm-RWce_l3Gy/exec";
 
         const assetLabels = {
             "US": "美股", "HK": "港股", "BOND_L": "US 長債", "BOND_S": "US 短債", "GOLD": "金", "CASH_TOTAL": "現金（HKD）"
         };
 
+        let userGoogleToken = ""; // 💡 儲存驗證通過的 Google 通行證
         let transactions = []; let prices = {}; let exchangeRate = 7.82;
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
         let stockPlan = [];
 
         document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
+
+        /**
+         * 💡 新增：當 Google 登入驗證成功時觸發的回調函數
+         */
+        function handleCredentialResponse(response) {
+            userGoogleToken = response.credential; // 獲取官方臨時權杖 Token
+            
+            // 隱藏登入牆，揭開並解除隱藏主程式畫面
+            document.getElementById('loginWall').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            // 開始進行資料雲端對接
+            loadData();
+        }
 
         function switchTab(tabId) {
             if (tabId === 'dashboard-tab') {
@@ -275,11 +309,24 @@
             }`;
         }
 
+        /**
+         * 💡 升級：讀取資料時，利用 Query String (?token=) 安全附帶身分證送至後端
+         */
         async function loadData() {
             try {
                 updateStatus("🔄 讀取即時數據中...", "loading");
-                const response = await fetch(API_URL);
+                
+                // 貼上通行證，防止後端攔截
+                const fetchUrl = API_URL + "?token=" + encodeURIComponent(userGoogleToken);
+                const response = await fetch(fetchUrl);
                 const data = await response.json();
+                
+                if (data.result === 'error') {
+                    updateStatus("❌ 權限被拒絕: " + data.error, "error");
+                    alert("安全錯誤: " + data.error);
+                    return;
+                }
+                
                 transactions = data.transactions || []; prices = data.prices || {}; exchangeRate = data.exchangeRate || 7.82;
                 for (const key in assetLabels) {
                     if (data.assetPlan && data.assetPlan[key] !== undefined) assetPlan[key] = data.assetPlan[key];
@@ -346,17 +393,12 @@
             const { cashBalances, positions } = calculatePortfolio();
             let assetRealValuesHkd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "CASH_TOTAL": 0 };
             let computedStocks = []; let totalStockMarketValueHkd = 0; let totalStockCostHkd = 0;
-            
-            // 💡 建立全新美股板塊統計物件結構
             let usSectorsData = {};
 
-            // 💡 修正規則 A：從計劃書 (stockPlan) 先抓出所有美股板塊並加總「計劃比重」
             stockPlan.forEach(s => {
                 if (s.market === 'US') {
                     let sec = s.sector ? s.sector.trim() : "未分類";
-                    if (!usSectorsData[sec]) {
-                        usSectorsData[sec] = { plannedWeight: 0, actualValueHkd: 0 };
-                    }
+                    if (!usSectorsData[sec]) usSectorsData[sec] = { plannedWeight: 0, actualValueHkd: 0 };
                     usSectorsData[sec].plannedWeight += parseFloat(s.target_weight) || 0;
                 }
             });
@@ -376,17 +418,12 @@
 
                 assetRealValuesHkd[p.market] += mktValHkd;
                 totalStockMarketValueHkd += mktValHkd; totalStockCostHkd += costHkd;
-
                 computedStocks.push({ ...p, avgPrice, livePrice, mktValHkd, plHkd, holdingDays });
 
-                // 💡 修正規則 B：如果是真實持有嘅美股，將市值歸入對應板塊 (確保也容錯未分類股票)
                 if (p.market === 'US' && !p.isPlannedOnly && p.shares > 0) {
                     let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                     let sec = (matchPlan && matchPlan.sector) ? matchPlan.sector.trim() : "未分類";
-                    
-                    if (!usSectorsData[sec]) {
-                        usSectorsData[sec] = { plannedWeight: 0, actualValueHkd: 0 };
-                    }
+                    if (!usSectorsData[sec]) usSectorsData[sec] = { plannedWeight: 0, actualValueHkd: 0 };
                     usSectorsData[sec].actualValueHkd += mktValHkd;
                 }
             }
@@ -396,7 +433,6 @@
             assetRealValuesHkd["CASH_TOTAL"] = totalCashHkd;
             const totalAssetHkd = totalStockMarketValueHkd + totalCashHkd;
 
-            // 頂部儀表板與大類資產渲染
             document.getElementById('headerCash').innerText = `HKD $${totalCashHkd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashDetail').innerText = `🇭🇰 HKD: $${(cashBalances['HK']||0).toLocaleString()} | 🇺🇸 USD: $${(cashBalances['US']||0).toLocaleString()}`;
             document.getElementById('headerAllocation').innerText = `HKD $${totalStockMarketValueHkd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
@@ -420,26 +456,18 @@
                     </tr>`;
             }
 
-            // 💡 修正規則 C：渲染板塊表格，分母改為「美股計劃總配額規模」
-            const sectorTableBody = document.getElementById('sectorBreakdownTable');
-            sectorTableBody.innerHTML = '';
+            const sectorTableBody = document.getElementById('sectorBreakdownTable'); sectorTableBody.innerHTML = '';
             const sectorNames = Object.keys(usSectorsData);
-            
-            // 計算美股計劃倉位的總配額規模港幣 (例如 500,000 * 70% = 350,000)
             const usAssetPlanWeight = assetPlan["US"] || 0;
             const plannedUsTotalHkd = totalAssetHkd * (usAssetPlanWeight / 100);
 
             if (sectorNames.length === 0) {
                 sectorTableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-center text-gray-400">目前美股持倉或計劃中沒有任何板塊數據</td></tr>`;
             } else {
-                // 照計劃配額從大到小排序
                 sectorNames.sort((a, b) => usSectorsData[b].plannedWeight - usSectorsData[a].plannedWeight);
-                
                 sectorNames.forEach(sec => {
                     const data = usSectorsData[sec];
-                    // 核心精算：板塊持倉市值 / 美股計劃總配額
                     const sActualWeight = plannedUsTotalHkd > 0 ? (data.actualValueHkd / plannedUsTotalHkd * 100) : 0;
-                    
                     sectorTableBody.innerHTML += `
                         <tr class="hover:bg-gray-50 border-b border-gray-100">
                             <td class="px-4 py-2.5 font-bold text-gray-700">🏷️ ${sec}</td>
@@ -450,7 +478,6 @@
                 });
             }
 
-            // 三層權個股持倉表格渲染
             const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
                 const isUS = p.market === 'US'; const cSign = isUS ? 'USD $' : 'HKD $';
@@ -560,6 +587,9 @@
             tbody.insertAdjacentHTML('beforeend', newRowHtml);
         }
 
+        /**
+         * 💡 升級：儲存設定時，自動在 POST Body 封裝放入身分權杖 token
+         */
         async function saveAllSettings() {
             updateStatus("🚀 正在儲存參數、隱藏與板塊設定至雲端...", "loading");
             let newAssetPlan = {}; let newAssetHidden = {};
@@ -578,7 +608,13 @@
             try {
                 await fetch(API_URL, {
                     method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "SAVE_SETTINGS", assetPlan: newAssetPlan, assetHidden: newAssetHidden, stockPlan: newStockPlan })
+                    body: JSON.stringify({ 
+                        action: "SAVE_SETTINGS", 
+                        token: userGoogleToken, // 💡 傳送臨時通行證
+                        assetPlan: newAssetPlan, 
+                        assetHidden: newAssetHidden, 
+                        stockPlan: newStockPlan 
+                    })
                 });
                 assetPlan = newAssetPlan; assetHidden = newAssetHidden; stockPlan = newStockPlan;
                 updateStatus("✅ 所有參數與板塊已永久保存！正在刷新精算...", "success");
@@ -586,11 +622,22 @@
             } catch(e) { updateStatus("❌ 參數儲存失敗", "error"); }
         }
 
+        /**
+         * 💡 升級：新增交易流水時，自動在 POST Body 封裝放入身分權杖 token
+         */
         document.getElementById('txForm').addEventListener('submit', async function(e) {
             e.preventDefault(); const submitBtn = document.getElementById('submitBtn'); submitBtn.disabled = true;
             updateStatus("🚀 正在寫入交易紀錄...", "loading");
             const category = document.getElementById('txCategory').value;
-            let tx = { id: Date.now().toString(), date: document.getElementById('txDate').value, market: document.getElementById('txMarket').value };
+            
+            // 基礎架構內含 token 身份資料
+            let tx = { 
+                id: Date.now().toString(), 
+                token: userGoogleToken, // 💡 傳送臨時通行證
+                date: document.getElementById('txDate').value, 
+                market: document.getElementById('txMarket').value 
+            };
+            
             if (category === 'STOCK') {
                 tx.code = document.getElementById('stockCode').value.trim().toUpperCase(); tx.type = document.getElementById('stockType').value;
                 tx.price = document.getElementById('txPrice').value; tx.qty = document.getElementById('txQty').value;
@@ -605,17 +652,26 @@
             } catch (error) { updateStatus("❌ 寫入失敗", "error"); } finally { submitBtn.disabled = false; }
         });
 
+        /**
+         * 💡 升級：刪除流水帳時，自動在 POST Body 封裝放入身分權杖 token
+         */
         async function deleteTx(id) {
             if (!confirm("確定要刪除嗎？")) return;
             updateStatus("🗑️ 正在刪除交易...", "loading");
             try {
-                await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "DELETE", id: id }) });
+                await fetch(API_URL, { 
+                    method: "POST", 
+                    mode: "no-cors", 
+                    body: JSON.stringify({ 
+                        action: "DELETE", 
+                        token: userGoogleToken, // 💡 傳送臨時通行證
+                        id: id 
+                    }) 
+                });
                 transactions = transactions.filter(t => t.id.toString() !== id.toString()); renderComponents();
                 updateStatus("✅ 刪除成功", "success"); setTimeout(loadData, 2000);
             } catch (error) { updateStatus("❌ 刪除失敗", "error"); }
         }
-
-        loadData();
     </script>
 </body>
 </html>
