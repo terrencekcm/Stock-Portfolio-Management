@@ -15,7 +15,6 @@
                 <h2 class="text-2xl font-bold text-gray-800">🔐 團隊資產管理系統</h2>
                 <p class="text-sm text-gray-400">本系統採用雲端安全防禦，請使用白名單內的 Google 帳戶登入解鎖</p>
             </div>
-            
             <div class="flex justify-center">
                 <div id="g_id_onload"
                      data-client_id="901048418276-gdlfkmis0orcs6b9jbpqceuqupk8b2ht.apps.googleusercontent.com"
@@ -159,7 +158,7 @@
 
                     <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
                         <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度 (Within Planned US Portfolio)</h3>
-                        <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模（全倉規模 × 美股計劃%）</p>
+                        <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模</p>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-left text-xs">
                                 <thead class="bg-gray-50 text-gray-500">
@@ -209,7 +208,6 @@
                     </div>
                     <button onclick="saveAllSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded-lg shadow transition cursor-pointer">💾 儲存設定至雲端</button>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div class="md:col-span-1 bg-gray-50 p-5 rounded-xl border border-gray-200">
                         <h3 class="font-bold text-gray-700 mb-3 text-sm flex justify-between">
@@ -218,7 +216,6 @@
                         </h3>
                         <div class="space-y-3 text-sm" id="assetSettingInputs"></div>
                     </div>
-
                     <div class="md:col-span-2 bg-gray-50 p-5 rounded-xl border border-gray-200">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-bold text-gray-700 text-sm">🎯 2. 個股在所屬資產大類內部計劃佔比 (%) ＆ 自定義板塊</h3>
@@ -245,7 +242,6 @@
     </div>
 
     <script>
-        // ⚠️ 【全網頁核心變數配置】請填入你的 GAS Web App URL
         const API_URL = "https://script.google.com/macros/s/AKfycbzsDE79EEEn1EpdYYTg44A8HeXzIEXs1hpV4JSjQUXeWo8uzeucaKndIm-RWce_l3Gy/exec";
 
         const assetLabels = {
@@ -261,16 +257,10 @@
 
         document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
 
-        /**
-         * 當 Google 登入驗證成功時觸發的回調函數
-         */
         function handleCredentialResponse(response) {
             userGoogleToken = response.credential; 
-            
-            // 隱藏登入牆，解封主程式畫面
             document.getElementById('loginWall').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            
             loadData();
         }
 
@@ -309,9 +299,6 @@
             }`;
         }
 
-        /**
-         * 讀取資料
-         */
         async function loadData() {
             try {
                 updateStatus("🔄 讀取即時數據中...", "loading");
@@ -336,7 +323,10 @@
                 
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 renderComponents();
-                updateStatus("✅ 雲端配置與報價已同步", "success");
+                
+                // 💡 雷達反饋：直接在綠色狀態列顯示抓到了多少份 PDF
+                const pdfCount = Object.keys(pdfMap).length;
+                updateStatus(`✅ 雲端同步完成 (已偵測到 ${pdfCount} 份 PDF)`, "success");
             } catch (err) {
                 console.error(err); updateStatus("❌ 讀取失敗，請核對網址", "error");
             }
@@ -479,7 +469,6 @@
                 });
             }
 
-            // 渲染證券持倉
             const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
                 const isUS = p.market === 'US'; const cSign = isUS ? 'USD $' : 'HKD $';
@@ -492,7 +481,7 @@
                 const progressPercent = assetPlannedWeight > 0 ? (assetRealWeight / assetPlannedWeight * 100) : 0;
                 const totalRealWeight = totalAssetHkd > 0 ? (p.mktValHkd / totalAssetHkd * 100) : 0;
 
-                // 💡 【相容精算】不論原始實體檔案或捷徑物件，皆能對應超連結
+                // 💡 超連結匹配渲染
                 const stockCodeUpper = p.code.toUpperCase().trim();
                 const fileLink = pdfMap[stockCodeUpper];
                 let codeCellHtml = "";
