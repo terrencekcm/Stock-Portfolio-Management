@@ -245,36 +245,33 @@
     </div>
 
     <script>
-        
-        let stockPlan = [];
-        let pdfMap = {}; // 💡 【新增】儲存後端傳來的 PDF 網址清單
-        
-        // ⚠️ 【全網頁核心變數配置】
+        // ⚠️ 【全網頁核心變數配置】請填入你的 GAS Web App URL
         const API_URL = "https://script.google.com/macros/s/AKfycbzsDE79EEEn1EpdYYTg44A8HeXzIEXs1hpV4JSjQUXeWo8uzeucaKndIm-RWce_l3Gy/exec";
 
         const assetLabels = {
             "US": "美股", "HK": "港股", "BOND_L": "US 長債", "BOND_S": "US 短債", "GOLD": "金", "CASH_TOTAL": "現金（HKD）"
         };
 
-        let userGoogleToken = ""; // 💡 儲存驗證通過的 Google 通行證
+        let userGoogleToken = ""; 
         let transactions = []; let prices = {}; let exchangeRate = 7.82;
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
         let stockPlan = [];
+        let pdfMap = {}; // 💡 接收後端 Drive 傳來的 PDF 網址對照表
 
         document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
 
         /**
-         * 💡 新增：當 Google 登入驗證成功時觸發的回調函數
+         * 當 Google 登入驗證成功時觸發的回調函數
          */
         function handleCredentialResponse(response) {
-            userGoogleToken = response.credential; // 獲取官方臨時權杖 Token
+            userGoogleToken = response.credential; 
             
-            // 隱藏登入牆，揭開並解除隱藏主程式畫面
+            // 隱藏登入牆，解除隱藏主程式畫面
             document.getElementById('loginWall').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             
-            // 開始進行資料雲端對接
+            // 進行資料雲端對接
             loadData();
         }
 
@@ -314,13 +311,12 @@
         }
 
         /**
-         * 💡 升級：讀取資料時，利用 Query String (?token=) 安全附帶身分證送至後端
+         * 讀取資料：Query String 附帶驗證代碼送至後端
          */
         async function loadData() {
             try {
                 updateStatus("🔄 讀取即時數據中...", "loading");
                 
-                // 貼上通行證，防止後端攔截
                 const fetchUrl = API_URL + "?token=" + encodeURIComponent(userGoogleToken);
                 const response = await fetch(fetchUrl);
                 const data = await response.json();
@@ -337,7 +333,8 @@
                     assetHidden[key] = data.assetHidden && data.assetHidden[key] ? true : false;
                 }
                 stockPlan = data.stockPlan || [];
-                pdfMap = data.pdfMap || {}; // 💡 【新增】接收後端 PDF 對照表
+                pdfMap = data.pdfMap || {}; // 💡 接收 PDF 對照表
+                
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 renderComponents();
                 updateStatus("✅ 雲端配置與報價已同步", "success");
@@ -400,6 +397,7 @@
             let computedStocks = []; let totalStockMarketValueHkd = 0; let totalStockCostHkd = 0;
             let usSectorsData = {};
 
+            // 預先抓出所有美股板塊並加總「計劃比重」(以達支援顯示0%空倉板塊)
             stockPlan.forEach(s => {
                 if (s.market === 'US') {
                     let sec = s.sector ? s.sector.trim() : "未分類";
@@ -461,6 +459,7 @@
                     </tr>`;
             }
 
+            // 渲染板塊表格：分母改為「美股計劃總配額規模」
             const sectorTableBody = document.getElementById('sectorBreakdownTable'); sectorTableBody.innerHTML = '';
             const sectorNames = Object.keys(usSectorsData);
             const usAssetPlanWeight = assetPlan["US"] || 0;
@@ -483,6 +482,7 @@
                 });
             }
 
+            // 渲染「💼 目前證券持倉與觀察名單」
             const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
                 const isUS = p.market === 'US'; const cSign = isUS ? 'USD $' : 'HKD $';
@@ -495,22 +495,25 @@
                 const progressPercent = assetPlannedWeight > 0 ? (assetRealWeight / assetPlannedWeight * 100) : 0;
                 const totalRealWeight = totalAssetHkd > 0 ? (p.mktValHkd / totalAssetHkd * 100) : 0;
 
-                // 💡 【新增】檢查雲端硬碟有沒有這隻股票的 PDF 報告
+                // 💡 【核心功能整合】檢查雲端硬碟是否有這隻股票的 PDF 報告
                 const stockCodeUpper = p.code.toUpperCase().trim();
                 const fileLink = pdfMap[stockCodeUpper];
                 let codeCellHtml = "";
                 
                 if (fileLink) {
-                    // 如果有 PDF 檔案，將代號包裝成藍色加底線、點擊會另開新分頁 (target="_blank") 的超連結
-                    codeCellHtml = `<a href="${fileLink}" target="_blank" class="text-blue-600 hover:underline font-bold cursor-pointer" title="查看個股基本分析 PDF">📄 ${p.code}</a>`;
+                    // 如果存在 PDF，將代號變成藍色可點擊連結，另開新視窗彈出 (target="_blank")
+                    codeCellHtml = `<a href="${fileLink}" target="_blank" class="text-blue-600 hover:underline font-bold cursor-pointer" title="點擊在新頁籤打開個股基本分析 PDF 報告">📄 ${p.code}</a>`;
                 } else {
-                    // 如果沒有 PDF，保持原本的粗體純文字
+                    // 如果不存在，保持原樣
                     codeCellHtml = `<span class="font-bold text-gray-800">${p.code}</span>`;
                 }
-                
+
                 posTableBody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100 ${p.isPlannedOnly ? 'bg-amber-50/40 opacity-70' : ''}">
-                        <td class="px-2 py-3 font-bold text-blue-700">${codeCellHtml} ${p.isPlannedOnly ? '<span class="text-[10px] block font-normal text-amber-600">[觀察名單]</span>' : ''}</td>
+                        <td class="px-2 py-3 font-bold">
+                            ${codeCellHtml}
+                            ${p.isPlannedOnly ? '<span class="text-[10px] block font-normal text-amber-600">[觀察名單]</span>' : ''}
+                        </td>
                         <td class="px-2 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-700">${assetLabels[p.market]||p.market}</span></td>
                         <td class="px-2 py-3 font-semibold">${p.shares.toLocaleString()}</td>
                         <td class="px-2 py-3 text-gray-500">${p.isPlannedOnly ? '---' : cSign + p.avgPrice.toFixed(2)}</td>
@@ -602,12 +605,11 @@
                     <td class="px-3 py-2"><input type="text" placeholder="例如: semiconductors" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
                     <td class="px-3 py-2"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
                 </tr>`;
+            
+            // 💡 採用 insertAdjacentHTML 安全追加，保留前幾行已填寫輸入框的內容
             tbody.insertAdjacentHTML('beforeend', newRowHtml);
         }
 
-        /**
-         * 💡 升級：儲存設定時，自動在 POST Body 封裝放入身分權杖 token
-         */
         async function saveAllSettings() {
             updateStatus("🚀 正在儲存參數、隱藏與板塊設定至雲端...", "loading");
             let newAssetPlan = {}; let newAssetHidden = {};
@@ -628,7 +630,7 @@
                     method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
                         action: "SAVE_SETTINGS", 
-                        token: userGoogleToken, // 💡 傳送臨時通行證
+                        token: userGoogleToken, // 💡 攜帶 Token
                         assetPlan: newAssetPlan, 
                         assetHidden: newAssetHidden, 
                         stockPlan: newStockPlan 
@@ -640,18 +642,14 @@
             } catch(e) { updateStatus("❌ 參數儲存失敗", "error"); }
         }
 
-        /**
-         * 💡 升級：新增交易流水時，自動在 POST Body 封裝放入身分權杖 token
-         */
         document.getElementById('txForm').addEventListener('submit', async function(e) {
             e.preventDefault(); const submitBtn = document.getElementById('submitBtn'); submitBtn.disabled = true;
             updateStatus("🚀 正在寫入交易紀錄...", "loading");
             const category = document.getElementById('txCategory').value;
             
-            // 基礎架構內含 token 身份資料
             let tx = { 
                 id: Date.now().toString(), 
-                token: userGoogleToken, // 💡 傳送臨時通行證
+                token: userGoogleToken, // 💡 攜帶 Token
                 date: document.getElementById('txDate').value, 
                 market: document.getElementById('txMarket').value 
             };
@@ -670,9 +668,6 @@
             } catch (error) { updateStatus("❌ 寫入失敗", "error"); } finally { submitBtn.disabled = false; }
         });
 
-        /**
-         * 💡 升級：刪除流水帳時，自動在 POST Body 封裝放入身分權杖 token
-         */
         async function deleteTx(id) {
             if (!confirm("確定要刪除嗎？")) return;
             updateStatus("🗑️ 正在刪除交易...", "loading");
@@ -682,7 +677,7 @@
                     mode: "no-cors", 
                     body: JSON.stringify({ 
                         action: "DELETE", 
-                        token: userGoogleToken, // 💡 傳送臨時通行證
+                        token: userGoogleToken, // 💡 攜帶 Token
                         id: id 
                     }) 
                 });
