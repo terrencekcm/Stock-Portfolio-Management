@@ -177,7 +177,7 @@
                     </div>
 
                     <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明細流水帳</h2>
+                        <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明現流水帳</h2>
                         <div class="overflow-x-auto max-h-48 overflow-y-auto">
                             <table class="min-w-full text-left text-xs text-gray-600">
                                 <thead class="bg-gray-50 sticky top-0 font-medium">
@@ -324,9 +324,13 @@
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 renderComponents();
                 
-                // 💡 雷達反饋：直接在綠色狀態列顯示抓到了多少份 PDF
-                const pdfCount = Object.keys(pdfMap).length;
-                updateStatus(`✅ 雲端同步完成 (已偵測到 ${pdfCount} 份 PDF)`, "success");
+                // 💡 雷達透視反饋：如果 Google Drive 報錯，直接在雷達外牆打印原因！
+                if (data.driveError) {
+                    updateStatus(`⚠️ 同步完成 (但 PDF 載入失敗: ${data.driveError})`, "error");
+                } else {
+                    const pdfCount = Object.keys(pdfMap).length;
+                    updateStatus(`✅ 雲端同步完成 (已偵測到 ${pdfCount} 份 PDF)`, "success");
+                }
             } catch (err) {
                 console.error(err); updateStatus("❌ 讀取失敗，請核對網址", "error");
             }
@@ -481,7 +485,6 @@
                 const progressPercent = assetPlannedWeight > 0 ? (assetRealWeight / assetPlannedWeight * 100) : 0;
                 const totalRealWeight = totalAssetHkd > 0 ? (p.mktValHkd / totalAssetHkd * 100) : 0;
 
-                // 💡 超連結匹配渲染
                 const stockCodeUpper = p.code.toUpperCase().trim();
                 const fileLink = pdfMap[stockCodeUpper];
                 let codeCellHtml = "";
