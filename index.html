@@ -257,7 +257,7 @@
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
         let stockPlan = [];
-        let pdfMap = {}; // 💡 接收後端 Drive 傳來的 PDF 網址對照表
+        let pdfMap = {}; 
 
         document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
 
@@ -267,11 +267,10 @@
         function handleCredentialResponse(response) {
             userGoogleToken = response.credential; 
             
-            // 隱藏登入牆，解除隱藏主程式畫面
+            // 隱藏登入牆，解封主程式畫面
             document.getElementById('loginWall').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             
-            // 進行資料雲端對接
             loadData();
         }
 
@@ -311,7 +310,7 @@
         }
 
         /**
-         * 讀取資料：Query String 附帶驗證代碼送至後端
+         * 讀取資料
          */
         async function loadData() {
             try {
@@ -333,7 +332,7 @@
                     assetHidden[key] = data.assetHidden && data.assetHidden[key] ? true : false;
                 }
                 stockPlan = data.stockPlan || [];
-                pdfMap = data.pdfMap || {}; // 💡 接收 PDF 對照表
+                pdfMap = data.pdfMap || {}; 
                 
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 renderComponents();
@@ -397,7 +396,6 @@
             let computedStocks = []; let totalStockMarketValueHkd = 0; let totalStockCostHkd = 0;
             let usSectorsData = {};
 
-            // 預先抓出所有美股板塊並加總「計劃比重」(以達支援顯示0%空倉板塊)
             stockPlan.forEach(s => {
                 if (s.market === 'US') {
                     let sec = s.sector ? s.sector.trim() : "未分類";
@@ -459,7 +457,6 @@
                     </tr>`;
             }
 
-            // 渲染板塊表格：分母改為「美股計劃總配額規模」
             const sectorTableBody = document.getElementById('sectorBreakdownTable'); sectorTableBody.innerHTML = '';
             const sectorNames = Object.keys(usSectorsData);
             const usAssetPlanWeight = assetPlan["US"] || 0;
@@ -482,7 +479,7 @@
                 });
             }
 
-            // 渲染「💼 目前證券持倉與觀察名單」
+            // 渲染證券持倉
             const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
                 const isUS = p.market === 'US'; const cSign = isUS ? 'USD $' : 'HKD $';
@@ -495,16 +492,14 @@
                 const progressPercent = assetPlannedWeight > 0 ? (assetRealWeight / assetPlannedWeight * 100) : 0;
                 const totalRealWeight = totalAssetHkd > 0 ? (p.mktValHkd / totalAssetHkd * 100) : 0;
 
-                // 💡 【核心功能整合】檢查雲端硬碟是否有這隻股票的 PDF 報告
+                // 💡 【相容精算】不論原始實體檔案或捷徑物件，皆能對應超連結
                 const stockCodeUpper = p.code.toUpperCase().trim();
                 const fileLink = pdfMap[stockCodeUpper];
                 let codeCellHtml = "";
                 
                 if (fileLink) {
-                    // 如果存在 PDF，將代號變成藍色可點擊連結，另開新視窗彈出 (target="_blank")
                     codeCellHtml = `<a href="${fileLink}" target="_blank" class="text-blue-600 hover:underline font-bold cursor-pointer" title="點擊在新頁籤打開個股基本分析 PDF 報告">📄 ${p.code}</a>`;
                 } else {
-                    // 如果不存在，保持原樣
                     codeCellHtml = `<span class="font-bold text-gray-800">${p.code}</span>`;
                 }
 
@@ -605,8 +600,6 @@
                     <td class="px-3 py-2"><input type="text" placeholder="例如: semiconductors" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
                     <td class="px-3 py-2"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
                 </tr>`;
-            
-            // 💡 採用 insertAdjacentHTML 安全追加，保留前幾行已填寫輸入框的內容
             tbody.insertAdjacentHTML('beforeend', newRowHtml);
         }
 
@@ -630,7 +623,7 @@
                     method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
                         action: "SAVE_SETTINGS", 
-                        token: userGoogleToken, // 💡 攜帶 Token
+                        token: userGoogleToken, 
                         assetPlan: newAssetPlan, 
                         assetHidden: newAssetHidden, 
                         stockPlan: newStockPlan 
@@ -649,7 +642,7 @@
             
             let tx = { 
                 id: Date.now().toString(), 
-                token: userGoogleToken, // 💡 攜帶 Token
+                token: userGoogleToken, 
                 date: document.getElementById('txDate').value, 
                 market: document.getElementById('txMarket').value 
             };
@@ -677,7 +670,7 @@
                     mode: "no-cors", 
                     body: JSON.stringify({ 
                         action: "DELETE", 
-                        token: userGoogleToken, // 💡 攜帶 Token
+                        token: userGoogleToken, 
                         id: id 
                     }) 
                 });
