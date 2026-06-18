@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>全球資產配置與計劃管理系統</title>
-    <!-- Tailwind CSS 引擎 -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Google Sign-In 驗證安全 Wall SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="bg-gray-100 font-sans p-6">
@@ -48,7 +46,7 @@
         <!-- 頁籤一：投資儀表板 -->
         <div id="tab-dashboard" class="space-y-6">
             
-            <!-- 🚀 戰術全新：7日內即將發佈財報標的風險雷達牆 Banner -->
+            <!-- 7日內財報風險雷達牆 Banner -->
             <div id="earningsRadarContainer" class="hidden space-y-2">
                 <div class="bg-amber-50 border-l-4 border-rose-500 p-4 rounded-xl shadow-sm">
                     <div class="flex items-center">
@@ -58,9 +56,7 @@
                             <p class="text-xs text-rose-700">操盤策略提示：防範 IV Crush（隱含波動率崩潰）與 Sell on Fact 下砸，請評估是否鎖定利潤或進行期權對沖。</p>
                         </div>
                     </div>
-                    <div id="earningsAlertList" class="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        <!-- 動態插入警報單元 -->
-                    </div>
+                    <div id="earningsAlertList" class="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
                 </div>
             </div>
 
@@ -185,7 +181,7 @@
                     <!-- 美股板塊 -->
                     <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
                         <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度 (Within Planned US Portfolio)</h3>
-                        <p class="text-xs text-gray-400 mb-3">分慢錨定於：美股計劃總配額規模</p>
+                        <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模</p>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-left text-xs">
                                 <thead class="bg-gray-50 text-gray-500">
@@ -247,18 +243,19 @@
                     </div>
                     <div class="md:col-span-2 bg-gray-50 p-5 rounded-xl border border-gray-200">
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-gray-700 text-sm">🎯 2. 個股在所屬資產大類內部計劃佔比 (%) ＆ 自定義板塊</h3>
+                            <h3 class="font-bold text-gray-700 text-sm">🎯 2. 個股內部計劃佔比 ＆ 戰術風控排期</h3>
                             <button type="button" onclick="addStockPlanRow()" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">+ 新增計劃標的</button>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="min-w-full text-left text-sm">
-                                <thead class="bg-gray-200 text-gray-600 text-xs font-semibold uppercase">
+                            <table class="min-w-full text-left text-xs">
+                                <thead class="bg-gray-200 text-gray-600 font-semibold uppercase">
                                     <tr>
-                                        <th class="px-3 py-2">標的代號 (如: GOOG)</th>
-                                        <th class="px-3 py-2">隸屬資產大類</th>
-                                        <th class="px-3 py-2">大類內部計劃佔比 %</th>
-                                        <th class="px-3 py-2 text-amber-700">🏷️ 自定義板塊 (如: semiconductors)</th>
-                                        <th class="px-3 py-2">操作</th>
+                                        <th class="px-2 py-2 w-20">標的代號</th>
+                                        <th class="px-2 py-2 w-24">資產大類</th>
+                                        <th class="px-2 py-2 w-24">大類內部%</th>
+                                        <th class="px-2 py-2 text-amber-700">🏷️ 自定義板塊</th>
+                                        <th class="px-2 py-2 text-rose-700">⏰ 財報日手動備份 (選填)</th>
+                                        <th class="px-2 py-2 w-16">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="stockPlanSettingRows" class="divide-y divide-gray-300"></tbody>
@@ -283,7 +280,7 @@
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
         let stockPlan = [];
         let pdfMap = {}; 
-        let earningsMap = {}; // 💡 儲存全標的財報日程數據
+        let earningsMap = {}; 
 
         document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
 
@@ -332,15 +329,13 @@
         async function loadData() {
             try {
                 updateStatus("🔄 讀取即時數據中...", "loading");
-                
                 const fetchUrl = API_URL + "?token=" + encodeURIComponent(userGoogleToken);
                 const response = await fetch(fetchUrl);
                 const data = await response.json();
                 
                 if (data.result === 'error') {
                     updateStatus("❌ 權限被拒絕: " + data.error, "error");
-                    alert("安全錯誤: " + data.error);
-                    return;
+                    alert("安全錯誤: " + data.error); return;
                 }
                 
                 transactions = data.transactions || []; prices = data.prices || {}; exchangeRate = data.exchangeRate || 7.82;
@@ -350,7 +345,7 @@
                 }
                 stockPlan = data.stockPlan || [];
                 pdfMap = data.pdfMap || {}; 
-                earningsMap = data.earningsMap || {}; // 💡 接收業績大曆數據
+                earningsMap = data.earningsMap || {}; 
                 
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 renderComponents();
@@ -396,7 +391,7 @@
                     } else if (typeStr === 'SELL') {
                         pos.shares -= qty; cashBalances[marketStr] += amt;
                         if (pos.shares <= 0) delete positions[codeStr];
-                        else pos.totalCost = pos.shares * (pos.totalCost / (pos.shares + qty));
+                        else pos.totalCost = pos.shares * (pos.shares + qty);
                     }
                 }
             });
@@ -428,11 +423,8 @@
                 }
             });
 
-            // 🚀 【財報排期核心精算】比對 7 天風險窗口
-            let radarHtml = "";
-            let hasRadarAlert = false;
-            const todayObj = new Date();
-            todayObj.setHours(0,0,0,0);
+            let radarHtml = ""; let hasRadarAlert = false;
+            const todayObj = new Date(); todayObj.setHours(0,0,0,0);
 
             for (const code in positions) {
                 const p = positions[code];
@@ -458,17 +450,19 @@
                     usSectorsData[sec].actualValueHkd += mktValHkd;
                 }
 
-                // 💡 業績風險雷達提取比對
+                // 📡 財報風控雷達精算（全面修正時區盲區）
                 const stockCodeUpper = p.code.toUpperCase().trim();
                 if (earningsMap[stockCodeUpper]) {
-                    const earnDate = new Date(earningsMap[stockCodeUpper]);
+                    // 💡 關鍵修復：replace(/-/g, '/') 強制瀏覽器採用本地時區解析，封殺 UTC 造成的 1 天誤差
+                    const earnDateStr = earningsMap[stockCodeUpper].replace(/-/g, '/');
+                    const earnDate = new Date(earnDateStr); earnDate.setHours(0,0,0,0);
+                    
                     const diffTime = earnDate - todayObj;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-                    // 篩選出今天起算 7 天之內發佈業績的股票 (不論是持倉還是觀察股)
                     if (diffDays >= 0 && diffDays <= 7) {
                         hasRadarAlert = true;
-                        const labelType = p.isPlannedOnly ? "观察名单" : "已入仓位";
+                        const labelType = p.isPlannedOnly ? "觀察名單" : "已買倉位";
                         const badgeColor = p.isPlannedOnly ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800 border border-rose-300 animate-pulse";
                         
                         radarHtml += `
@@ -486,14 +480,11 @@
                 }
             }
 
-            // 控制頂部財報雷達牆 Banner 顯示狀態
             const radarContainer = document.getElementById('earningsRadarContainer');
             if (hasRadarAlert) {
                 radarContainer.classList.remove('hidden');
                 document.getElementById('earningsAlertList').innerHTML = radarHtml;
-            } else {
-                radarContainer.classList.add('hidden');
-            }
+            } else { radarContainer.classList.add('hidden'); }
 
             let totalCashHkd = 0;
             for (const mkt in cashBalances) { totalCashHkd += (cashBalances[mkt] * ((mkt === 'US') ? exchangeRate : 1)); }
@@ -545,13 +536,11 @@
                 });
             }
 
-            // 渲染證券持倉列表
             const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
                 const isUS = p.market === 'US'; const cSign = isUS ? 'USD $' : 'HKD $';
                 const sPlanObj = stockPlan.find(s => s.code === p.code && s.market === p.market);
                 const assetPlannedWeight = sPlanObj ? sPlanObj.target_weight : 0;
-
                 const assetPlanWeight = assetPlan[p.market] || 0;
                 const plannedAssetClassTotalHkd = totalAssetHkd * (assetPlanWeight / 100);
                 const assetRealWeight = plannedAssetClassTotalHkd > 0 ? (p.mktValHkd / plannedAssetClassTotalHkd * 100) : 0;
@@ -560,34 +549,23 @@
 
                 const stockCodeUpper = p.code.toUpperCase().trim();
                 const fileLink = pdfMap[stockCodeUpper];
-                let codeCellHtml = "";
-                
-                if (fileLink) {
-                    codeCellHtml = `<a href="${fileLink}" target="_blank" class="text-blue-600 hover:underline font-bold cursor-pointer" title="點擊在新頁籤打開個股基本分析 PDF 報告">📄 ${p.code}</a>`;
-                } else {
-                    codeCellHtml = `<span class="font-bold text-gray-800">${p.code}</span>`;
-                }
+                let codeCellHtml = fileLink ? `<a href="${fileLink}" target="_blank" class="text-blue-600 hover:underline font-bold cursor-pointer">📄 ${p.code}</a>` : `<span class="font-bold text-gray-800">${p.code}</span>`;
 
-                // 💡 【新增：行內業績彈跳 Badge 渲染】
                 let earningsBadgeHtml = "";
                 if (earningsMap[stockCodeUpper]) {
-                    const earnDate = new Date(earningsMap[stockCodeUpper]);
+                    const earnDateStr = earningsMap[stockCodeUpper].replace(/-/g, '/');
+                    const earnDate = new Date(earnDateStr); earnDate.setHours(0,0,0,0);
                     const diffTime = earnDate - todayObj;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    
+                    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
                     if (diffDays >= 0 && diffDays <= 7) {
-                        // 7 天內公佈業績，觸發高亮彈跳警告
-                        earningsBadgeHtml = `<span class="inline-block ml-1 px-1 py-0.5 rounded text-[9px] font-extrabold bg-rose-600 text-white animate-bounce shadow-sm" title="業績會議日期: ${earningsMap[stockCodeUpper]}">⏰ 業績 ${earningsMap[stockCodeUpper].slice(5)}</span>`;
+                        earningsBadgeHtml = `<span class="inline-block ml-1 px-1 py-0.5 rounded text-[9px] font-extrabold bg-rose-600 text-white animate-bounce shadow-sm">⏰ 業績 ${earningsMap[stockCodeUpper].slice(5)}</span>`;
                     }
                 }
 
                 posTableBody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100 ${p.isPlannedOnly ? 'bg-amber-50/40 opacity-70' : ''}">
                         <td class="px-2 py-3 font-bold">
-                            <div class="flex items-center flex-wrap gap-1">
-                                ${codeCellHtml}
-                                ${earningsBadgeHtml} 
-                            </div>
+                            <div class="flex items-center flex-wrap gap-1">${codeCellHtml}${earningsBadgeHtml}</div>
                             ${p.isPlannedOnly ? '<span class="text-[10px] block font-normal text-amber-600">[觀察名單]</span>' : ''}
                         </td>
                         <td class="px-2 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-700">${assetLabels[p.market]||p.market}</span></td>
@@ -635,7 +613,7 @@
                         <div class="flex justify-between items-center">
                             <span class="font-bold text-gray-800">${assetLabels[ac]}</span>
                             <label class="inline-flex items-center text-xs text-gray-500 cursor-pointer select-none">
-                                <input type="checkbox" data-asset="${ac}" class="asset-hide-checkbox mr-1" ${isChecked}> 👁️ 隱藏此資產
+                                <input type="checkbox" data-asset="${ac}" class="asset-hide-checkbox mr-1" ${isChecked}> 👁️ 隱藏
                             </label>
                         </div>
                         <div class="flex items-center justify-end gap-1">
@@ -646,19 +624,21 @@
             document.getElementById('assetTotalCheck').innerText = `總計: ${total.toFixed(1)}%`;
 
             const tbody = document.getElementById('stockPlanSettingRows'); tbody.innerHTML = '';
-            stockPlan.forEach((s, index) => {
+            stockPlan.forEach((s) => {
                 let optionsHtml = '';
                 for(const key in assetLabels) {
                     if (key === 'CASH_TOTAL') continue;
                     optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`;
                 }
+                // 💡 設定頁追加手動指定財報日
                 tbody.innerHTML += `
                     <tr class="stock-plan-row">
-                        <td class="px-3 py-2"><input type="text" value="${s.code}" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold"></td>
-                        <td class="px-3 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium">${optionsHtml}</select></td>
-                        <td class="px-3 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-24 p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"> %</td>
-                        <td class="px-3 py-2"><input type="text" value="${s.sector || '未分類'}" placeholder="例如: semiconductors" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
-                        <td class="px-3 py-2"><button onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium">移除</button></td>
+                        <td class="px-2 py-2"><input type="text" value="${s.code}" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold text-center"></td>
+                        <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
+                        <td class="px-2 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
+                        <td class="px-2 py-2"><input type="text" value="${s.sector || '未分類'}" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
+                        <td class="px-2 py-2"><input type="date" value="${s.earnings_date || ''}" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center"></td>
+                        <td class="px-2 py-2 text-center"><button onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium">移除</button></td>
                     </tr>`;
             });
         }
@@ -675,17 +655,18 @@
             for(const key in assetLabels) { if (key === 'CASH_TOTAL') continue; optionsHtml += `<option value="${key}">${assetLabels[key]}</option>`; }
             const newRowHtml = `
                 <tr class="stock-plan-row bg-amber-50/30">
-                    <td class="px-3 py-2"><input type="text" placeholder="如: GOOG" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold"></td>
-                    <td class="px-3 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium">${optionsHtml}</select></td>
-                    <td class="px-3 py-2"><input type="number" step="any" value="0" class="sp-weight w-24 p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"> %</td>
-                    <td class="px-3 py-2"><input type="text" placeholder="例如: semiconductors" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
-                    <td class="px-3 py-2"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
+                    <td class="px-2 py-2"><input type="text" placeholder="標的" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold text-center"></td>
+                    <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
+                    <td class="px-2 py-2"><input type="number" step="any" value="0" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
+                    <td class="px-2 py-2"><input type="text" placeholder="板塊" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
+                    <td class="px-2 py-2"><input type="date" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center"></td>
+                    <td class="px-2 py-2 text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
                 </tr>`;
             tbody.insertAdjacentHTML('beforeend', newRowHtml);
         }
 
         async function saveAllSettings() {
-            updateStatus("🚀 正在儲存參數、隱藏與板塊設定至雲端...", "loading");
+            updateStatus("🚀 正在儲存參數與財報防線至雲端...", "loading");
             let newAssetPlan = {}; let newAssetHidden = {};
             document.querySelectorAll('.asset-plan-input').forEach(input => { newAssetPlan[input.getAttribute('data-asset')] = parseFloat(input.value) || 0; });
             document.querySelectorAll('.asset-hide-checkbox').forEach(cb => { newAssetHidden[cb.getAttribute('data-asset')] = cb.checked; });
@@ -696,22 +677,20 @@
                 const market = row.querySelector('.sp-market').value;
                 const weight = parseFloat(row.querySelector('.sp-weight').value) || 0;
                 const sector = row.querySelector('.sp-sector') ? row.querySelector('.sp-sector').value.trim() : "未分類";
-                if (code) newStockPlan.push({ code, market, target_weight: weight, sector: sector });
+                const earnings_date = row.querySelector('.sp-earnings') ? row.querySelector('.sp-earnings').value.trim() : "";
+                if (code) newStockPlan.push({ code, market, target_weight: weight, sector, earnings_date });
             });
 
             try {
                 await fetch(API_URL, {
                     method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
-                        action: "SAVE_SETTINGS", 
-                        token: userGoogleToken, 
-                        assetPlan: newAssetPlan, 
-                        assetHidden: newAssetHidden, 
-                        stockPlan: newStockPlan 
+                        action: "SAVE_SETTINGS", token: userGoogleToken, 
+                        assetPlan: newAssetPlan, assetHidden: newAssetHidden, stockPlan: newStockPlan 
                     })
                 });
                 assetPlan = newAssetPlan; assetHidden = newAssetHidden; stockPlan = newStockPlan;
-                updateStatus("✅ 所有參數與板塊已永久保存！正在刷新精算...", "success");
+                updateStatus("✅ 保存成功！正在重新精算...", "success");
                 setTimeout(async () => { await loadData(); switchTab('dashboard-tab'); }, 1200);
             } catch(e) { updateStatus("❌ 參數儲存失敗", "error"); }
         }
@@ -720,23 +699,14 @@
             e.preventDefault(); const submitBtn = document.getElementById('submitBtn'); submitBtn.disabled = true;
             updateStatus("🚀 正在寫入交易紀錄...", "loading");
             const category = document.getElementById('txCategory').value;
-            
-            let tx = { 
-                id: Date.now().toString(), 
-                token: userGoogleToken, 
-                date: document.getElementById('txDate').value, 
-                market: document.getElementById('txMarket').value 
-            };
-            
+            let tx = { id: Date.now().toString(), token: userGoogleToken, date: document.getElementById('txDate').value, market: document.getElementById('txMarket').value };
             if (category === 'STOCK') {
                 tx.code = document.getElementById('stockCode').value.trim().toUpperCase(); tx.type = document.getElementById('stockType').value;
                 tx.price = document.getElementById('txPrice').value; tx.qty = document.getElementById('txQty').value;
-            } else {
-                tx.code = 'CASH'; tx.type = document.getElementById('cashType').value; tx.price = '1'; tx.qty = document.getElementById('cashAmount').value;
-            }
+            } else { tx.code = 'CASH'; tx.type = document.getElementById('cashType').value; tx.price = '1'; tx.qty = document.getElementById('cashAmount').value; }
             try {
                 await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(tx) });
-                transactions.unshift(tx); renderComponents(); updateStatus("✅ 交易寫入成功！正在刷新...", "success");
+                transactions.unshift(tx); renderComponents(); updateStatus("✅ 交易寫入成功！", "success");
                 document.getElementById('stockCode').value = ''; document.getElementById('txPrice').value = ''; document.getElementById('txQty').value = ''; document.getElementById('cashAmount').value = '';
                 setTimeout(loadData, 2000);
             } catch (error) { updateStatus("❌ 寫入失敗", "error"); } finally { submitBtn.disabled = false; }
@@ -746,15 +716,7 @@
             if (!confirm("確定要刪除嗎？")) return;
             updateStatus("🗑️ 正在刪除交易...", "loading");
             try {
-                await fetch(API_URL, { 
-                    method: "POST", 
-                    mode: "no-cors", 
-                    body: JSON.stringify({ 
-                        action: "DELETE", 
-                        token: userGoogleToken, 
-                        id: id 
-                    }) 
-                });
+                await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "DELETE", token: userGoogleToken, id: id }) });
                 transactions = transactions.filter(t => t.id.toString() !== id.toString()); renderComponents();
                 updateStatus("✅ 刪除成功", "success"); setTimeout(loadData, 2000);
             } catch (error) { updateStatus("❌ 刪除失敗", "error"); }
