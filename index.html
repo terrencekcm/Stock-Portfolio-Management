@@ -168,7 +168,7 @@
                                         <th class="px-2 py-3 text-blue-600 font-bold bg-blue-50/50">市值(USD)</th>
                                         <th class="px-1 py-3 text-blue-600 font-bold">資產計劃%</th>
                                         <th class="px-1 py-3 text-indigo-600 font-bold bg-indigo-50/50">資產真實%</th>
-                                        <th class="px-1 py-3 text-emerald-600 font-bold bg-emerald-50/50">全倉真實%</th>
+                                        <th class="px-1 py-3 text-emerald-600 font-bold bg-emerald-50/40">全倉真實%</th>
                                         <th class="px-2 py-3 text-rose-600 font-bold bg-rose-50/30">未實現(USD)</th>
                                         <th class="px-1 py-3">日數</th>
                                     </tr>
@@ -388,7 +388,7 @@
                     } else if (typeStr === 'SELL') {
                         pos.shares -= qty; cashBalances[marketStr] += amt;
                         if (pos.shares <= 0) delete positions[codeStr];
-                        else pos.totalCost = pos.shares * (pos.totalCost / (pos.shares + qty));
+                        else pos.totalCost = pos.shares * (pos.shares + qty);
                     }
                 }
             });
@@ -408,7 +408,6 @@
 
         function renderComponents() {
             const { cashBalances, positions } = calculatePortfolio();
-            // 🚀 核心升級：大類資產計價全數以 USD 為基底
             let assetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "CASH_TOTAL": 0 };
             let computedStocks = []; let totalStockMarketValueUsd = 0; let totalStockCostUsd = 0;
             let usSectorsData = {};
@@ -429,7 +428,6 @@
                 const livePrice = prices[p.yahooSymbol] || 0;
                 const isHkdMarket = p.market === 'HK';
                 
-                // 🚀 核心公式：如果是港股，將市值與成本除以 exchangeRate 轉化為美元
                 const mktValUsd = isHkdMarket ? ((p.shares * livePrice) / exchangeRate) : (p.shares * livePrice);
                 const costUsd = isHkdMarket ? (p.totalCost / exchangeRate) : p.totalCost;
                 const plUsd = mktValUsd - costUsd;
@@ -455,7 +453,6 @@
                     usSectorsData[sec].actualValueUsd += mktValUsd;
                 }
 
-                // 📡 財報風控雷達
                 const stockCodeUpper = p.code.toUpperCase().trim();
                 if (earningsMap[stockCodeUpper]) {
                     const earnObj = earningsMap[stockCodeUpper];
@@ -495,39 +492,32 @@
                 document.getElementById('earningsAlertList').innerHTML = radarHtml;
             } else { radarContainer.classList.add('hidden'); }
 
-            // 🚀 現金流精算轉美元
             let totalCashUsd = 0;
             for (const mkt in cashBalances) { 
                 totalCashUsd += (cashBalances[mkt] * ((mkt === 'HK') ? (1 / exchangeRate) : 1)); 
             }
             assetRealValuesUsd["CASH_TOTAL"] = totalCashUsd;
             
-            // 🚀 總資產規模價值 (NAV)
             const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd;
 
-            // 🚀 反向推算雙幣別對照組數字 (HKD 顯示組)
             const totalCashHkd = totalCashUsd * exchangeRate;
             const totalStockMarketValueHkd = totalStockMarketValueUsd * exchangeRate;
             const totalAssetHkd = totalAssetUsd * exchangeRate;
             const totalPlUsd = totalStockMarketValueUsd - totalStockCostUsd;
             const totalPlHkd = totalPlUsd * exchangeRate;
 
-            // 💡 渲染看板一：現金結餘 (大字 USD、細字 HKD)
             document.getElementById('headerCashUsd').innerText = `USD $${totalCashUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashHkd').innerText = `等值 HKD $${totalCashHkd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashDetail').innerText = `🇺🇸 帳上美金: $${(cashBalances['US']||0).toLocaleString()} | 🇭🇰 帳上港幣: $${(cashBalances['HK']||0).toLocaleString()}`;
             
-            // 💡 渲染看板二：證券市值 (大字 USD、細字 HKD)
             document.getElementById('headerAllocationUsd').innerText = `USD $${totalStockMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
             document.getElementById('headerAllocationHkd').innerText = `等值 HKD $${totalStockMarketValueHkd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
             document.getElementById('headerTotalAsset').innerText = `資產淨值 (NAV): USD $${totalAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${totalAssetHkd.toLocaleString(undefined, {maximumFractionDigits:0})}`;
             
-            // 💡 渲染看板三：總賺蝕
             const totalPlPercent = totalStockCostUsd > 0 ? (totalPlUsd / totalStockCostUsd * 100) : 0;
             document.getElementById('headerTotalPl').innerText = `${totalPlPercent >= 0 ? '+' : ''}${totalPlPercent.toFixed(2)}%`;
             document.getElementById('headerTotalPlDetail').innerText = `持倉未實現盈虧: USD $${totalPlUsd.toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${totalPlHkd.toLocaleString(undefined, {maximumFractionDigits:0})}`;
 
-            // 💡 渲染大類資產計劃偏離度表格 (實際價值完全切換為 USD)
             const assetPlanTable = document.getElementById('assetPlanTable'); assetPlanTable.innerHTML = '';
             for (const ac in assetLabels) {
                 if (assetHidden[ac] === true) continue;
@@ -543,7 +533,6 @@
                     </tr>`;
             }
 
-            // 💡 渲染美股持倉自定義板塊 (統計額度完全切換為 USD)
             const sectorTableBody = document.getElementById('sectorBreakdownTable'); sectorTableBody.innerHTML = '';
             const sectorNames = Object.keys(usSectorsData);
             const usAssetPlanWeight = assetPlan["US"] || 0;
@@ -566,7 +555,6 @@
                 });
             }
 
-            // 💡 綜合證券持倉列表 (成本與現價保持本幣，以便核對市場真實報價；市值與未實現盈虧100%切換為 USD)
             const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
                 const isHkdMarket = p.market === 'HK'; 
@@ -599,6 +587,7 @@
                     }
                 }
 
+                // 🚀 核心優化：移除內容贅字，將市值與未實現盈虧純淨化為 "$1,234" 格式
                 posTableBody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100 ${p.isPlannedOnly ? 'bg-amber-50/40 opacity-70' : ''}">
                         <td class="px-2 py-3 font-bold">
@@ -609,11 +598,11 @@
                         <td class="px-2 py-3 font-semibold">${p.shares.toLocaleString()}</td>
                         <td class="px-2 py-3 text-gray-500 font-medium">${p.isPlannedOnly ? '---' : priceSign + p.avgPrice.toFixed(2)}</td>
                         <td class="px-2 py-3 font-semibold text-gray-600">${priceSign + (p.livePrice ? p.livePrice.toFixed(2) : '---')}</td>
-                        <td class="px-2 py-3 font-bold text-blue-600 bg-blue-50/10">USD $${p.mktValUsd.toLocaleString(undefined, {minimumFractionDigits:1, maximumFractionDigits:1})}</td>
+                        <td class="px-2 py-3 font-bold text-blue-600 bg-blue-50/10">$${p.mktValUsd.toLocaleString(undefined, {minimumFractionDigits:1, maximumFractionDigits:1})}</td>
                         <td class="px-1 py-3 font-bold text-blue-600">${assetPlannedWeight.toFixed(1)}%</td>
                         <td class="px-1 py-3 font-bold text-indigo-600 bg-indigo-50/40">${assetRealWeight.toFixed(1)}% ${assetPlannedWeight > 0 ? `<span class="text-[10px] block font-normal text-gray-500">進度: ${progressPercent.toFixed(1)}%</span>` : ''}</td>
                         <td class="px-1 py-3 font-bold text-emerald-600 bg-emerald-50/40">${totalRealWeight.toFixed(1)}%</td>
-                        <td class="px-2 py-3 font-bold bg-rose-50/20 ${p.plUsd >= 0 ? 'text-emerald-600':'text-rose-600'}">${p.isPlannedOnly ? '---' : (p.plUsd >= 0 ? '+': '') + 'USD $' + p.plUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                        <td class="px-2 py-3 font-bold bg-rose-50/20 ${p.plUsd >= 0 ? 'text-emerald-600':'text-rose-600'}">${p.isPlannedOnly ? '---' : (p.plUsd >= 0 ? '+': '') + '$' + p.plUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                         <td class="px-1 py-3 text-gray-400">${p.isPlannedOnly ? '---' : p.holdingDays + '天'}</td>
                     </tr>`;
             });
