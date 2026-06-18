@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>全球資產配置與計劃管理系統</title>
+    <!-- Tailwind CSS 引擎 -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Sign-In 驗證安全 Wall SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="bg-gray-100 font-sans p-6">
 
+    <!-- Google 登入驗證牆 -->
     <div id="loginWall" class="fixed inset-0 bg-gray-900 flex flex-col justify-center items-center z-50 p-4">
         <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
             <div class="space-y-2">
@@ -26,6 +29,7 @@
         </div>
     </div>
 
+    <!-- 主程式介面 -->
     <div id="mainApp" class="max-w-7xl mx-auto hidden">
         <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
             <div>
@@ -41,7 +45,26 @@
             </div>
         </header>
 
+        <!-- 頁籤一：投資儀表板 -->
         <div id="tab-dashboard" class="space-y-6">
+            
+            <!-- 🚀 戰術全新：7日內即將發佈財報標的風險雷達牆 Banner -->
+            <div id="earningsRadarContainer" class="hidden space-y-2">
+                <div class="bg-amber-50 border-l-4 border-rose-500 p-4 rounded-xl shadow-sm">
+                    <div class="flex items-center">
+                        <span class="text-xl mr-2">⚠️</span>
+                        <div>
+                            <h4 class="text-sm font-bold text-rose-900">操盤風控警告：未來 7 天內有持倉或觀察標的即將召開財報會議</h4>
+                            <p class="text-xs text-rose-700">操盤策略提示：防範 IV Crush（隱含波動率崩潰）與 Sell on Fact 下砸，請評估是否鎖定利潤或進行期權對沖。</p>
+                        </div>
+                    </div>
+                    <div id="earningsAlertList" class="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <!-- 動態插入警報單元 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 綜合核心數據看板 -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-blue-500">
                     <p class="text-sm text-gray-500 font-medium">💵 現金結餘 (HKD 總計)</p>
@@ -60,6 +83,7 @@
                 </div>
             </div>
 
+            <!-- 大類資產 -->
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h3 class="text-lg font-bold text-gray-700 mb-4">🗺️ 宏觀資產大類計劃偏離度 (Target vs Actual)</h3>
                 <div class="overflow-x-auto">
@@ -79,6 +103,7 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 左側表單 -->
                 <div class="bg-white p-6 rounded-xl shadow-md h-fit">
                     <h2 class="text-lg font-bold mb-4 text-gray-700">✍️ 新增資產交易 / 流水</h2>
                     <div class="mb-4">
@@ -131,6 +156,7 @@
                     </form>
                 </div>
 
+                <!-- 右側持倉 -->
                 <div class="lg:col-span-2 space-y-6">
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">💼 目前證券持倉與觀察名單 (含三層權重透視)</h2>
@@ -156,9 +182,10 @@
                         </div>
                     </div>
 
+                    <!-- 美股板塊 -->
                     <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
                         <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度 (Within Planned US Portfolio)</h3>
-                        <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模</p>
+                        <p class="text-xs text-gray-400 mb-3">分慢錨定於：美股計劃總配額規模</p>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-left text-xs">
                                 <thead class="bg-gray-50 text-gray-500">
@@ -176,8 +203,9 @@
                         </div>
                     </div>
 
+                    <!-- 流水帳 -->
                     <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明現流水帳</h2>
+                        <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明細流水帳</h2>
                         <div class="overflow-x-auto max-h-48 overflow-y-auto">
                             <table class="min-w-full text-left text-xs text-gray-600">
                                 <thead class="bg-gray-50 sticky top-0 font-medium">
@@ -199,6 +227,7 @@
             </div>
         </div>
 
+        <!-- 設定頁籤 -->
         <div id="tab-settings" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -254,6 +283,7 @@
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
         let stockPlan = [];
         let pdfMap = {}; 
+        let earningsMap = {}; // 💡 儲存全標的財報日程數據
 
         document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
 
@@ -320,16 +350,16 @@
                 }
                 stockPlan = data.stockPlan || [];
                 pdfMap = data.pdfMap || {}; 
+                earningsMap = data.earningsMap || {}; // 💡 接收業績大曆數據
                 
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 renderComponents();
                 
-                // 💡 雷達透視反饋：如果 Google Drive 報錯，直接在雷達外牆打印原因！
                 if (data.driveError) {
                     updateStatus(`⚠️ 同步完成 (但 PDF 載入失敗: ${data.driveError})`, "error");
                 } else {
                     const pdfCount = Object.keys(pdfMap).length;
-                    updateStatus(`✅ 雲端同步完成 (已偵測到 ${pdfCount} 份 PDF)`, "success");
+                    updateStatus(`✅ 雲端同步完成 (已識別 ${pdfCount} 份 PDF)`, "success");
                 }
             } catch (err) {
                 console.error(err); updateStatus("❌ 讀取失敗，請核對網址", "error");
@@ -398,6 +428,12 @@
                 }
             });
 
+            // 🚀 【財報排期核心精算】比對 7 天風險窗口
+            let radarHtml = "";
+            let hasRadarAlert = false;
+            const todayObj = new Date();
+            todayObj.setHours(0,0,0,0);
+
             for (const code in positions) {
                 const p = positions[code];
                 const livePrice = prices[p.yahooSymbol] || 0;
@@ -421,6 +457,42 @@
                     if (!usSectorsData[sec]) usSectorsData[sec] = { plannedWeight: 0, actualValueHkd: 0 };
                     usSectorsData[sec].actualValueHkd += mktValHkd;
                 }
+
+                // 💡 業績風險雷達提取比對
+                const stockCodeUpper = p.code.toUpperCase().trim();
+                if (earningsMap[stockCodeUpper]) {
+                    const earnDate = new Date(earningsMap[stockCodeUpper]);
+                    const diffTime = earnDate - todayObj;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    // 篩選出今天起算 7 天之內發佈業績的股票 (不論是持倉還是觀察股)
+                    if (diffDays >= 0 && diffDays <= 7) {
+                        hasRadarAlert = true;
+                        const labelType = p.isPlannedOnly ? "观察名单" : "已入仓位";
+                        const badgeColor = p.isPlannedOnly ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800 border border-rose-300 animate-pulse";
+                        
+                        radarHtml += `
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 flex flex-col justify-between shadow-sm">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-bold text-gray-800 text-sm">${stockCodeUpper}</span>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${badgeColor}">${labelType}</span>
+                                </div>
+                                <div class="text-xs text-gray-500 font-medium">
+                                    📅 財報日: <span class="text-rose-600 font-bold">${earningsMap[stockCodeUpper]}</span>
+                                    <span class="block text-rose-700 font-bold mt-0.5">⚠️ 倒數 ${diffDays} 天發佈</span>
+                                </div>
+                            </div>`;
+                    }
+                }
+            }
+
+            // 控制頂部財報雷達牆 Banner 顯示狀態
+            const radarContainer = document.getElementById('earningsRadarContainer');
+            if (hasRadarAlert) {
+                radarContainer.classList.remove('hidden');
+                document.getElementById('earningsAlertList').innerHTML = radarHtml;
+            } else {
+                radarContainer.classList.add('hidden');
             }
 
             let totalCashHkd = 0;
@@ -473,6 +545,7 @@
                 });
             }
 
+            // 渲染證券持倉列表
             const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
                 const isUS = p.market === 'US'; const cSign = isUS ? 'USD $' : 'HKD $';
@@ -495,10 +568,26 @@
                     codeCellHtml = `<span class="font-bold text-gray-800">${p.code}</span>`;
                 }
 
+                // 💡 【新增：行內業績彈跳 Badge 渲染】
+                let earningsBadgeHtml = "";
+                if (earningsMap[stockCodeUpper]) {
+                    const earnDate = new Date(earningsMap[stockCodeUpper]);
+                    const diffTime = earnDate - todayObj;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays >= 0 && diffDays <= 7) {
+                        // 7 天內公佈業績，觸發高亮彈跳警告
+                        earningsBadgeHtml = `<span class="inline-block ml-1 px-1 py-0.5 rounded text-[9px] font-extrabold bg-rose-600 text-white animate-bounce shadow-sm" title="業績會議日期: ${earningsMap[stockCodeUpper]}">⏰ 業績 ${earningsMap[stockCodeUpper].slice(5)}</span>`;
+                    }
+                }
+
                 posTableBody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100 ${p.isPlannedOnly ? 'bg-amber-50/40 opacity-70' : ''}">
                         <td class="px-2 py-3 font-bold">
-                            ${codeCellHtml}
+                            <div class="flex items-center flex-wrap gap-1">
+                                ${codeCellHtml}
+                                ${earningsBadgeHtml} 
+                            </div>
                             ${p.isPlannedOnly ? '<span class="text-[10px] block font-normal text-amber-600">[觀察名單]</span>' : ''}
                         </td>
                         <td class="px-2 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-700">${assetLabels[p.market]||p.market}</span></td>
