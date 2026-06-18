@@ -9,7 +9,6 @@
 </head>
 <body class="bg-gray-100 font-sans p-6">
 
-    <!-- Google 登入驗證牆 -->
     <div id="loginWall" class="fixed inset-0 bg-gray-900 flex flex-col justify-center items-center z-50 p-4">
         <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
             <div class="space-y-2">
@@ -27,7 +26,6 @@
         </div>
     </div>
 
-    <!-- 主程式介面 -->
     <div id="mainApp" class="max-w-7xl mx-auto hidden">
         <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
             <div>
@@ -43,10 +41,8 @@
             </div>
         </header>
 
-        <!-- 頁籤一：投資儀表板 -->
         <div id="tab-dashboard" class="space-y-6">
             
-            <!-- 7日內財報風險雷達牆 Banner -->
             <div id="earningsRadarContainer" class="hidden space-y-2">
                 <div class="bg-amber-50 border-l-4 border-rose-500 p-4 rounded-xl shadow-sm">
                     <div class="flex items-center">
@@ -60,7 +56,6 @@
                 </div>
             </div>
 
-            <!-- 綜合核心數據看板 -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-blue-500">
                     <p class="text-sm text-gray-500 font-medium">💵 現金結餘 (HKD 總計)</p>
@@ -79,7 +74,6 @@
                 </div>
             </div>
 
-            <!-- 大類資產 -->
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h3 class="text-lg font-bold text-gray-700 mb-4">🗺️ 宏觀資產大類計劃偏離度 (Target vs Actual)</h3>
                 <div class="overflow-x-auto">
@@ -99,7 +93,6 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- 左側表單 -->
                 <div class="bg-white p-6 rounded-xl shadow-md h-fit">
                     <h2 class="text-lg font-bold mb-4 text-gray-700">✍️ 新增資產交易 / 流水</h2>
                     <div class="mb-4">
@@ -152,7 +145,6 @@
                     </form>
                 </div>
 
-                <!-- 右側持倉 -->
                 <div class="lg:col-span-2 space-y-6">
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">💼 目前證券持倉與觀察名單 (含三層權重透視)</h2>
@@ -178,7 +170,6 @@
                         </div>
                     </div>
 
-                    <!-- 美股板塊 -->
                     <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
                         <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度 (Within Planned US Portfolio)</h3>
                         <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模</p>
@@ -199,7 +190,6 @@
                         </div>
                     </div>
 
-                    <!-- 流水帳 -->
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明細流水帳</h2>
                         <div class="overflow-x-auto max-h-48 overflow-y-auto">
@@ -223,7 +213,6 @@
             </div>
         </div>
 
-        <!-- 設定頁籤 -->
         <div id="tab-settings" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -391,7 +380,7 @@
                     } else if (typeStr === 'SELL') {
                         pos.shares -= qty; cashBalances[marketStr] += amt;
                         if (pos.shares <= 0) delete positions[codeStr];
-                        else pos.totalCost = pos.shares * (pos.totalCost / (pos.shares + qty));
+                        else pos.totalCost = pos.shares * (pos.shares + qty);
                     }
                 }
             });
@@ -452,28 +441,35 @@
 
                 const stockCodeUpper = p.code.toUpperCase().trim();
                 if (earningsMap[stockCodeUpper]) {
-                    const earnDateStr = earningsMap[stockCodeUpper].replace(/-/g, '/');
-                    const earnDate = new Date(earnDateStr); earnDate.setHours(0,0,0,0);
+                    const earnObj = earningsMap[stockCodeUpper];
+                    const earnDateStr = (typeof earnObj === 'object') ? earnObj.date : earnObj;
+                    const earnType = (typeof earnObj === 'object') ? earnObj.type : '自動';
                     
-                    const diffTime = earnDate - todayObj;
-                    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-                    if (diffDays >= 0 && diffDays <= 7) {
-                        hasRadarAlert = true;
-                        const labelType = p.isPlannedOnly ? "觀察名單" : "已買倉位";
-                        const badgeColor = p.isPlannedOnly ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800 border border-rose-300 animate-pulse";
+                    if (earnDateStr) {
+                        const earnDate = new Date(earnDateStr.replace(/-/g, '/'));
+                        earnDate.setHours(0,0,0,0);
                         
-                        radarHtml += `
-                            <div class="bg-white p-3 rounded-xl border border-gray-200 flex flex-col justify-between shadow-sm">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="font-bold text-gray-800 text-sm">${stockCodeUpper}</span>
-                                    <span class="text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${badgeColor}">${labelType}</span>
-                                </div>
-                                <div class="text-xs text-gray-500 font-medium">
-                                    📅 財報日: <span class="text-rose-600 font-bold">${earningsMap[stockCodeUpper]}</span>
-                                    <span class="block text-rose-700 font-bold mt-0.5">⚠️ 倒數 ${diffDays} 天發佈</span>
-                                </div>
-                            </div>`;
+                        const diffTime = earnDate - todayObj;
+                        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (diffDays >= 0 && diffDays <= 7) {
+                            hasRadarAlert = true;
+                            const labelType = p.isPlannedOnly ? "觀察名單" : "已買倉位";
+                            const badgeColor = p.isPlannedOnly ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800 border border-rose-300 animate-pulse";
+                            const typeLabel = earnType === "手動" ? "手動備份" : "自動偵測";
+                            
+                            radarHtml += `
+                                <div class="bg-white p-3 rounded-xl border border-gray-200 flex flex-col justify-between shadow-sm">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-bold text-gray-800 text-sm">${stockCodeUpper}</span>
+                                        <span class="text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${badgeColor}">${labelType} (${typeLabel})</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 font-medium">
+                                        📅 財報日: <span class="text-rose-600 font-bold">${earnDateStr}</span>
+                                        <span class="block text-rose-700 font-bold mt-0.5">⚠️ 倒數 ${diffDays} 天發佈</span>
+                                    </div>
+                                </div>`;
+                        }
                     }
                 }
             }
@@ -551,12 +547,15 @@
 
                 let earningsBadgeHtml = "";
                 if (earningsMap[stockCodeUpper]) {
-                    const earnDateStr = earningsMap[stockCodeUpper].replace(/-/g, '/');
-                    const earnDate = new Date(earnDateStr); earnDate.setHours(0,0,0,0);
-                    const diffTime = earnDate - todayObj;
-                    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-                    if (diffDays >= 0 && diffDays <= 7) {
-                        earningsBadgeHtml = `<span class="inline-block ml-1 px-1 py-0.5 rounded text-[9px] font-extrabold bg-rose-600 text-white animate-bounce shadow-sm">⏰ 業績 ${earningsMap[stockCodeUpper].slice(5)}</span>`;
+                    const earnObj = earningsMap[stockCodeUpper];
+                    const earnDateStr = (typeof earnObj === 'object') ? earnObj.date : earnObj;
+                    if (earnDateStr) {
+                        const earnDate = new Date(earnDateStr.replace(/-/g, '/')); earnDate.setHours(0,0,0,0);
+                        const diffTime = earnDate - todayObj;
+                        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                        if (diffDays >= 0 && diffDays <= 7) {
+                            earningsBadgeHtml = `<span class="inline-block ml-1 px-1 py-0.5 rounded text-[9px] font-extrabold bg-rose-600 text-white animate-bounce shadow-sm">⏰ 業績 ${earnDateStr.slice(5)}</span>`;
+                        }
                     }
                 }
 
@@ -601,6 +600,25 @@
             });
         }
 
+        // 💡 監聽日期輸入框改動，一旦發生變更，即刻強行升級為「手動最高主權」
+        function handleDateChange(input) {
+            if (input.value) {
+                input.setAttribute('data-type', '手動');
+                const label = input.nextElementSibling;
+                if (label) {
+                    label.className = "text-[10px] text-amber-600 block mt-0.5 font-bold animate-pulse";
+                    label.innerText = "✍️ 已變更為手動備份";
+                }
+            } else {
+                input.setAttribute('data-type', '');
+                const label = input.nextElementSibling;
+                if (label) {
+                    label.className = "text-[10px] text-gray-400 block mt-0.5 font-medium";
+                    label.innerText = "🔄 儲存後將自動偵測";
+                }
+            }
+        }
+
         function renderSettingsPage() {
             const container = document.getElementById('assetSettingInputs'); container.innerHTML = '';
             let total = 0;
@@ -629,12 +647,22 @@
                     optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`;
                 }
                 
-                // 💡 【核心升級：前端即時透視】檢查底層記憶體中有無 Yahoo 自動抓取的日期
                 const stockCodeUpper = s.code.toUpperCase().trim();
-                const autoDate = earningsMap[stockCodeUpper];
-                const autoStatusHtml = autoDate 
-                    ? `<span class="text-[10px] text-emerald-600 block mt-0.5 font-bold">🤖 Yahoo 自動偵測: ${autoDate}</span>`
-                    : `<span class="text-[10px] text-gray-400 block mt-0.5 font-medium">⚠️ 自動偵測無數據/遭封鎖</span>`;
+                const earnObj = earningsMap[stockCodeUpper] || { date: s.earnings_date || '', type: s.date_type || '手動' };
+                const currentDate = earnObj.date || '';
+                const currentType = earnObj.type || '手動';
+
+                // 💡 純淨化 Label：只區分自動與手動，完美抹除後台數據源標籤名稱
+                let statusStatusHtml = "";
+                if (currentDate) {
+                    if (currentType === "手動") {
+                        statusStatusHtml = `<span class="text-[10px] text-amber-600 block mt-0.5 font-bold">✍️ 手動備份紀錄</span>`;
+                    } else if (currentType === "自動") {
+                        statusStatusHtml = `<span class="text-[10px] text-emerald-600 block mt-0.5 font-bold">🤖 自動偵測: ${currentDate}</span>`;
+                    }
+                } else {
+                    statusStatusHtml = `<span class="text-[10px] text-gray-400 block mt-0.5 font-medium">⚠️ 暫無財報數據</span>`;
+                }
 
                 tbody.innerHTML += `
                     <tr class="stock-plan-row">
@@ -643,8 +671,8 @@
                         <td class="px-2 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
                         <td class="px-2 py-2"><input type="text" value="${s.sector || '未分類'}" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
                         <td class="px-2 py-2">
-                            <input type="date" value="${s.earnings_date || ''}" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center">
-                            ${autoStatusHtml} 
+                            <input type="date" value="${currentDate}" onchange="handleDateChange(this)" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center" data-type="${currentType}">
+                            ${statusStatusHtml}
                         </td>
                         <td class="px-2 py-2 text-center"><button onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium">移除</button></td>
                     </tr>`;
@@ -668,8 +696,8 @@
                     <td class="px-2 py-2"><input type="number" step="any" value="0" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
                     <td class="px-2 py-2"><input type="text" placeholder="板塊" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
                     <td class="px-2 py-2">
-                        <input type="date" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center">
-                        <span class="text-[10px] text-gray-400 block mt-0.5">🔄 儲存後自動聯網偵測</span>
+                        <input type="date" onchange="handleDateChange(this)" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center" data-type="手動">
+                        <span class="text-[10px] text-gray-400 block mt-0.5">🔄 儲存後將自動偵測</span>
                     </td>
                     <td class="px-2 py-2 text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
                 </tr>`;
@@ -688,8 +716,14 @@
                 const market = row.querySelector('.sp-market').value;
                 const weight = parseFloat(row.querySelector('.sp-weight').value) || 0;
                 const sector = row.querySelector('.sp-sector') ? row.querySelector('.sp-sector').value.trim() : "未分類";
-                const earnings_date = row.querySelector('.sp-earnings') ? row.querySelector('.sp-earnings').value.trim() : "";
-                if (code) newStockPlan.push({ code, market, target_weight: weight, sector, earnings_date });
+                
+                const earningsInput = row.querySelector('.sp-earnings');
+                const earnings_date = earningsInput ? earningsInput.value.trim() : "";
+                let date_type = earningsInput ? earningsInput.getAttribute('data-type') : "手動";
+                
+                if (earnings_date && !date_type) date_type = "手動";
+
+                if (code) newStockPlan.push({ code, market, target_weight: weight, sector, earnings_date, date_type });
             });
 
             try {
