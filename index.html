@@ -391,7 +391,7 @@
                     } else if (typeStr === 'SELL') {
                         pos.shares -= qty; cashBalances[marketStr] += amt;
                         if (pos.shares <= 0) delete positions[codeStr];
-                        else pos.totalCost = pos.shares * (pos.shares + qty);
+                        else pos.totalCost = pos.shares * (pos.totalCost / (pos.shares + qty));
                     }
                 }
             });
@@ -450,10 +450,8 @@
                     usSectorsData[sec].actualValueHkd += mktValHkd;
                 }
 
-                // 📡 財報風控雷達精算（全面修正時區盲區）
                 const stockCodeUpper = p.code.toUpperCase().trim();
                 if (earningsMap[stockCodeUpper]) {
-                    // 💡 關鍵修復：replace(/-/g, '/') 強制瀏覽器採用本地時區解析，封殺 UTC 造成的 1 天誤差
                     const earnDateStr = earningsMap[stockCodeUpper].replace(/-/g, '/');
                     const earnDate = new Date(earnDateStr); earnDate.setHours(0,0,0,0);
                     
@@ -630,14 +628,24 @@
                     if (key === 'CASH_TOTAL') continue;
                     optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`;
                 }
-                // 💡 設定頁追加手動指定財報日
+                
+                // 💡 【核心升級：前端即時透視】檢查底層記憶體中有無 Yahoo 自動抓取的日期
+                const stockCodeUpper = s.code.toUpperCase().trim();
+                const autoDate = earningsMap[stockCodeUpper];
+                const autoStatusHtml = autoDate 
+                    ? `<span class="text-[10px] text-emerald-600 block mt-0.5 font-bold">🤖 Yahoo 自動偵測: ${autoDate}</span>`
+                    : `<span class="text-[10px] text-gray-400 block mt-0.5 font-medium">⚠️ 自動偵測無數據/遭封鎖</span>`;
+
                 tbody.innerHTML += `
                     <tr class="stock-plan-row">
                         <td class="px-2 py-2"><input type="text" value="${s.code}" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold text-center"></td>
                         <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
                         <td class="px-2 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
                         <td class="px-2 py-2"><input type="text" value="${s.sector || '未分類'}" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
-                        <td class="px-2 py-2"><input type="date" value="${s.earnings_date || ''}" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center"></td>
+                        <td class="px-2 py-2">
+                            <input type="date" value="${s.earnings_date || ''}" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center">
+                            ${autoStatusHtml} 
+                        </td>
                         <td class="px-2 py-2 text-center"><button onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium">移除</button></td>
                     </tr>`;
             });
@@ -659,7 +667,10 @@
                     <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
                     <td class="px-2 py-2"><input type="number" step="any" value="0" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
                     <td class="px-2 py-2"><input type="text" placeholder="板塊" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
-                    <td class="px-2 py-2"><input type="date" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center"></td>
+                    <td class="px-2 py-2">
+                        <input type="date" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center">
+                        <span class="text-[10px] text-gray-400 block mt-0.5">🔄 儲存後自動聯網偵測</span>
+                    </td>
                     <td class="px-2 py-2 text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
                 </tr>`;
             tbody.insertAdjacentHTML('beforeend', newRowHtml);
