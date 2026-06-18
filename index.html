@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全球資產配置與計劃管理系統</title>
+    <title>全球資產配置與計劃管理系統 (USD Base)</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -30,7 +30,7 @@
         <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">📊 全球資產配置與計劃管理系統</h1>
-                <p class="text-sm text-gray-500">宏觀大類資產動態平衡 & 個股與板塊計劃追蹤</p>
+                <p class="text-sm text-gray-500">宏觀大類資產動態平衡 & 個股與板塊計劃追蹤 (基地貨幣：USD)</p>
             </div>
             <div class="flex items-center gap-3">
                 <nav class="flex bg-gray-100 p-1 rounded-lg text-sm font-medium">
@@ -57,20 +57,28 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-blue-500">
-                    <p class="text-sm text-gray-500 font-medium">💵 現金結餘 (HKD 總計)</p>
-                    <p id="headerCash" class="text-2xl font-bold text-gray-800">$0.00</p>
-                    <p id="headerCashDetail" class="text-xs text-gray-400">正在計算...</p>
+                <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-blue-500 flex flex-col justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">💵 現金結餘總計</p>
+                        <p id="headerCashUsd" class="text-2xl font-bold text-gray-950 mt-1">USD $0.00</p>
+                        <p id="headerCashHkd" class="text-sm text-gray-400 font-medium mt-0.5">HKD $0.00</p>
+                    </div>
+                    <p id="headerCashDetail" class="text-xs text-gray-400 mt-2 border-t pt-1 border-gray-100">正在計算...</p>
                 </div>
-                <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-indigo-500">
-                    <p class="text-sm text-gray-500 font-medium">📈 證券持倉總市值</p>
-                    <p id="headerAllocation" class="text-2xl font-bold text-gray-800">$0.00</p>
-                    <p id="headerTotalAsset" class="text-xs text-gray-400">正在計算...</p>
+                <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-indigo-500 flex flex-col justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">📈 證券持倉總市值</p>
+                        <p id="headerAllocationUsd" class="text-2xl font-bold text-gray-950 mt-1">USD $0.00</p>
+                        <p id="headerAllocationHkd" class="text-sm text-gray-400 font-medium mt-0.5">HKD $0.00</p>
+                    </div>
+                    <p id="headerTotalAsset" class="text-xs text-gray-400 mt-2 border-t pt-1 border-gray-100">正在計算...</p>
                 </div>
-                <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-gray-400" id="headerPlContainer">
-                    <p class="text-sm text-gray-500 font-medium">📈 證券持倉總賺蝕 (%)</p>
-                    <p id="headerTotalPl" class="text-2xl font-bold text-gray-800">0.00%</p>
-                    <p id="headerTotalPlHkd" class="text-xs text-gray-400">正在計算...</p>
+                <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-gray-400 flex flex-col justify-between" id="headerPlContainer">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">📈 證券持倉總賺蝕 (%)</p>
+                        <p id="headerTotalPl" class="text-2xl font-bold text-gray-800 mt-1">0.00%</p>
+                    </div>
+                    <p id="headerTotalPlDetail" class="text-xs text-gray-400 mt-2 border-t pt-1 border-gray-100">正在計算...</p>
                 </div>
             </div>
 
@@ -84,7 +92,7 @@
                                 <th class="px-4 py-2.5">計劃分配權重 %</th>
                                 <th class="px-4 py-2.5">真實實際權重 %</th>
                                 <th class="px-4 py-2.5">計劃偏離度 %</th>
-                                <th class="px-4 py-2.5">當前實際總價值</th>
+                                <th class="px-4 py-2.5 text-blue-600 font-semibold">當前實際總價值 (USD)</th>
                             </tr>
                         </thead>
                         <tbody id="assetPlanTable" class="divide-y divide-gray-100 text-gray-700"></tbody>
@@ -126,7 +134,7 @@
                                 </select>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
-                                <div><label class="block text-sm font-medium text-gray-700">交易價格</label><input type="number" id="txPrice" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
+                                <div><label class="block text-sm font-medium text-gray-700">交易價格 (市場本幣)</label><input type="number" id="txPrice" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
                                 <div><label class="block text-sm font-medium text-gray-700">交易數量</label><input type="number" id="txQty" step="any" placeholder="0" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
                             </div>
                         </div>
@@ -138,7 +146,7 @@
                                     <option value="WITHDRAW">💸 提取現金 (Withdraw)</option>
                                 </select>
                             </div>
-                            <div><label class="block text-sm font-medium text-gray-700">流動金額</label><input type="number" id="cashAmount" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
+                            <div><label class="block text-sm font-medium text-gray-700">流動金額 (市場本幣)</label><input type="number" id="cashAmount" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
                         </div>
                         <div><label class="block text-sm font-medium text-gray-700">異動日期</label><input type="date" id="txDate" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500" required></div>
                         <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 font-medium disabled:bg-gray-400 cursor-pointer">儲存變更</button>
@@ -155,13 +163,13 @@
                                         <th class="px-2 py-3">代號</th>
                                         <th class="px-2 py-3">市場</th>
                                         <th class="px-2 py-3">持股</th>
-                                        <th class="px-2 py-3">成本</th>
-                                        <th class="px-2 py-3">現價</th>
-                                        <th class="px-2 py-3">市值(HKD)</th>
-                                        <th class="px-1 py-3 text-blue-600 font-bold bg-blue-50/50">資產計劃%</th>
+                                        <th class="px-2 py-3">成本 (本幣)</th>
+                                        <th class="px-2 py-3">現價 (本幣)</th>
+                                        <th class="px-2 py-3 text-blue-600 font-bold bg-blue-50/50">市值(USD)</th>
+                                        <th class="px-1 py-3 text-blue-600 font-bold">資產計劃%</th>
                                         <th class="px-1 py-3 text-indigo-600 font-bold bg-indigo-50/50">資產真實%</th>
                                         <th class="px-1 py-3 text-emerald-600 font-bold bg-emerald-50/50">全倉真實%</th>
-                                        <th class="px-2 py-3">未實現(HKD)</th>
+                                        <th class="px-2 py-3 text-rose-600 font-bold bg-rose-50/30">未實現(USD)</th>
                                         <th class="px-1 py-3">日數</th>
                                     </tr>
                                 </thead>
@@ -180,7 +188,7 @@
                                         <th class="px-4 py-2.5">板塊分類名稱</th>
                                         <th class="px-4 py-2.5 text-blue-600 font-bold">計劃分配比重 %</th>
                                         <th class="px-4 py-2.5 text-indigo-600 font-bold">真實實際比重 %</th>
-                                        <th class="px-4 py-2.5">板塊當前總持倉市值 (HKD)</th>
+                                        <th class="px-4 py-2.5 text-gray-700 font-semibold">板塊當前總持倉市值 (USD)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="sectorBreakdownTable" class="divide-y divide-gray-100 text-gray-800">
@@ -260,7 +268,7 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbzsDE79EEEn1EpdYYTg44A8HeXzIEXs1hpV4JSjQUXeWo8uzeucaKndIm-RWce_l3Gy/exec";
 
         const assetLabels = {
-            "US": "美股", "HK": "港股", "BOND_L": "US 長債", "BOND_S": "US 短債", "GOLD": "金", "CASH_TOTAL": "現金（HKD）"
+            "US": "美股", "HK": "港股", "BOND_L": "US 長債", "BOND_S": "US 短債", "GOLD": "金", "CASH_TOTAL": "現金"
         };
 
         let userGoogleToken = ""; 
@@ -380,7 +388,7 @@
                     } else if (typeStr === 'SELL') {
                         pos.shares -= qty; cashBalances[marketStr] += amt;
                         if (pos.shares <= 0) delete positions[codeStr];
-                        else pos.totalCost = pos.shares * (pos.shares + qty);
+                        else pos.totalCost = pos.shares * (pos.totalCost / (pos.shares + qty));
                     }
                 }
             });
@@ -400,14 +408,15 @@
 
         function renderComponents() {
             const { cashBalances, positions } = calculatePortfolio();
-            let assetRealValuesHkd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "CASH_TOTAL": 0 };
-            let computedStocks = []; let totalStockMarketValueHkd = 0; let totalStockCostHkd = 0;
+            // 🚀 核心升級：大類資產計價全數以 USD 為基底
+            let assetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "CASH_TOTAL": 0 };
+            let computedStocks = []; let totalStockMarketValueUsd = 0; let totalStockCostUsd = 0;
             let usSectorsData = {};
 
             stockPlan.forEach(s => {
                 if (s.market === 'US') {
                     let sec = s.sector ? s.sector.trim() : "未分類";
-                    if (!usSectorsData[sec]) usSectorsData[sec] = { plannedWeight: 0, actualValueHkd: 0 };
+                    if (!usSectorsData[sec]) usSectorsData[sec] = { plannedWeight: 0, actualValueUsd: 0 };
                     usSectorsData[sec].plannedWeight += parseFloat(s.target_weight) || 0;
                 }
             });
@@ -418,27 +427,35 @@
             for (const code in positions) {
                 const p = positions[code];
                 const livePrice = prices[p.yahooSymbol] || 0;
-                const rate = (p.market === 'US') ? exchangeRate : 1;
+                const isHkdMarket = p.market === 'HK';
+                
+                // 🚀 核心公式：如果是港股，將市值與成本除以 exchangeRate 轉化為美元
+                const mktValUsd = isHkdMarket ? ((p.shares * livePrice) / exchangeRate) : (p.shares * livePrice);
+                const costUsd = isHkdMarket ? (p.totalCost / exchangeRate) : p.totalCost;
+                const plUsd = mktValUsd - costUsd;
                 const avgPrice = p.shares > 0 ? (p.totalCost / p.shares) : 0;
-                const mktValHkd = p.shares * livePrice * rate;
-                const costHkd = p.totalCost * rate; const plHkd = mktValHkd - costHkd;
 
                 let holdingDays = 0;
                 if(p.firstBuyDate !== '---') {
                     const diff = Math.floor((new Date() - new Date(p.firstBuyDate)) / (1000 * 60 * 60 * 24)); holdingDays = diff < 0 ? 0 : diff;
                 }
 
-                assetRealValuesHkd[p.market] += mktValHkd;
-                totalStockMarketValueHkd += mktValHkd; totalStockCostHkd += costHkd;
-                computedStocks.push({ ...p, avgPrice, livePrice, mktValHkd, plHkd, holdingDays });
+                assetRealValuesUsd[p.market] += mktValUsd;
+                if (!p.isPlannedOnly && p.shares > 0) {
+                    totalStockMarketValueUsd += mktValUsd; 
+                    totalStockCostUsd += costUsd;
+                }
+                
+                computedStocks.push({ ...p, avgPrice, livePrice, mktValUsd, costUsd, plUsd, holdingDays });
 
                 if (p.market === 'US' && !p.isPlannedOnly && p.shares > 0) {
                     let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                     let sec = (matchPlan && matchPlan.sector) ? matchPlan.sector.trim() : "未分類";
-                    if (!usSectorsData[sec]) usSectorsData[sec] = { plannedWeight: 0, actualValueHkd: 0 };
-                    usSectorsData[sec].actualValueHkd += mktValHkd;
+                    if (!usSectorsData[sec]) usSectorsData[sec] = { plannedWeight: 0, actualValueUsd: 0 };
+                    usSectorsData[sec].actualValueUsd += mktValUsd;
                 }
 
+                // 📡 財報風控雷達
                 const stockCodeUpper = p.code.toUpperCase().trim();
                 if (earningsMap[stockCodeUpper]) {
                     const earnObj = earningsMap[stockCodeUpper];
@@ -446,9 +463,7 @@
                     const earnType = (typeof earnObj === 'object') ? earnObj.type : '自動';
                     
                     if (earnDateStr) {
-                        const earnDate = new Date(earnDateStr.replace(/-/g, '/'));
-                        earnDate.setHours(0,0,0,0);
-                        
+                        const earnDate = new Date(earnDateStr.replace(/-/g, '/')); earnDate.setHours(0,0,0,0);
                         const diffTime = earnDate - todayObj;
                         const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
@@ -480,38 +495,59 @@
                 document.getElementById('earningsAlertList').innerHTML = radarHtml;
             } else { radarContainer.classList.add('hidden'); }
 
-            let totalCashHkd = 0;
-            for (const mkt in cashBalances) { totalCashHkd += (cashBalances[mkt] * ((mkt === 'US') ? exchangeRate : 1)); }
-            assetRealValuesHkd["CASH_TOTAL"] = totalCashHkd;
-            const totalAssetHkd = totalStockMarketValueHkd + totalCashHkd;
+            // 🚀 現金流精算轉美元
+            let totalCashUsd = 0;
+            for (const mkt in cashBalances) { 
+                totalCashUsd += (cashBalances[mkt] * ((mkt === 'HK') ? (1 / exchangeRate) : 1)); 
+            }
+            assetRealValuesUsd["CASH_TOTAL"] = totalCashUsd;
+            
+            // 🚀 總資產規模價值 (NAV)
+            const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd;
 
-            document.getElementById('headerCash').innerText = `HKD $${totalCashHkd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            document.getElementById('headerCashDetail').innerText = `🇭🇰 HKD: $${(cashBalances['HK']||0).toLocaleString()} | 🇺🇸 USD: $${(cashBalances['US']||0).toLocaleString()}`;
-            document.getElementById('headerAllocation').innerText = `HKD $${totalStockMarketValueHkd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
-            document.getElementById('headerTotalAsset').innerText = `總資產規模價值 (NAV): HKD $${totalAssetHkd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
-            const totalPlPercent = totalStockCostHkd > 0 ? ((totalStockMarketValueHkd - totalStockCostHkd) / totalStockCostHkd * 100) : 0;
+            // 🚀 反向推算雙幣別對照組數字 (HKD 顯示組)
+            const totalCashHkd = totalCashUsd * exchangeRate;
+            const totalStockMarketValueHkd = totalStockMarketValueUsd * exchangeRate;
+            const totalAssetHkd = totalAssetUsd * exchangeRate;
+            const totalPlUsd = totalStockMarketValueUsd - totalStockCostUsd;
+            const totalPlHkd = totalPlUsd * exchangeRate;
+
+            // 💡 渲染看板一：現金結餘 (大字 USD、細字 HKD)
+            document.getElementById('headerCashUsd').innerText = `USD $${totalCashUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('headerCashHkd').innerText = `等值 HKD $${totalCashHkd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('headerCashDetail').innerText = `🇺🇸 帳上美金: $${(cashBalances['US']||0).toLocaleString()} | 🇭🇰 帳上港幣: $${(cashBalances['HK']||0).toLocaleString()}`;
+            
+            // 💡 渲染看板二：證券市值 (大字 USD、細字 HKD)
+            document.getElementById('headerAllocationUsd').innerText = `USD $${totalStockMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
+            document.getElementById('headerAllocationHkd').innerText = `等值 HKD $${totalStockMarketValueHkd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
+            document.getElementById('headerTotalAsset').innerText = `資產淨值 (NAV): USD $${totalAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${totalAssetHkd.toLocaleString(undefined, {maximumFractionDigits:0})}`;
+            
+            // 💡 渲染看板三：總賺蝕
+            const totalPlPercent = totalStockCostUsd > 0 ? (totalPlUsd / totalStockCostUsd * 100) : 0;
             document.getElementById('headerTotalPl').innerText = `${totalPlPercent >= 0 ? '+' : ''}${totalPlPercent.toFixed(2)}%`;
-            document.getElementById('headerTotalPlHkd').innerText = `持倉未實現盈虧: HKD $${(totalStockMarketValueHkd - totalStockCostHkd).toLocaleString(undefined, {maximumFractionDigits:2})}`;
+            document.getElementById('headerTotalPlDetail').innerText = `持倉未實現盈虧: USD $${totalPlUsd.toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${totalPlHkd.toLocaleString(undefined, {maximumFractionDigits:0})}`;
 
+            // 💡 渲染大類資產計劃偏離度表格 (實際價值完全切換為 USD)
             const assetPlanTable = document.getElementById('assetPlanTable'); assetPlanTable.innerHTML = '';
             for (const ac in assetLabels) {
                 if (assetHidden[ac] === true) continue;
-                const pWeight = assetPlan[ac] || 0; const rVal = assetRealValuesHkd[ac] || 0;
-                const rWeight = totalAssetHkd > 0 ? (rVal / totalAssetHkd * 100) : 0; const deviation = rWeight - pWeight;
+                const pWeight = assetPlan[ac] || 0; const rVal = assetRealValuesUsd[ac] || 0;
+                const rWeight = totalAssetUsd > 0 ? (rVal / totalAssetUsd * 100) : 0; const deviation = rWeight - pWeight;
                 assetPlanTable.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100">
                         <td class="px-4 py-2.5 font-bold text-gray-800">${assetLabels[ac]}</td>
                         <td class="px-4 py-2.5 font-semibold text-blue-600">${pWeight.toFixed(1)}%</td>
                         <td class="px-4 py-2.5 font-semibold text-indigo-600">${rWeight.toFixed(1)}%</td>
                         <td class="px-4 py-2.5 font-bold ${deviation >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}%</td>
-                        <td class="px-4 py-2.5 text-gray-500">HKD $${rVal.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                        <td class="px-4 py-2.5 text-gray-600 font-medium">USD $${rVal.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                     </tr>`;
             }
 
+            // 💡 渲染美股持倉自定義板塊 (統計額度完全切換為 USD)
             const sectorTableBody = document.getElementById('sectorBreakdownTable'); sectorTableBody.innerHTML = '';
             const sectorNames = Object.keys(usSectorsData);
             const usAssetPlanWeight = assetPlan["US"] || 0;
-            const plannedUsTotalHkd = totalAssetHkd * (usAssetPlanWeight / 100);
+            const plannedUsTotalUsd = totalAssetUsd * (usAssetPlanWeight / 100);
 
             if (sectorNames.length === 0) {
                 sectorTableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-center text-gray-400">目前美股持倉或計劃中沒有任何板塊數據</td></tr>`;
@@ -519,27 +555,31 @@
                 sectorNames.sort((a, b) => usSectorsData[b].plannedWeight - usSectorsData[a].plannedWeight);
                 sectorNames.forEach(sec => {
                     const data = usSectorsData[sec];
-                    const sActualWeight = plannedUsTotalHkd > 0 ? (data.actualValueHkd / plannedUsTotalHkd * 100) : 0;
+                    const sActualWeight = plannedUsTotalUsd > 0 ? (data.actualValueUsd / plannedUsTotalUsd * 100) : 0;
                     sectorTableBody.innerHTML += `
                         <tr class="hover:bg-gray-50 border-b border-gray-100">
                             <td class="px-4 py-2.5 font-bold text-gray-700">🏷️ ${sec}</td>
                             <td class="px-4 py-2.5 font-bold text-blue-600 bg-blue-50/30">${data.plannedWeight.toFixed(1)}%</td>
                             <td class="px-4 py-2.5 font-bold text-indigo-600 bg-indigo-50/30">${sActualWeight.toFixed(1)}%</td>
-                            <td class="px-4 py-2.5 text-gray-500 font-medium">HKD $${data.actualValueHkd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                            <td class="px-4 py-2.5 text-gray-600 font-medium">USD $${data.actualValueUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                         </tr>`;
                 });
             }
 
+            // 💡 綜合證券持倉列表 (成本與現價保持本幣，以便核對市場真實報價；市值與未實現盈虧100%切換為 USD)
             const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
-                const isUS = p.market === 'US'; const cSign = isUS ? 'USD $' : 'HKD $';
+                const isHkdMarket = p.market === 'HK'; 
+                const priceSign = isHkdMarket ? 'HKD $' : 'USD $';
+                
                 const sPlanObj = stockPlan.find(s => s.code === p.code && s.market === p.market);
                 const assetPlannedWeight = sPlanObj ? sPlanObj.target_weight : 0;
                 const assetPlanWeight = assetPlan[p.market] || 0;
-                const plannedAssetClassTotalHkd = totalAssetHkd * (assetPlanWeight / 100);
-                const assetRealWeight = plannedAssetClassTotalHkd > 0 ? (p.mktValHkd / plannedAssetClassTotalHkd * 100) : 0;
+                
+                const plannedAssetClassTotalUsd = totalAssetUsd * (assetPlanWeight / 100);
+                const assetRealWeight = plannedAssetClassTotalUsd > 0 ? (p.mktValUsd / plannedAssetClassTotalUsd * 100) : 0;
                 const progressPercent = assetPlannedWeight > 0 ? (assetRealWeight / assetPlannedWeight * 100) : 0;
-                const totalRealWeight = totalAssetHkd > 0 ? (p.mktValHkd / totalAssetHkd * 100) : 0;
+                const totalRealWeight = totalAssetUsd > 0 ? (p.mktValUsd / totalAssetUsd * 100) : 0;
 
                 const stockCodeUpper = p.code.toUpperCase().trim();
                 const fileLink = pdfMap[stockCodeUpper];
@@ -567,13 +607,13 @@
                         </td>
                         <td class="px-2 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-700">${assetLabels[p.market]||p.market}</span></td>
                         <td class="px-2 py-3 font-semibold">${p.shares.toLocaleString()}</td>
-                        <td class="px-2 py-3 text-gray-500">${p.isPlannedOnly ? '---' : cSign + p.avgPrice.toFixed(2)}</td>
-                        <td class="px-2 py-3 font-semibold">${cSign + (p.livePrice ? p.livePrice.toFixed(2) : '---')}</td>
-                        <td class="px-2 py-3 font-medium">HKD $${p.mktValHkd.toLocaleString(undefined, {maximumFractionDigits:1})}</td>
-                        <td class="px-1 py-3 font-bold text-blue-600 bg-blue-50/40">${assetPlannedWeight.toFixed(1)}%</td>
+                        <td class="px-2 py-3 text-gray-500 font-medium">${p.isPlannedOnly ? '---' : priceSign + p.avgPrice.toFixed(2)}</td>
+                        <td class="px-2 py-3 font-semibold text-gray-600">${priceSign + (p.livePrice ? p.livePrice.toFixed(2) : '---')}</td>
+                        <td class="px-2 py-3 font-bold text-blue-600 bg-blue-50/10">USD $${p.mktValUsd.toLocaleString(undefined, {minimumFractionDigits:1, maximumFractionDigits:1})}</td>
+                        <td class="px-1 py-3 font-bold text-blue-600">${assetPlannedWeight.toFixed(1)}%</td>
                         <td class="px-1 py-3 font-bold text-indigo-600 bg-indigo-50/40">${assetRealWeight.toFixed(1)}% ${assetPlannedWeight > 0 ? `<span class="text-[10px] block font-normal text-gray-500">進度: ${progressPercent.toFixed(1)}%</span>` : ''}</td>
                         <td class="px-1 py-3 font-bold text-emerald-600 bg-emerald-50/40">${totalRealWeight.toFixed(1)}%</td>
-                        <td class="px-2 py-3 font-bold ${p.plHkd >= 0 ? 'text-emerald-600':'text-rose-600'}">${p.isPlannedOnly ? '---' : (p.plHkd >= 0 ? '+': '') + 'HKD $' + p.plHkd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                        <td class="px-2 py-3 font-bold bg-rose-50/20 ${p.plUsd >= 0 ? 'text-emerald-600':'text-rose-600'}">${p.isPlannedOnly ? '---' : (p.plUsd >= 0 ? '+': '') + 'USD $' + p.plUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                         <td class="px-1 py-3 text-gray-400">${p.isPlannedOnly ? '---' : p.holdingDays + '天'}</td>
                     </tr>`;
             });
@@ -600,7 +640,6 @@
             });
         }
 
-        // 💡 監聽日期輸入框改動，一旦發生變更，即刻強行升級為「手動最高主權」
         function handleDateChange(input) {
             if (input.value) {
                 input.setAttribute('data-type', '手動');
@@ -652,7 +691,6 @@
                 const currentDate = earnObj.date || '';
                 const currentType = earnObj.type || '手動';
 
-                // 💡 純淨化 Label：只區分自動與手動，完美抹除後台數據源標籤名稱
                 let statusStatusHtml = "";
                 if (currentDate) {
                     if (currentType === "手動") {
