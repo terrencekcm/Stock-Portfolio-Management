@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBM/記憶體基本面每週預警儀表板</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'PingFang HK', 'Microsoft JhengHei', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+    <header class="border-b border-slate-800 bg-slate-950/50 backdrop-blur px-6 py-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold tracking-wide text-slate-100 flex items-center gap-2">
+                    <span class="inline-block w-3 h-3 rounded-full bg-cyan-500 shadow-[0_0_10px_#06b6d4]"></span>
+                    HBM / 記憶體基本面每週預警系統
+                </h1>
+                <p class="text-xs text-slate-400 mt-0.5">Macro Sector Memory Fund Asset Allocation Dashboard</p>
+            </div>
+            <div id="current-date" class="text-sm font-mono text-slate-400 bg-slate-900 px-3 py-1.5 rounded-md border border-slate-800">
+                --
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 space-y-6">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 border-l-4 border-cyan-500 pl-2">本週指標數據錄入</h2>
+                    <form id="metrics-form" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">DRAM 現貨/合約價溢價率 (%)</label>
+                            <input type="number" step="0.1" id="premium-rate" required placeholder="例如: 5.5 或 -11.0" 
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">高階檢測設備交期 (個月)</label>
+                            <input type="number" step="1" id="lead-time" required placeholder="例如: 12" 
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">NVIDIA 週線狀態與 ASIC 強度</label>
+                            <select id="asic-strength" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-500">
+                                <option value="normal">正常 (NVDA站穩50MA / ASIC正常)</option>
+                                <option value="warning">背離 (ASIC創新高，但NVDA跌破50MA)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">高階 CoWoS 產能利用率 (%)</label>
+                            <input type="number" step="1" id="cowos-utilization" required placeholder="例如: 95" 
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-500">
+                        </div>
+                    </form>
+                </div>
+                <button type="submit" form="metrics-form" class="w-full mt-4 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-slate-100 font-medium py-2.5 rounded-lg text-sm transition shadow-lg shadow-cyan-900/20">
+                    提交本週覆核數據
+                </button>
+            </div>
+
+            <div class="lg:col-span-2 bg-slate-950 p-5 rounded-xl border border-slate-800">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider border-l-4 border-cyan-500 pl-2">宏觀前瞻領先指標趨勢圖</h2>
+                    <button onclick="clearHistory()" class="text-xs text-rose-400 hover:text-rose-300 underline bg-transparent border-none cursor-pointer">清除歷史數據</button>
+                </div>
+                <div class="h-64 relative">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-950 p-6 rounded-xl border border-slate-800">
+            <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-6 border-l-4 border-cyan-500 pl-2">當前基本面風險燈號與估值壓力動態評估</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="status-container">
+                </div>
+        </div>
+
+        <div class="bg-slate-950 p-5 rounded-xl border border-slate-800">
+            <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 border-l-4 border-cyan-500 pl-2">歷史覆核日誌 (LocalStorage 緩存)</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-300">
+                    <thead class="text-xs text-slate-400 uppercase bg-slate-900 border-b border-slate-800">
+                        <tr>
+                            <th class="px-4 py-3">覆核日期</th>
+                            <th class="px-4 py-3">DRAM 溢價率</th>
+                            <th class="px-4 py-3">設備交期</th>
+                            <th class="px-4 py-3">ASIC相對強度</th>
+                            <th class="px-4 py-3">CoWoS 利用率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-table-body" class="divide-y divide-slate-800/50">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 初始化日期
+        document.getElementById('current-date').innerText = `CURRENT SYSTEM TIME: ${new Date().toLocaleDateString('zh-HK')}`;
+
+        // 讀取 LocalStorage 歷史紀錄
+        let historyData = JSON.parse(localStorage.getItem('memory_dashboard_history')) || [];
+        let chartInstance = null;
+
+        // 初始化圖表
+        function initChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            const labels = historyData.map(d => d.date);
+            const premiumData = historyData.map(d => d.premium);
+            const cowosData = historyData.map(d => d.cowos);
+
+            if (chartInstance) { chartInstance.destroy(); }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'DRAM 溢價率 (%)', data: premiumData, borderColor: '#06b6d4', backgroundColor: 'rgba(6, 182, 212, 0.1)', yAxisID: 'y', tension: 0.2, fill: true },
+                        { label: 'CoWoS 利用率 (%)', data: cowosData, borderColor: '#a855f7', backgroundColor: 'transparent', yAxisID: 'y1', tension: 0.2 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+                        y: { type: 'linear', display: true, position: 'left', grid: { color: '#1e293b' }, ticks: { color: '#06b6d4' }, title: { display: true, text: '溢價率 (%)', color: '#06b6d4' } },
+                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#a855f7' }, title: { display: true, text: 'CoWoS 利用率 (%)', color: '#a855f7' } }
+                    },
+                    plugins: { legend: { labels: { color: '#f1f5f9' } } }
+                }
+            });
+        }
+
+        // 風險動態判定邏輯
+        function evaluateCurrentStatus(latest) {
+            const container = document.getElementById('status-container');
+            if (!latest) {
+                container.innerHTML = '<div class="col-span-4 text-center text-slate-500 py-4 text-sm">暫無本週覆核數據，請在左側輸入。</div>';
+                return;
+            }
+
+            // 1. Premium
+            let pStatus = latest.premium < -10 ? {color: 'rose', text: '重大警訊 (紅燈)', desc: '現貨嚴重低於合約10%以上，傳統需求崩盤，將拖累記憶體原廠財務，面臨估值回撤。'} 
+                        : latest.premium < 0 ? {color: 'amber', text: '溫和轉弱 (黃燈)', desc: '現貨價走軟，轉單溢價財開始縮水，需密切追蹤原廠財報利潤。'} 
+                        : {color: 'emerald', text: '安全穩健 (綠燈)', desc: '現貨價具備溢價，蠶食效應持續發酵，原廠獲利無虞。'};
+
+            // 2. Lead time
+            let lStatus = latest.leadTime < 8 ? {color: 'rose', text: '產線放緩 (紅燈)', desc: '高階設備交期跌破8個月，顯示美光/海力士放緩 HBM4 拉貨，封裝製程可能卡關。'}
+                        : latest.leadTime < 11 ? {color: 'amber', text: '擴產降溫 (黃燈)', desc: '交期小幅縮短，擴產節奏放緩，市場預期轉向謹慎。'}
+                        : {color: 'emerald', text: '積極擴產 (綠燈)', desc: '交期維持在12個月左右的高位，HBM 資本支出剛性推進。'};
+
+            // 3. ASIC Strength
+            let aStatus = latest.asic === 'warning' ? {color: 'rose', text: '結構轉移 (紅燈)', desc: 'ASIC股創新高但NVDA破50MA，CSP巨頭資本支出出現重大轉移，削弱GPU壟斷定價權。'}
+                        : {color: 'emerald', text: '生態健康 (綠燈)', desc: 'NVDA站穩長期均線，GPU架構升級帶動 HBM 數量乘數爆發。'};
+
+            // 4. CoWoS Util
+            let cStatus = latest.cowos < 90 ? {color: 'rose', text: '供給過剩 (紅燈)', desc: 'CoWoS 利用率跌破90%，供給擴張超越數據中心建置，警惕全產業鏈估值重修。'}
+                        : latest.cowos < 94 ? {color: 'amber', text: '需求溫和 (黃燈)', desc: '利用率產生微幅鬆動，算力基礎設施建置可能遭遇電力或政策逆風。'}
+                        : {color: 'emerald', text: '滿載剛需 (綠燈)', desc: '利用率高達95%以上，算力基建依然供不應求，板塊安全邊際極高。'};
+
+            const cards = [
+                { title: 'DRAM 現貨/合約溢價', ...pStatus, val: latest.premium + '%' },
+                { title: '設備交期指標', ...lStatus, val: latest.leadTime + ' 個月' },
+                { title: 'ASIC/GPU 相對強度', ...aStatus, val: latest.asic === 'normal' ? '正常' : '顯著背離' },
+                { title: 'CoWoS 產能利用率', ...cStatus, val: latest.cowos + '%' }
+            ];
+
+            container.innerHTML = cards.map(c => `
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs text-slate-400 font-medium">${c.title}</span>
+                            <span class="text-xs font-bold text-${c.color}-400 bg-${c.color}-950/50 border border-${c.color}-800/50 px-2 py-0.5 rounded">${c.text}</span>
+                        </div>
+                        <div class="text-xl font-mono font-bold text-slate-100 mb-2">${c.val}</div>
+                        <p class="text-xs text-slate-400 leading-relaxed">${c.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 更新歷史表格
+        function updateTable() {
+            const tbody = document.getElementById('log-table-body');
+            tbody.innerHTML = historyData.slice().reverse().map(d => `
+                <tr class="hover:bg-slate-900/40 transition">
+                    <td class="px-4 py-3 font-mono text-xs text-slate-400">${d.date}</td>
+                    <td class="px-4 py-3 font-medium ${d.premium < -10 ? 'text-rose-400' : 'text-slate-200'}">${d.premium}%</td>
+                    <td class="px-4 py-3 font-medium ${d.leadTime < 8 ? 'text-rose-400' : 'text-slate-200'}">${d.leadTime} 個月</td>
+                    <td class="px-4 py-3 text-xs"><span class="${d.asic === 'normal' ? 'text-emerald-400 bg-emerald-950/30' : 'text-rose-400 bg-rose-950/30'} px-2 py-0.5 rounded border border-transparent">${d.asic === 'normal' ? '正常' : '背離'}</span></td>
+                    <td class="px-4 py-3 font-medium ${d.cowos < 90 ? 'text-rose-400' : 'text-slate-200'}">${d.cowos}%</td>
+                </tr>
+            `).join('');
+        }
+
+        // 表單提交事件
+        document.getElementById('metrics-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const dateStr = new Date().toLocaleDateString('zh-HK');
+            
+            const record = {
+                date: dateStr,
+                premium: parseFloat(document.getElementById('premium-rate').value),
+                leadTime: parseInt(document.getElementById('lead-time').value),
+                asic: document.getElementById('asic-strength').value,
+                cowos: parseInt(document.getElementById('cowos-utilization').value)
+            };
+
+            // 如果當天已有資料則覆蓋，否則新增
+            const existingIdx = historyData.findIndex(d => d.date === dateStr);
+            if (existingIdx !== -1) {
+                historyData[existingIdx] = record;
+            } else {
+                historyData.push(record);
+            }
+
+            // 只保留最近 12 週（一季）的數據用於圖表美觀
+            if (historyData.length > 12) historyData.shift();
+
+            localStorage.setItem('memory_dashboard_history', JSON.stringify(historyData));
+            
+            initChart();
+            evaluateCurrentStatus(record);
+            updateTable();
+            this.reset();
+        });
+
+        // 清除歷史
+        window.clearHistory = function() {
+            if (confirm('確定要清空所有每週基本面歷史紀錄嗎？這項操作無法復原。')) {
+                localStorage.removeItem('memory_dashboard_history');
+                historyData = [];
+                initChart();
+                evaluateCurrentStatus(null);
+                updateTable();
+            }
+        }
+
+        // 首次載入初始化
+        initChart();
+        evaluateCurrentStatus(historyData[historyData.length - 1] || null);
+        updateTable();
+    </script>
+</body>
+</html>
