@@ -1,0 +1,22 @@
+{
+    "last_updated": "2026-06-21 14:29",
+    "stock_metrics": {
+        "nvda_close": 210.69,
+        "nvda_50ma": 209.12,
+        "asic_strength": "normal"
+    },
+    "supply_chain_news": {
+        "dram": {
+            "title": "美光還沒漲完？花旗喊目標價1200美元 DRAM超級周期才剛開始 - news.cnyes.com",
+            "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE9JMU9MZ3g1bEx2eGtBdl8taTF2OU9DUVRTUEhzY3d0azU3NWtFNklicXYxX092Q2VYMnU3dlJrb0JJN1gxaVotQlplSGk3ejA?oc=5"
+        },
+        "cowos": {
+            "title": "【美股動態】輝達Vera Rubin宣布全面量產，台積電CoWoS吃單了嗎？ - CMoney投資網誌",
+            "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNaVRMdlFyclRqY0kzQVhScHFfTHhxbUhoRzVGWjduWEFqbU5YTzhaOU5hUVljYXNMQUF6eDZBa1Nyakd6WEhJRnBYNjRIdHBkN0E2amFFODhTVXdiRDlnLVVlLXhubTA4c2JpeDEyb0o3VzVuaTZZd1RSSGdaZGhNaFVfekEwY0ZRSXNBSXJ3?oc=5"
+        },
+        "equipment": {
+            "title": "AI供應鏈再拉警報！南韓半導體設備業爆「史上最嚴重」非記憶體晶片缺貨危機 - news.cnyes.com",
+            "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE1zdHgydV9RdEpMN2xDaXZDdlJwTUxCSHM2Snlod2JidmRQUUtPQUgtX1JhVDFQVEl1ZHJHY1o3T1RqTGlQeDJUSjN2bnBuNzQ?oc=5"
+        }
+    }
+}
