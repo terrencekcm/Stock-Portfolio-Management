@@ -249,6 +249,8 @@
         initChart();
         evaluateCurrentStatus(historyData[historyData.length - 1] || null);
         updateTable();
+
+        fetch('data.json').then(response => response.json()).then(data => { ... });
     </script>
 </body>
 </html>
