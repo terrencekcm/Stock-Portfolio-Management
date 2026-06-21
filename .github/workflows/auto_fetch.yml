@@ -1,0 +1,33 @@
+name: Weekly Memory Market Data Fetcher
+
+on:
+  schedule:
+    - cron: '0 1 * * 6' # 每個星期六早上自動執行
+  workflow_dispatch: # 允許您在 Actions 分頁手動點擊執行
+
+jobs:
+  build-and-fetch:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 檢查程式碼庫
+      uses: actions/checkout@v3
+
+    - name: 設定 Python 環境
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: 安裝美股金融套件
+      run: |
+        pip install yfinance pandas
+
+    - name: 執行自動化抓取腳本
+      run: python fetch_data.py
+
+    - name: 將最新數據自動 Commit 回 Repository
+      run: |
+        git config --global user.name "Market-Bot"
+        git config --global user.email "bot@github.com"
+        git add data.json
+        git commit -m "Automated Fund Data Update: $(date +'%Y-%m-%d')" || exit 0
+        git push
