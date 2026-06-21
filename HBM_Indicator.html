@@ -246,11 +246,62 @@
         }
 
         // 首次載入初始化
+        // ==========================================
+        // 核心升級：全自動讀取機器人產出的 data.json
+        // ==========================================
+        
+        // 先載入本地緩存的歷史圖表與日誌
         initChart();
         evaluateCurrentStatus(historyData[historyData.length - 1] || null);
         updateTable();
 
-        fetch('data.json').then(response => response.json()).then(data => { ... });
+        // 啟動非同步抓取機器人最新的 json 數據庫
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                // 1. 更新網頁頂部時間為機器人最後在 GitHub 自動抓取的精準時間
+                document.getElementById('current-date').innerText = `機器人自動覆核時間: ${data.last_updated}`;
+                
+                // 2. 100% 自動化：將美股技術面量化判定結果（ASIC強度）自動填入下拉選單
+                if (data.stock_metrics && data.stock_metrics.asic_strength) {
+                    document.getElementById('asic-strength').value = data.stock_metrics.asic_strength;
+                }
+                
+                // 3. 半自動化：動態在表單最上方插入一個「當週全網前瞻情報推播」面板
+                const form = document.getElementById('metrics-form');
+                
+                // 防止重複插入面板
+                if (!document.getElementById('robot-news-panel')) {
+                    const newsBox = document.createElement('div');
+                    newsBox.id = 'robot-news-panel';
+                    // 使用 Tailwind 打造現代化機構成格視覺
+                    newsBox.className = "mb-4 p-3.5 bg-slate-900 border border-slate-800 rounded-xl space-y-2.5 text-xs shadow-inner shadow-slate-950";
+                    newsBox.innerHTML = `
+                        <div class="font-bold text-cyan-400 flex items-center gap-1.5 mb-1 tracking-wider">
+                            <span class="flex h-2 w-2 relative">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                            </span>
+                            機器人本週全網情報推播 (點擊查閱)：
+                        </div>
+                        <div class="truncate text-slate-300">
+                            📈 <b>DRAM 報價</b>：<a href="${data.supply_chain_news.dram.link}" target="_blank" class="text-cyan-400 hover:text-cyan-300 underline transition">${data.supply_chain_news.dram.title}</a>
+                        </div>
+                        <div class="truncate text-slate-300">
+                            ⚙️ <b>CoWoS 產能</b>：<a href="${data.supply_chain_news.cowos.link}" target="_blank" class="text-cyan-400 hover:text-cyan-300 underline transition">${data.supply_chain_news.cowos.title}</a>
+                        </div>
+                        <div class="truncate text-slate-300">
+                            📦 <b>設備交期</b>：<a href="${data.supply_chain_news.equipment.link}" target="_blank" class="text-cyan-400 hover:text-cyan-300 underline transition">${data.supply_chain_news.equipment.title}</a>
+                        </div>
+                    `;
+                    // 將這個情報盒子精準插入到手動輸入表單的最頂端
+                    form.insertBefore(newsBox, form.firstChild);
+                }
+            })
+            .catch(err => {
+                // 如果機器人還沒執行過，或 data.json 尚未生成，會在主控台安靜提示，不盲目報錯
+                console.log("提示：尚未偵測到自動化 data.json。當星期六機器人首次執行成功後，此處將自動對接。");
+            });
     </script>
 </body>
 </html>
