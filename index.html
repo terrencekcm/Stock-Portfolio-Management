@@ -9,7 +9,6 @@
 </head>
 <body class="bg-gray-100 font-sans p-6">
 
-    <!-- Google 登入驗證牆 -->
     <div id="loginWall" class="fixed inset-0 bg-gray-900 flex flex-col justify-center items-center z-50 p-4">
         <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
             <div class="space-y-2">
@@ -27,7 +26,6 @@
         </div>
     </div>
 
-    <!-- 主程式介面 -->
     <div id="mainApp" class="max-w-7xl mx-auto hidden">
         <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
             <div>
@@ -37,7 +35,6 @@
             <div class="flex items-center gap-3">
                 <nav class="flex bg-gray-100 p-1 rounded-lg text-sm font-medium">
                     <button id="btn-dashboard-tab" onclick="switchTab('dashboard-tab')" class="px-4 py-2 rounded-md bg-white shadow-sm text-blue-600">📊 投資儀表板</button>
-                    <!-- 💡 初始設為隱藏，只有 PM 登入後才會揭露 -->
                     <button id="btn-settings-tab" onclick="switchTab('settings-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 hidden">⚙️ 配置計劃設定</button>
                 </nav>
                 <div class="flex items-center gap-2">
@@ -47,16 +44,14 @@
             </div>
         </header>
 
-        <!-- 頁籤一：投資儀表板 -->
         <div id="tab-dashboard" class="space-y-6">
             
-            <!-- 7日內財報風險雷達牆 Banner -->
             <div id="earningsRadarContainer" class="hidden space-y-2">
                 <div class="bg-amber-50 border-l-4 border-rose-500 p-4 rounded-xl shadow-sm">
                     <div class="flex items-center">
                         <span class="text-xl mr-2">⚠️</span>
                         <div>
-                            <h4 class="text-sm font-bold text-rose-900">操盤風控警告：未來 7 天內有持倉或觀察標的即將召開財報會議</h4>
+                            <h4 class="text-sm font-bold text-rose-900">操盤風控警告：未來 7 天內有持倉 or 觀察標的即將召開財報會議</h4>
                             <p class="text-xs text-rose-700">操盤策略提示：防範 IV Crush（隱含波動率崩潰）與 Sell on Fact 下砸，請評估是否鎖定利潤或進行期權對沖。</p>
                         </div>
                     </div>
@@ -64,7 +59,6 @@
                 </div>
             </div>
 
-            <!-- 綜合核心數據看板 -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-blue-500 flex flex-col justify-between">
                     <div>
@@ -91,7 +85,6 @@
                 </div>
             </div>
 
-            <!-- 大類資產 -->
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h3 class="text-lg font-bold text-gray-700 mb-4">🗺️ 宏觀資產大類計劃偏離度 (Target vs Actual)</h3>
                 <div class="overflow-x-auto">
@@ -111,11 +104,9 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- 左側表單 -->
                 <div class="bg-white p-6 rounded-xl shadow-md h-fit">
                     <h2 class="text-lg font-bold mb-4 text-gray-700">✍️ 新增資產交易 / 流水</h2>
                     
-                    <!-- 訪客專用阻斷面板 -->
                     <div id="visitorBlockMessage" class="hidden p-5 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-center text-gray-400 text-xs font-semibold leading-relaxed">
                         🔒 您當前的登入身分權限為 <span class="text-gray-600 bg-gray-200 px-1.5 py-0.5 rounded font-bold">訪客 Visitor</span><br>儀表板已鎖定唯讀模式，無權進行記帳或出入市下單。
                     </div>
@@ -172,8 +163,24 @@
                     </div>
                 </div>
 
-                <!-- 右側持倉 -->
-                <div class="lg:col-span-2 space-y-6">
+                <div class="lg:col-span-2 space-y-4">
+                    
+                    <div id="usStrategyBarContainer" class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 space-y-1.5 hidden">
+                        <div class="flex justify-between items-center text-[11px] font-bold text-gray-600">
+                            <div class="flex items-center gap-1 text-rose-600">
+                                <span>⚔️ 攻擊型持倉:</span> <span id="attackBarPct">0.0%</span>
+                            </div>
+                            <div class="text-gray-400 font-medium tracking-wider">美股已建倉戰術天秤 (100% 滿倉錨定)</div>
+                            <div class="flex items-center gap-1 text-blue-600">
+                                <span>🛡️ 防守型持倉:</span> <span id="defenseBarPct">0.0%</span>
+                            </div>
+                        </div>
+                        <div class="flex h-2.5 w-full rounded-full bg-gray-100 overflow-hidden shadow-inner">
+                            <div id="attackBarSeg" class="bg-rose-500 transition-all duration-700" style="width: 0%"></div>
+                            <div id="defenseBarSeg" class="bg-blue-500 transition-all duration-700" style="width: 0%"></div>
+                        </div>
+                    </div>
+
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">💼 目前證券持倉與觀察名單 (含三層權重透視)</h2>
                         <div class="overflow-x-auto">
@@ -198,7 +205,6 @@
                         </div>
                     </div>
 
-                    <!-- 美股板塊 -->
                     <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
                         <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度 (Within Planned US Portfolio)</h3>
                         <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模</p>
@@ -219,7 +225,6 @@
                         </div>
                     </div>
 
-                    <!-- 流水帳 -->
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明細流水帳</h2>
                         <div class="overflow-x-auto max-h-48 overflow-y-auto">
@@ -243,7 +248,6 @@
             </div>
         </div>
 
-        <!-- 設定頁籤 (僅限 PM 投資組合經理看見) -->
         <div id="tab-settings" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -271,11 +275,12 @@
                                 <thead class="bg-gray-200 text-gray-600 font-semibold uppercase">
                                     <tr>
                                         <th class="px-2 py-2 w-20">標的代號</th>
-                                        <th class="px-2 py-2 w-24">資產大類</th>
-                                        <th class="px-2 py-2 w-24">大類內部%</th>
+                                        <th class="px-2 py-2 w-20">資產大類</th>
+                                        <th class="px-2 py-2 w-20">大類內部%</th>
                                         <th class="px-2 py-2 text-amber-700">🏷️ 自定義板塊</th>
-                                        <th class="px-2 py-2 text-rose-700">⏰ 財報日手動備份 (選填)</th>
-                                        <th class="px-2 py-2 w-16">操作</th>
+                                        <th class="px-2 py-2 text-purple-700">⚔️ 倉位策略</th>
+                                        <th class="px-2 py-2 text-rose-700">⏰ 財報手動備份</th>
+                                        <th class="px-2 py-2 w-12">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="stockPlanSettingRows" class="divide-y divide-gray-300"></tbody>
@@ -314,10 +319,8 @@
 
         function switchTab(tabId) {
             if (tabId === 'settings-tab' && userRole !== 'PM') {
-                alert("❌ 權限被拒絕：您的角色無法進入配置計劃設定頁面！");
-                return;
+                alert("❌ 權限被拒絕：您的角色無法進入配置計劃設定頁面！"); return;
             }
-            
             if (tabId === 'dashboard-tab') {
                 document.getElementById('tab-dashboard').classList.remove('hidden');
                 document.getElementById('tab-settings').classList.add('hidden');
@@ -353,7 +356,6 @@
             }`;
         }
 
-        // 🚀 修正身分標籤名稱：PM 項目經理 -> PM 投資組合經理
         function applyRoleUI(role) {
             userRole = role || "Visitor";
             const badge = document.getElementById('roleBadge');
@@ -402,19 +404,15 @@
                 earningsMap = data.earningsMap || {}; 
                 
                 applyRoleUI(data.userRole);
-                
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 renderComponents();
                 
                 if (data.driveError) {
                     updateStatus(`⚠️ 同步完成 (但 PDF 載入失敗: ${data.driveError})`, "error");
                 } else {
-                    const pdfCount = Object.keys(pdfMap).length;
-                    updateStatus(`✅ 雲端同步完成 (已識別 ${pdfCount} 份 PDF)`, "success");
+                    updateStatus(`✅ 雲端同步完成 (已識別 ${Object.keys(pdfMap).length} 份 PDF)`, "success");
                 }
-            } catch (err) {
-                console.error(err); updateStatus("❌ 讀取失敗，請核對網址", "error");
-            }
+            } catch (err) { console.error(err); updateStatus("❌ 讀取失敗，請核對網址", "error"); }
         }
 
         function calculatePortfolio() {
@@ -471,6 +469,11 @@
             let computedStocks = []; let totalStockMarketValueUsd = 0; let totalStockCostUsd = 0;
             let usSectorsData = {};
 
+            // 🚀 戰略變數精算初始化 (僅限已建倉的美股總持倉)
+            let totalUsActualMktValUsd = 0;
+            let attackValueUsd = 0;
+            let defenseValueUsd = 0;
+
             stockPlan.forEach(s => {
                 if (s.market === 'US') {
                     let sec = s.sector ? s.sector.trim() : "未分類";
@@ -499,8 +502,17 @@
 
                 assetRealValuesUsd[p.market] += mktValUsd;
                 if (!p.isPlannedOnly && p.shares > 0) {
-                    totalStockMarketValueUsd += mktValUsd; 
-                    totalStockCostUsd += costUsd;
+                    totalStockMarketValueUsd += mktValUsd; totalStockCostUsd += costUsd;
+                    
+                    // 🚀 核心攔截：累加美股已建倉標的的戰略市值
+                    if (p.market === 'US') {
+                        let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
+                        let strat = (matchPlan && matchPlan.strategy) ? matchPlan.strategy.trim() : "攻擊";
+                        
+                        totalUsActualMktValUsd += mktValUsd;
+                        if (strat === '防守') defenseValueUsd += mktValUsd;
+                        else attackValueUsd += mktValUsd; // 預設或攻擊型皆落入攻擊卷
+                    }
                 }
                 
                 computedStocks.push({ ...p, avgPrice, livePrice, mktValUsd, costUsd, plUsd, holdingDays });
@@ -517,65 +529,57 @@
                     const earnObj = earningsMap[stockCodeUpper];
                     const earnDateStr = (typeof earnObj === 'object') ? earnObj.date : earnObj;
                     const earnType = (typeof earnObj === 'object') ? earnObj.type : '自動';
-                    
                     if (earnDateStr) {
                         const earnDate = new Date(earnDateStr.replace(/-/g, '/')); earnDate.setHours(0,0,0,0);
-                        const diffTime = earnDate - todayObj;
-                        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
+                        const diffDays = Math.round((earnDate - todayObj) / (1000 * 60 * 60 * 24));
                         if (diffDays >= 0 && diffDays <= 7) {
                             hasRadarAlert = true;
-                            const labelType = p.isPlannedOnly ? "觀察名單" : "已買倉位";
                             const badgeColor = p.isPlannedOnly ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800 border border-rose-300 animate-pulse";
-                            const typeLabel = earnType === "手動" ? "手動備份" : "自動偵測";
-                            
                             radarHtml += `
                                 <div class="bg-white p-3 rounded-xl border border-gray-200 flex flex-col justify-between shadow-sm">
                                     <div class="flex justify-between items-center mb-1">
                                         <span class="font-bold text-gray-800 text-sm">${stockCodeUpper}</span>
-                                        <span class="text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${badgeColor}">${labelType} (${typeLabel})</span>
+                                        <span class="text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${badgeColor}">${p.isPlannedOnly ? '觀察名單' : '已買倉位'} (${earnType === "手動" ? "手動備份" : "自動偵測"})</span>
                                     </div>
-                                    <div class="text-xs text-gray-500 font-medium">
-                                        📅 財報日: <span class="text-rose-600 font-bold">${earnDateStr}</span>
-                                        <span class="block text-rose-700 font-bold mt-0.5">⚠️ 倒數 ${diffDays} 天發佈</span>
-                                    </div>
+                                    <div class="text-xs text-gray-500 font-medium">📅 財報日: <span class="text-rose-600 font-bold">${earnDateStr}</span><span class="block text-rose-700 font-bold mt-0.5">⚠️ 倒數 ${diffDays} 天發佈</span></div>
                                 </div>`;
                         }
                     }
                 }
             }
 
+            // 🚀 渲染戰略 Status Bar
+            const strategyBarContainer = document.getElementById('usStrategyBarContainer');
+            if (totalUsActualMktValUsd > 0) {
+                strategyBarContainer.classList.remove('hidden');
+                let attPct = (attackValueUsd / totalUsActualMktValUsd) * 100;
+                let defPct = (defenseValueUsd / totalUsActualMktValUsd) * 100;
+                
+                document.getElementById('attackBarPct').innerText = `${attPct.toFixed(1)}%`;
+                document.getElementById('defenseBarPct').innerText = `${defPct.toFixed(1)}%`;
+                document.getElementById('attackBarSeg').style.width = `${attPct}%`;
+                document.getElementById('defenseBarSeg').style.width = `${defPct}%`;
+            } else { strategyBarContainer.classList.add('hidden'); }
+
             const radarContainer = document.getElementById('earningsRadarContainer');
-            if (hasRadarAlert) {
-                radarContainer.classList.remove('hidden');
-                document.getElementById('earningsAlertList').innerHTML = radarHtml;
-            } else { radarContainer.classList.add('hidden'); }
+            if (hasRadarAlert) { radarContainer.classList.remove('hidden'); document.getElementById('earningsAlertList').innerHTML = radarHtml; }
+            else { radarContainer.classList.add('hidden'); }
 
             let totalCashUsd = 0;
-            for (const mkt in cashBalances) { 
-                totalCashUsd += (cashBalances[mkt] * ((mkt === 'HK') ? (1 / exchangeRate) : 1)); 
-            }
+            for (const mkt in cashBalances) { totalCashUsd += (cashBalances[mkt] * ((mkt === 'HK') ? (1 / exchangeRate) : 1)); }
             assetRealValuesUsd["CASH_TOTAL"] = totalCashUsd;
-            
             const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd;
 
-            const totalCashHkd = totalCashUsd * exchangeRate;
-            const totalStockMarketValueHkd = totalStockMarketValueUsd * exchangeRate;
-            const totalAssetHkd = totalAssetUsd * exchangeRate;
-            const totalPlUsd = totalStockMarketValueUsd - totalStockCostUsd;
-            const totalPlHkd = totalPlUsd * exchangeRate;
-
             document.getElementById('headerCashUsd').innerText = `USD $${totalCashUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            document.getElementById('headerCashHkd').innerText = `等值 HKD $${totalCashHkd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('headerCashHkd').innerText = `等值 HKD $${(totalCashUsd * exchangeRate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashDetail').innerText = `🇺🇸 帳上美金: $${(cashBalances['US']||0).toLocaleString()} | 🇭🇰 帳上港幣: $${(cashBalances['HK']||0).toLocaleString()}`;
-            
             document.getElementById('headerAllocationUsd').innerText = `USD $${totalStockMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
-            document.getElementById('headerAllocationHkd').innerText = `等值 HKD $${totalStockMarketValueHkd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
-            document.getElementById('headerTotalAsset').innerText = `資產淨值 (NAV): USD $${totalAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${totalAssetHkd.toLocaleString(undefined, {maximumFractionDigits:0})}`;
+            document.getElementById('headerAllocationHkd').innerText = `等值 HKD $${(totalStockMarketValueUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:2})}`;
+            document.getElementById('headerTotalAsset').innerText = `資產淨值 (NAV): USD $${totalAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${(totalAssetUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:0})}`;
             
-            const totalPlPercent = totalStockCostUsd > 0 ? (totalPlUsd / totalStockCostUsd * 100) : 0;
+            const totalPlPercent = totalStockCostUsd > 0 ? ((totalStockMarketValueUsd - totalStockCostUsd) / totalStockCostUsd * 100) : 0;
             document.getElementById('headerTotalPl').innerText = `${totalPlPercent >= 0 ? '+' : ''}${totalPlPercent.toFixed(2)}%`;
-            document.getElementById('headerTotalPlDetail').innerText = `持倉未實現盈虧: USD $${totalPlUsd.toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${totalPlHkd.toLocaleString(undefined, {maximumFractionDigits:0})}`;
+            document.getElementById('headerTotalPlDetail').innerText = `持倉未實現盈虧: USD $${(totalStockMarketValueUsd - totalStockCostUsd).toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${((totalStockMarketValueUsd - totalStockCostUsd)*exchangeRate).toLocaleString(undefined, {maximumFractionDigits:0})}`;
 
             const assetPlanTable = document.getElementById('assetPlanTable'); assetPlanTable.innerHTML = '';
             for (const ac in assetLabels) {
@@ -594,8 +598,7 @@
 
             const sectorTableBody = document.getElementById('sectorBreakdownTable'); sectorTableBody.innerHTML = '';
             const sectorNames = Object.keys(usSectorsData);
-            const usAssetPlanWeight = assetPlan["US"] || 0;
-            const plannedUsTotalUsd = totalAssetUsd * (usAssetPlanWeight / 100);
+            const plannedUsTotalUsd = totalAssetUsd * ((assetPlan["US"] || 0) / 100);
 
             if (sectorNames.length === 0) {
                 sectorTableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-center text-gray-400">目前美股持倉或計劃中沒有任何板塊數據</td></tr>`;
@@ -603,12 +606,11 @@
                 sectorNames.sort((a, b) => usSectorsData[b].plannedWeight - usSectorsData[a].plannedWeight);
                 sectorNames.forEach(sec => {
                     const data = usSectorsData[sec];
-                    const sActualWeight = plannedUsTotalUsd > 0 ? (data.actualValueUsd / plannedUsTotalUsd * 100) : 0;
                     sectorTableBody.innerHTML += `
                         <tr class="hover:bg-gray-50 border-b border-gray-100">
                             <td class="px-4 py-2.5 font-bold text-gray-700">🏷️ ${sec}</td>
                             <td class="px-4 py-2.5 font-bold text-blue-600 bg-blue-50/30">${data.plannedWeight.toFixed(1)}%</td>
-                            <td class="px-4 py-2.5 font-bold text-indigo-600 bg-indigo-50/30">${sActualWeight.toFixed(1)}%</td>
+                            <td class="px-4 py-2.5 font-bold text-indigo-600 bg-indigo-50/30">${plannedUsTotalUsd > 0 ? (data.actualValueUsd / plannedUsTotalUsd * 100).toFixed(1) : '0.0'}%</td>
                             <td class="px-4 py-2.5 text-gray-600 font-medium">USD $${data.actualValueUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                         </tr>`;
                 });
@@ -616,16 +618,11 @@
 
             const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
-                const isHkdMarket = p.market === 'HK'; 
-                const priceSign = isHkdMarket ? 'HKD $' : 'USD $';
-                
+                const isHkdMarket = p.market === 'HK'; const priceSign = isHkdMarket ? 'HKD $' : 'USD $';
                 const sPlanObj = stockPlan.find(s => s.code === p.code && s.market === p.market);
                 const assetPlannedWeight = sPlanObj ? sPlanObj.target_weight : 0;
-                const assetPlanWeight = assetPlan[p.market] || 0;
-                
-                const plannedAssetClassTotalUsd = totalAssetUsd * (assetPlanWeight / 100);
+                const plannedAssetClassTotalUsd = totalAssetUsd * ((assetPlan[p.market] || 0) / 100);
                 const assetRealWeight = plannedAssetClassTotalUsd > 0 ? (p.mktValUsd / plannedAssetClassTotalUsd * 100) : 0;
-                const progressPercent = assetPlannedWeight > 0 ? (assetRealWeight / assetPlannedWeight * 100) : 0;
                 const totalRealWeight = totalAssetUsd > 0 ? (p.mktValUsd / totalAssetUsd * 100) : 0;
 
                 const stockCodeUpper = p.code.toUpperCase().trim();
@@ -638,8 +635,7 @@
                     const earnDateStr = (typeof earnObj === 'object') ? earnObj.date : earnObj;
                     if (earnDateStr) {
                         const earnDate = new Date(earnDateStr.replace(/-/g, '/')); earnDate.setHours(0,0,0,0);
-                        const diffTime = earnDate - todayObj;
-                        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                        const diffDays = Math.round((earnDate - todayObj) / (1000 * 60 * 60 * 24));
                         if (diffDays >= 0 && diffDays <= 7) {
                             earningsBadgeHtml = `<span class="inline-block ml-1 px-1 py-0.5 rounded text-[9px] font-extrabold bg-rose-600 text-white animate-bounce shadow-sm">⏰ 業績 ${earnDateStr.slice(5)}</span>`;
                         }
@@ -658,7 +654,7 @@
                         <td class="px-2 py-3 font-semibold text-gray-600">${priceSign + (p.livePrice ? p.livePrice.toFixed(2) : '---')}</td>
                         <td class="px-2 py-3 font-bold text-blue-600 bg-blue-50/10">$${p.mktValUsd.toLocaleString(undefined, {minimumFractionDigits:1, maximumFractionDigits:1})}</td>
                         <td class="px-1 py-3 font-bold text-blue-600">${assetPlannedWeight.toFixed(1)}%</td>
-                        <td class="px-1 py-3 font-bold text-indigo-600 bg-indigo-50/40">${assetRealWeight.toFixed(1)}% ${assetPlannedWeight > 0 ? `<span class="text-[10px] block font-normal text-gray-500">進度: ${progressPercent.toFixed(1)}%</span>` : ''}</td>
+                        <td class="px-1 py-3 font-bold text-indigo-600 bg-indigo-50/40">${assetRealWeight.toFixed(1)}% ${assetPlannedWeight > 0 ? `<span class="text-[10px] block font-normal text-gray-500">進度: ${(assetRealWeight / assetPlannedWeight * 100).toFixed(1)}%</span>` : ''}</td>
                         <td class="px-1 py-3 font-bold text-emerald-600 bg-emerald-50/40">${totalRealWeight.toFixed(1)}%</td>
                         <td class="px-2 py-3 font-bold bg-rose-50/20 ${p.plUsd >= 0 ? 'text-emerald-600':'text-rose-600'}">${p.isPlannedOnly ? '---' : (p.plUsd >= 0 ? '+': '') + '$' + p.plUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                         <td class="px-1 py-3 text-gray-400">${p.isPlannedOnly ? '---' : p.holdingDays + '天'}</td>
@@ -674,23 +670,15 @@
                 let badge = t.type === 'BUY' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
                 if(t.type === 'DEPOSIT') badge = 'bg-emerald-100 text-emerald-800';
                 if(t.type === 'WITHDRAW') badge = 'bg-orange-100 text-orange-800';
-                
-                let actionHtml = '';
-                if (userRole === 'PM' || userRole === 'Trader') {
-                    actionHtml = `<button onclick="deleteTx('${t.id}')" class="text-red-500 hover:underline cursor-pointer">刪除</button>`;
-                } else {
-                    actionHtml = `<span class="text-gray-300 select-none">唯讀鎖定</span>`;
-                }
-
                 historyTableBody.innerHTML += `
                     <tr class="border-b border-gray-100 hover:bg-gray-50">
                         <td class="px-3 py-1.5">${t.date}</td>
                         <td class="px-3 py-1.5 font-bold">${t.code === 'CASH' ? '💵 現金流水' : t.code}</td>
                         <td class="px-3 py-1.5 font-medium text-gray-500">${assetLabels[t.market]||t.market}</td>
                         <td class="px-3 py-1.5"><span class="px-1.5 py-0.5 rounded font-semibold ${badge}">${t.type}</span></td>
-                        <td class="px-3 py-1.5">$${Number(t.price).toFixed(2)}</td>
+                        <td class="px-3 py-2">$${Number(t.price).toFixed(2)}</td>
                         <td class="px-3 py-1.5">${Number(t.qty).toLocaleString()}</td>
-                        <td class="px-3 py-1.5">${actionHtml}</td>
+                        <td class="px-3 py-1.5">${(userRole==='PM'||userRole==='Trader')?`<button onclick="deleteTx('${t.id}')" class="text-red-500 hover:underline cursor-pointer">刪除</button>`:`<span class="text-gray-300 select-none">唯讀鎖定</span>`}</td>
                     </tr>`;
             });
         }
@@ -699,32 +687,26 @@
             if (input.value) {
                 input.setAttribute('data-type', '手動');
                 const label = input.nextElementSibling;
-                if (label) {
-                    label.className = "text-[10px] text-amber-600 block mt-0.5 font-bold animate-pulse";
-                    label.innerText = "✍️ 已變更為手動備份";
-                }
+                if (label) { label.className = "text-[10px] text-amber-600 block mt-0.5 font-bold animate-pulse"; label.innerText = "✍️ 已變更為手動備份"; }
             } else {
                 input.setAttribute('data-type', '');
                 const label = input.nextElementSibling;
-                if (label) {
-                    label.className = "text-[10px] text-gray-400 block mt-0.5 font-medium";
-                    label.innerText = "🔄 儲存後將自動偵測";
-                }
+                if (label) { label.className = "text-[10px] text-gray-400 block mt-0.5 font-medium"; label.innerText = "🔄 儲存後將自動偵測"; }
             }
         }
 
         function renderSettingsPage() {
-            if (userRole !== 'PM') return; 
+            if (userRole !== 'PM') return;
             const container = document.getElementById('assetSettingInputs'); container.innerHTML = '';
             let total = 0;
             for (const ac in assetLabels) {
-                total += assetPlan[ac] || 0; const isChecked = assetHidden[ac] ? 'checked' : '';
+                total += assetPlan[ac] || 0;
                 container.innerHTML += `
                     <div class="flex flex-col bg-white p-3 rounded-lg shadow-sm gap-2 border border-gray-100">
                         <div class="flex justify-between items-center">
                             <span class="font-bold text-gray-800">${assetLabels[ac]}</span>
                             <label class="inline-flex items-center text-xs text-gray-500 cursor-pointer select-none">
-                                <input type="checkbox" data-asset="${ac}" class="asset-hide-checkbox mr-1" ${isChecked}> 👁️ 隱藏
+                                <input type="checkbox" data-asset="${ac}" class="asset-hide-checkbox mr-1" ${assetHidden[ac]?'checked':''}> 👁️ 隱藏
                             </label>
                         </div>
                         <div class="flex items-center justify-end gap-1">
@@ -744,19 +726,7 @@
                 
                 const stockCodeUpper = s.code.toUpperCase().trim();
                 const earnObj = earningsMap[stockCodeUpper] || { date: s.earnings_date || '', type: s.date_type || '手動' };
-                const currentDate = earnObj.date || '';
-                const currentType = earnObj.type || '手動';
-
-                let statusStatusHtml = "";
-                if (currentDate) {
-                    if (currentType === "手動") {
-                        statusStatusHtml = `<span class="text-[10px] text-amber-600 block mt-0.5 font-bold">✍️ 手動備份紀錄</span>`;
-                    } else if (currentType === "自動") {
-                        statusStatusHtml = `<span class="text-[10px] text-emerald-600 block mt-0.5 font-bold">🤖 自動偵測: ${currentDate}</span>`;
-                    }
-                } else {
-                    statusStatusHtml = `<span class="text-[10px] text-gray-400 block mt-0.5 font-medium">⚠️ 暫無財報數據</span>`;
-                }
+                const currentStrategy = s.strategy || '攻擊';
 
                 tbody.innerHTML += `
                     <tr class="stock-plan-row">
@@ -764,9 +734,17 @@
                         <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
                         <td class="px-2 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
                         <td class="px-2 py-2"><input type="text" value="${s.sector || '未分類'}" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
+                        
                         <td class="px-2 py-2">
-                            <input type="date" value="${currentDate}" onchange="handleDateChange(this)" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center" data-type="${currentType}">
-                            ${statusStatusHtml}
+                            <select class="sp-strategy p-1 rounded border border-gray-300 bg-white font-bold text-center w-full focus:outline-blue-500">
+                                <option value="攻擊" ${currentStrategy==='攻擊'?'selected':''}>⚔️ 攻擊</option>
+                                <option value="防守" ${currentStrategy==='防守'?'selected':''}>🛡️ 防守</option>
+                            </select>
+                        </td>
+
+                        <td class="px-2 py-2">
+                            <input type="date" value="${earnObj.date || ''}" onchange="handleDateChange(this)" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center" data-type="${earnObj.type || '手動'}">
+                            ${earnObj.date ? `<span class="text-[10px] ${earnObj.type==='手動'?'text-amber-600':'text-emerald-600'} block mt-0.5 font-bold">${earnObj.type==='手動'?'✍️ 手動備份':'🤖 自動偵測: '+earnObj.date}</span>` : '<span class="text-[10px] text-gray-400 block mt-0.5 font-medium">⚠️ 暫無數據</span>'}
                         </td>
                         <td class="px-2 py-2 text-center"><button onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium">移除</button></td>
                     </tr>`;
@@ -789,6 +767,14 @@
                     <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
                     <td class="px-2 py-2"><input type="number" step="any" value="0" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
                     <td class="px-2 py-2"><input type="text" placeholder="板塊" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
+                    
+                    <td class="px-2 py-2">
+                        <select class="sp-strategy p-1 rounded border border-gray-300 bg-white font-bold text-center w-full focus:outline-blue-500">
+                            <option value="攻擊" selected>⚔️ 攻擊</option>
+                            <option value="防守">🛡️ 防守</option>
+                        </select>
+                    </td>
+
                     <td class="px-2 py-2">
                         <input type="date" onchange="handleDateChange(this)" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center" data-type="手動">
                         <span class="text-[10px] text-gray-400 block mt-0.5">🔄 儲存後將自動偵測</span>
@@ -811,18 +797,20 @@
                 const market = row.querySelector('.sp-market').value;
                 const weight = parseFloat(row.querySelector('.sp-weight').value) || 0;
                 const sector = row.querySelector('.sp-sector') ? row.querySelector('.sp-sector').value.trim() : "未分類";
-                
                 const earningsInput = row.querySelector('.sp-earnings');
                 const earnings_date = earningsInput ? earningsInput.value.trim() : "";
                 let date_type = earningsInput ? earningsInput.getAttribute('data-type') : "手動";
                 
-                if (earnings_date && !date_type) date_type = "手動";
+                // 🚀 讀取下拉策略選單
+                const strategySelect = row.querySelector('.sp-strategy');
+                const strategy = strategySelect ? strategySelect.value : "攻擊";
 
-                if (code) newStockPlan.push({ code, market, target_weight: weight, sector, earnings_date, date_type });
+                if (earnings_date && !date_type) date_type = "手動";
+                if (code) newStockPlan.push({ code, market, target_weight: weight, sector, earnings_date, date_type, strategy });
             });
 
             try {
-                const res = await fetch(API_URL, {
+                await fetch(API_URL, {
                     method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
                         action: "SAVE_SETTINGS", token: userGoogleToken, 
@@ -836,9 +824,7 @@
         }
 
         document.getElementById('txForm').addEventListener('submit', async function(e) {
-            e.preventDefault(); 
-            if (userRole === 'Visitor') { alert("❌ 訪客角色無權異動數據！"); return; }
-            
+            e.preventDefault(); if (userRole === 'Visitor') { alert("❌ 訪客角色無權異動數據！"); return; }
             const submitBtn = document.getElementById('submitBtn'); submitBtn.disabled = true;
             updateStatus("🚀 正在寫入交易紀錄...", "loading");
             const category = document.getElementById('txCategory').value;
