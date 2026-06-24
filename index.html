@@ -9,6 +9,7 @@
 </head>
 <body class="bg-gray-100 font-sans p-6">
 
+    <!-- Google 登入驗證牆 -->
     <div id="loginWall" class="fixed inset-0 bg-gray-900 flex flex-col justify-center items-center z-50 p-4">
         <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
             <div class="space-y-2">
@@ -26,6 +27,7 @@
         </div>
     </div>
 
+    <!-- 主程式介面 -->
     <div id="mainApp" class="max-w-7xl mx-auto hidden">
         <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
             <div>
@@ -44,8 +46,10 @@
             </div>
         </header>
 
+        <!-- 頁籤一：投資儀表板 -->
         <div id="tab-dashboard" class="space-y-6">
             
+            <!-- 7日內財報風險雷達牆 Banner -->
             <div id="earningsRadarContainer" class="hidden space-y-2">
                 <div class="bg-amber-50 border-l-4 border-rose-500 p-4 rounded-xl shadow-sm">
                     <div class="flex items-center">
@@ -59,6 +63,7 @@
                 </div>
             </div>
 
+            <!-- 綜合核心數據看板 -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-blue-500 flex flex-col justify-between">
                     <div>
@@ -85,6 +90,7 @@
                 </div>
             </div>
 
+            <!-- 大類資產 -->
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h3 class="text-lg font-bold text-gray-700 mb-4">🗺️ 宏觀資產大類計劃偏離度 (Target vs Actual)</h3>
                 <div class="overflow-x-auto">
@@ -104,6 +110,7 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 左側表單 -->
                 <div class="bg-white p-6 rounded-xl shadow-md h-fit">
                     <h2 class="text-lg font-bold mb-4 text-gray-700">✍️ 新增資產交易 / 流水</h2>
                     
@@ -163,19 +170,22 @@
                     </div>
                 </div>
 
+                <!-- 右側持倉 -->
                 <div class="lg:col-span-2 space-y-4">
                     
-                    <div id="usStrategyBarContainer" class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 space-y-1.5 hidden">
+                    <!-- 🚀 絕對制導戰略 Status Bar: 擺放於大表正上方，不佔空間，永不隱藏，真實映射空倉比例 -->
+                    <div id="usStrategyBarContainer" class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 space-y-1.5">
                         <div class="flex justify-between items-center text-[11px] font-bold text-gray-600">
                             <div class="flex items-center gap-1 text-rose-600">
-                                <span>⚔️ 攻擊型持倉:</span> <span id="attackBarPct">0.0%</span>
+                                <span>⚔️ 攻擊持倉:</span> <span id="attackBarPct">0.0%</span>
                             </div>
-                            <div class="text-gray-400 font-medium tracking-wider">美股已建倉戰術天秤 (100% 滿倉錨定)</div>
+                            <div class="text-gray-500 font-extrabold tracking-wide" id="strategyBarTitle">美股戰略建倉進度 (錨定美股計劃總額)</div>
                             <div class="flex items-center gap-1 text-blue-600">
-                                <span>🛡️ 防守型持倉:</span> <span id="defenseBarPct">0.0%</span>
+                                <span>🛡️ 防守持倉:</span> <span id="defenseBarPct">0.0%</span>
                             </div>
                         </div>
-                        <div class="flex h-2.5 w-full rounded-full bg-gray-100 overflow-hidden shadow-inner">
+                        <!-- 💡 灰色底色代表未建倉空位，完美觀測差多少滿倉 -->
+                        <div class="flex h-2.5 w-full rounded-full bg-gray-200 overflow-hidden shadow-inner">
                             <div id="attackBarSeg" class="bg-rose-500 transition-all duration-700" style="width: 0%"></div>
                             <div id="defenseBarSeg" class="bg-blue-500 transition-all duration-700" style="width: 0%"></div>
                         </div>
@@ -205,6 +215,7 @@
                         </div>
                     </div>
 
+                    <!-- 美股板塊 -->
                     <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
                         <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度 (Within Planned US Portfolio)</h3>
                         <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模</p>
@@ -225,6 +236,7 @@
                         </div>
                     </div>
 
+                    <!-- 流水帳 -->
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明細流水帳</h2>
                         <div class="overflow-x-auto max-h-48 overflow-y-auto">
@@ -248,6 +260,7 @@
             </div>
         </div>
 
+        <!-- 設定頁籤 -->
         <div id="tab-settings" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -469,8 +482,7 @@
             let computedStocks = []; let totalStockMarketValueUsd = 0; let totalStockCostUsd = 0;
             let usSectorsData = {};
 
-            // 🚀 戰略變數精算初始化 (僅限已建倉的美股總持倉)
-            let totalUsActualMktValUsd = 0;
+            // 🚀 戰略累計值（計價單位：USD）
             let attackValueUsd = 0;
             let defenseValueUsd = 0;
 
@@ -504,14 +516,13 @@
                 if (!p.isPlannedOnly && p.shares > 0) {
                     totalStockMarketValueUsd += mktValUsd; totalStockCostUsd += costUsd;
                     
-                    // 🚀 核心攔截：累加美股已建倉標的的戰略市值
+                    // 🚀 攔截美股真實持倉，依策略分類累加它的市值
                     if (p.market === 'US') {
                         let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                         let strat = (matchPlan && matchPlan.strategy) ? matchPlan.strategy.trim() : "攻擊";
                         
-                        totalUsActualMktValUsd += mktValUsd;
                         if (strat === '防守') defenseValueUsd += mktValUsd;
-                        else attackValueUsd += mktValUsd; // 預設或攻擊型皆落入攻擊卷
+                        else attackValueUsd += mktValUsd; 
                     }
                 }
                 
@@ -548,27 +559,38 @@
                 }
             }
 
-            // 🚀 渲染戰略 Status Bar
-            const strategyBarContainer = document.getElementById('usStrategyBarContainer');
-            if (totalUsActualMktValUsd > 0) {
-                strategyBarContainer.classList.remove('hidden');
-                let attPct = (attackValueUsd / totalUsActualMktValUsd) * 100;
-                let defPct = (defenseValueUsd / totalUsActualMktValUsd) * 100;
-                
-                document.getElementById('attackBarPct').innerText = `${attPct.toFixed(1)}%`;
-                document.getElementById('defenseBarPct').innerText = `${defPct.toFixed(1)}%`;
-                document.getElementById('attackBarSeg').style.width = `${attPct}%`;
-                document.getElementById('defenseBarSeg').style.width = `${defPct}%`;
-            } else { strategyBarContainer.classList.add('hidden'); }
-
-            const radarContainer = document.getElementById('earningsRadarContainer');
-            if (hasRadarAlert) { radarContainer.classList.remove('hidden'); document.getElementById('earningsAlertList').innerHTML = radarHtml; }
-            else { radarContainer.classList.add('hidden'); }
-
             let totalCashUsd = 0;
             for (const mkt in cashBalances) { totalCashUsd += (cashBalances[mkt] * ((mkt === 'HK') ? (1 / exchangeRate) : 1)); }
             assetRealValuesUsd["CASH_TOTAL"] = totalCashUsd;
             const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd;
+
+            // 🚀 重塑戰略天秤核心算法：分母切換為【美股大類計劃配額總額】
+            const usAssetPlanWeight = assetPlan["US"] || 0; 
+            const plannedUsTotalUsd = totalAssetUsd * (usAssetPlanWeight / 100); // 美股應該佔用的總美金規模
+
+            let attPctOfPlan = plannedUsTotalUsd > 0 ? (attackValueUsd / plannedUsTotalUsd * 100) : 0;
+            let defPctOfPlan = plannedUsTotalUsd > 0 ? (defenseValueUsd / plannedUsTotalUsd * 100) : 0;
+            let totalDeployedPct = attPctOfPlan + defPctOfPlan;
+            let remainingQuotaPct = Math.max(0, 100 - totalDeployedPct);
+
+            // 更新文字標籤（精確到小數點後第一位，完美映射大表的“資產真實%”）
+            document.getElementById('attackBarPct').innerText = `${attPctOfPlan.toFixed(1)}%`;
+            document.getElementById('defenseBarPct').innerText = `${defPctOfPlan.toFixed(1)}%`;
+            document.getElementById('strategyBarTitle').innerText = `美股真實建倉進度 (已配: ${totalDeployedPct.toFixed(1)}% | 剩餘額度: ${remainingQuotaPct.toFixed(1)}%)`;
+
+            // 防禦溢出：如果實際大於計劃 (例如股票暴漲導致超過100%滿配)，等比例縮放進度條寬度
+            if (totalDeployedPct > 100) {
+                let scaleFactor = 100 / totalDeployedPct;
+                document.getElementById('attackBarSeg').style.width = `${attPctOfPlan * scaleFactor}%`;
+                document.getElementById('defenseBarSeg').style.width = `${defPctOfPlan * scaleFactor}%`;
+            } else {
+                document.getElementById('attackBarSeg').style.width = `${attPctOfPlan}%`;
+                document.getElementById('defenseBarSeg').style.width = `${defPctOfPlan}%`;
+            }
+
+            const radarContainer = document.getElementById('earningsRadarContainer');
+            if (hasRadarAlert) { radarContainer.classList.remove('hidden'); document.getElementById('earningsAlertList').innerHTML = radarHtml; }
+            else { radarContainer.classList.add('hidden'); }
 
             document.getElementById('headerCashUsd').innerText = `USD $${totalCashUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashHkd').innerText = `等值 HKD $${(totalCashUsd * exchangeRate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
@@ -598,7 +620,7 @@
 
             const sectorTableBody = document.getElementById('sectorBreakdownTable'); sectorTableBody.innerHTML = '';
             const sectorNames = Object.keys(usSectorsData);
-            const plannedUsTotalUsd = totalAssetUsd * ((assetPlan["US"] || 0) / 100);
+            const plannedUsTotalUsdForSector = totalAssetUsd * ((assetPlan["US"] || 0) / 100);
 
             if (sectorNames.length === 0) {
                 sectorTableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-center text-gray-400">目前美股持倉或計劃中沒有任何板塊數據</td></tr>`;
@@ -610,7 +632,7 @@
                         <tr class="hover:bg-gray-50 border-b border-gray-100">
                             <td class="px-4 py-2.5 font-bold text-gray-700">🏷️ ${sec}</td>
                             <td class="px-4 py-2.5 font-bold text-blue-600 bg-blue-50/30">${data.plannedWeight.toFixed(1)}%</td>
-                            <td class="px-4 py-2.5 font-bold text-indigo-600 bg-indigo-50/30">${plannedUsTotalUsd > 0 ? (data.actualValueUsd / plannedUsTotalUsd * 100).toFixed(1) : '0.0'}%</td>
+                            <td class="px-4 py-2.5 font-bold text-indigo-600 bg-indigo-50/30">${plannedUsTotalUsdForSector > 0 ? (data.actualValueUsd / plannedUsTotalUsdForSector * 100).toFixed(1) : '0.0'}%</td>
                             <td class="px-4 py-2.5 text-gray-600 font-medium">USD $${data.actualValueUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                         </tr>`;
                 });
@@ -723,7 +745,6 @@
                     if (key === 'CASH_TOTAL') continue;
                     optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`;
                 }
-                
                 const stockCodeUpper = s.code.toUpperCase().trim();
                 const earnObj = earningsMap[stockCodeUpper] || { date: s.earnings_date || '', type: s.date_type || '手動' };
                 const currentStrategy = s.strategy || '攻擊';
@@ -734,14 +755,12 @@
                         <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
                         <td class="px-2 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
                         <td class="px-2 py-2"><input type="text" value="${s.sector || '未分類'}" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
-                        
                         <td class="px-2 py-2">
                             <select class="sp-strategy p-1 rounded border border-gray-300 bg-white font-bold text-center w-full focus:outline-blue-500">
                                 <option value="攻擊" ${currentStrategy==='攻擊'?'selected':''}>⚔️ 攻擊</option>
                                 <option value="防守" ${currentStrategy==='防守'?'selected':''}>🛡️ 防守</option>
                             </select>
                         </td>
-
                         <td class="px-2 py-2">
                             <input type="date" value="${earnObj.date || ''}" onchange="handleDateChange(this)" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center" data-type="${earnObj.type || '手動'}">
                             ${earnObj.date ? `<span class="text-[10px] ${earnObj.type==='手動'?'text-amber-600':'text-emerald-600'} block mt-0.5 font-bold">${earnObj.type==='手動'?'✍️ 手動備份':'🤖 自動偵測: '+earnObj.date}</span>` : '<span class="text-[10px] text-gray-400 block mt-0.5 font-medium">⚠️ 暫無數據</span>'}
@@ -767,14 +786,12 @@
                     <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
                     <td class="px-2 py-2"><input type="number" step="any" value="0" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
                     <td class="px-2 py-2"><input type="text" placeholder="板塊" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
-                    
                     <td class="px-2 py-2">
                         <select class="sp-strategy p-1 rounded border border-gray-300 bg-white font-bold text-center w-full focus:outline-blue-500">
                             <option value="攻擊" selected>⚔️ 攻擊</option>
                             <option value="防守">🛡️ 防守</option>
                         </select>
                     </td>
-
                     <td class="px-2 py-2">
                         <input type="date" onchange="handleDateChange(this)" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center" data-type="手動">
                         <span class="text-[10px] text-gray-400 block mt-0.5">🔄 儲存後將自動偵測</span>
@@ -800,8 +817,6 @@
                 const earningsInput = row.querySelector('.sp-earnings');
                 const earnings_date = earningsInput ? earningsInput.value.trim() : "";
                 let date_type = earningsInput ? earningsInput.getAttribute('data-type') : "手動";
-                
-                // 🚀 讀取下拉策略選單
                 const strategySelect = row.querySelector('.sp-strategy');
                 const strategy = strategySelect ? strategySelect.value : "攻擊";
 
