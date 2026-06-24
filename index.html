@@ -9,7 +9,6 @@
 </head>
 <body class="bg-gray-100 font-sans p-6">
 
-    <!-- Google 登入驗證牆 -->
     <div id="loginWall" class="fixed inset-0 bg-gray-900 flex flex-col justify-center items-center z-50 p-4">
         <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
             <div class="space-y-2">
@@ -27,7 +26,6 @@
         </div>
     </div>
 
-    <!-- 主程式介面 -->
     <div id="mainApp" class="max-w-7xl mx-auto hidden">
         <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
             <div>
@@ -46,10 +44,8 @@
             </div>
         </header>
 
-        <!-- 頁籤一：投資儀表板 -->
         <div id="tab-dashboard" class="space-y-6">
             
-            <!-- 7日內財報風險雷達牆 Banner -->
             <div id="earningsRadarContainer" class="hidden space-y-2">
                 <div class="bg-amber-50 border-l-4 border-rose-500 p-4 rounded-xl shadow-sm">
                     <div class="flex items-center">
@@ -63,8 +59,7 @@
                 </div>
             </div>
 
-            <!-- 綜合核心數據看板 -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-blue-500 flex flex-col justify-between">
                     <div>
                         <p class="text-sm text-gray-500 font-medium">💵 現金結餘總計</p>
@@ -88,9 +83,19 @@
                     </div>
                     <p id="headerTotalPlDetail" class="text-xs text-gray-400 mt-2 border-t pt-1 border-gray-100">正在計算...</p>
                 </div>
+                
+                <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-emerald-500 flex flex-col justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">📊 持倉總賺蝕 (%)</p>
+                        <p id="headerPerfYearlyPl" class="text-3xl font-bold text-gray-950 mt-1">0.00%</p>
+                        <p class="text-[10px] text-gray-400 font-semibold mt-0.5 tracking-wider uppercase">📈 今年度全倉資產回報率</p>
+                    </div>
+                    <div id="headerPerfHistPlDetail" class="text-xs text-gray-500 font-medium mt-2 border-t pt-1.5 border-gray-100">
+                        歷來總賺蝕 (%): <span class="font-bold">0.00%</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- 大類資產 -->
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h3 class="text-lg font-bold text-gray-700 mb-4">🗺️ 宏觀資產大類計劃偏離度 (Target vs Actual)</h3>
                 <div class="overflow-x-auto">
@@ -110,7 +115,6 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- 左側表單 -->
                 <div class="bg-white p-6 rounded-xl shadow-md h-fit">
                     <h2 class="text-lg font-bold mb-4 text-gray-700">✍️ 新增資產交易 / 流水</h2>
                     
@@ -170,10 +174,8 @@
                     </div>
                 </div>
 
-                <!-- 右側持倉 -->
                 <div class="lg:col-span-2 space-y-4">
                     
-                    <!-- 🚀 絕對制導戰略 Status Bar: 擺放於大表正上方，不佔空間，永不隱藏，真實映射空倉比例 -->
                     <div id="usStrategyBarContainer" class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 space-y-1.5">
                         <div class="flex justify-between items-center text-[11px] font-bold text-gray-600">
                             <div class="flex items-center gap-1 text-rose-600">
@@ -184,7 +186,6 @@
                                 <span>🛡️ 防守持倉:</span> <span id="defenseBarPct">0.0%</span>
                             </div>
                         </div>
-                        <!-- 💡 灰色底色代表未建倉空位，完美觀測差多少滿倉 -->
                         <div class="flex h-2.5 w-full rounded-full bg-gray-200 overflow-hidden shadow-inner">
                             <div id="attackBarSeg" class="bg-rose-500 transition-all duration-700" style="width: 0%"></div>
                             <div id="defenseBarSeg" class="bg-blue-500 transition-all duration-700" style="width: 0%"></div>
@@ -215,7 +216,6 @@
                         </div>
                     </div>
 
-                    <!-- 美股板塊 -->
                     <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
                         <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度 (Within Planned US Portfolio)</h3>
                         <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模</p>
@@ -236,7 +236,6 @@
                         </div>
                     </div>
 
-                    <!-- 流水帳 -->
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明細流水帳</h2>
                         <div class="overflow-x-auto max-h-48 overflow-y-auto">
@@ -260,7 +259,6 @@
             </div>
         </div>
 
-        <!-- 設定頁籤 -->
         <div id="tab-settings" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -271,13 +269,36 @@
                     <button onclick="saveAllSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded-lg shadow transition cursor-pointer">💾 儲存設定至雲端</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="md:col-span-1 bg-gray-50 p-5 rounded-xl border border-gray-200">
-                        <h3 class="font-bold text-gray-700 mb-3 text-sm flex justify-between">
-                            <span>🌍 1. 宏觀資產大類計劃比重</span>
-                            <span id="assetTotalCheck" class="text-xs text-blue-600">總計: 0%</span>
-                        </h3>
-                        <div class="space-y-3 text-sm" id="assetSettingInputs"></div>
+                    
+                    <div class="md:col-span-1 space-y-6">
+                        <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                            <h3 class="font-bold text-gray-700 mb-3 text-sm flex justify-between">
+                                <span>🌍 1. 宏觀資產大類計劃比重</span>
+                                <span id="assetTotalCheck" class="text-xs text-blue-600">總計: 0%</span>
+                            </h3>
+                            <div class="space-y-3 text-sm" id="assetSettingInputs"></div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 space-y-4">
+                            <h3 class="font-bold text-gray-700 text-sm flex justify-between items-center">
+                                <span>📊 3. 全倉績效業績基準設定 (USD)</span>
+                            </h3>
+                            <div class="text-xs space-y-3">
+                                <div>
+                                    <label class="block font-bold text-gray-600 mb-1">歷來持倉計算起始年份</label>
+                                    <input type="number" id="inputHistStartYear" class="w-full rounded border border-gray-300 p-2 font-extrabold text-blue-600 text-center bg-white focus:outline-blue-500">
+                                </div>
+                                <div class="border-t pt-3 border-gray-200">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="block font-bold text-gray-600">歷年全倉資本歷史對照表</label>
+                                        <button type="button" onclick="addPerfYearRow()" class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded hover:bg-blue-700 font-semibold cursor-pointer">+ 新增年度</button>
+                                    </div>
+                                    <div class="max-h-44 overflow-y-auto space-y-2" id="perfYearRowsContainer"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    
                     <div class="md:col-span-2 bg-gray-50 p-5 rounded-xl border border-gray-200">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-bold text-gray-700 text-sm">🎯 2. 個股內部計劃佔比 ＆ 戰術風控排期</h3>
@@ -312,14 +333,12 @@
             "US": "美股", "HK": "港股", "BOND_L": "US 長債", "BOND_S": "US 短債", "GOLD": "金", "CASH_TOTAL": "現金"
         };
 
-        let userGoogleToken = ""; 
-        let userRole = "Visitor"; 
+        let userGoogleToken = ""; let userRole = "Visitor"; 
         let transactions = []; let prices = {}; let exchangeRate = 7.82;
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
-        let stockPlan = [];
-        let pdfMap = {}; 
-        let earningsMap = {}; 
+        let stockPlan = []; let pdfMap = {}; let earningsMap = {}; 
+        let perfConfig = {}; // 🚀 全倉業績資本基準儲存庫
 
         document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
 
@@ -373,7 +392,6 @@
             userRole = role || "Visitor";
             const badge = document.getElementById('roleBadge');
             badge.classList.remove('hidden');
-            
             if (userRole === 'PM') {
                 badge.className = "text-xs px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 font-extrabold shadow-sm";
                 badge.innerText = "👑 PM 投資組合經理";
@@ -413,8 +431,8 @@
                     assetHidden[key] = data.assetHidden && data.assetHidden[key] ? true : false;
                 }
                 stockPlan = data.stockPlan || [];
-                pdfMap = data.pdfMap || {}; 
-                earningsMap = data.earningsMap || {}; 
+                pdfMap = data.pdfMap || {}; earningsMap = data.earningsMap || {};
+                perfConfig = data.perfConfig || {}; // 🚀 注入全倉績效配置表
                 
                 applyRoleUI(data.userRole);
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -481,10 +499,7 @@
             let assetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "CASH_TOTAL": 0 };
             let computedStocks = []; let totalStockMarketValueUsd = 0; let totalStockCostUsd = 0;
             let usSectorsData = {};
-
-            // 🚀 戰略累計值（計價單位：USD）
-            let attackValueUsd = 0;
-            let defenseValueUsd = 0;
+            let attackValueUsd = 0; let defenseValueUsd = 0;
 
             stockPlan.forEach(s => {
                 if (s.market === 'US') {
@@ -501,7 +516,6 @@
                 const p = positions[code];
                 const livePrice = prices[p.yahooSymbol] || 0;
                 const isHkdMarket = p.market === 'HK';
-                
                 const mktValUsd = isHkdMarket ? ((p.shares * livePrice) / exchangeRate) : (p.shares * livePrice);
                 const costUsd = isHkdMarket ? (p.totalCost / exchangeRate) : p.totalCost;
                 const plUsd = mktValUsd - costUsd;
@@ -515,14 +529,10 @@
                 assetRealValuesUsd[p.market] += mktValUsd;
                 if (!p.isPlannedOnly && p.shares > 0) {
                     totalStockMarketValueUsd += mktValUsd; totalStockCostUsd += costUsd;
-                    
-                    // 🚀 攔截美股真實持倉，依策略分類累加它的市值
                     if (p.market === 'US') {
                         let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                         let strat = (matchPlan && matchPlan.strategy) ? matchPlan.strategy.trim() : "攻擊";
-                        
-                        if (strat === '防守') defenseValueUsd += mktValUsd;
-                        else attackValueUsd += mktValUsd; 
+                        if (strat === '防守') defenseValueUsd += mktValUsd; else attackValueUsd += mktValUsd; 
                     }
                 }
                 
@@ -562,23 +572,47 @@
             let totalCashUsd = 0;
             for (const mkt in cashBalances) { totalCashUsd += (cashBalances[mkt] * ((mkt === 'HK') ? (1 / exchangeRate) : 1)); }
             assetRealValuesUsd["CASH_TOTAL"] = totalCashUsd;
+            
+            // 📊 總資產淨值 (NAV) = 現金 + 股票 + 長短債 + 黃金
             const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd;
 
-            // 🚀 重塑戰略天秤核心算法：分母切換為【美股大類計劃配額總額】
-            const usAssetPlanWeight = assetPlan["US"] || 0; 
-            const plannedUsTotalUsd = totalAssetUsd * (usAssetPlanWeight / 100); // 美股應該佔用的總美金規模
+            // 🚀 【全倉宏觀業績歸因】核心數學模型
+            const currentYear = new Date().getFullYear();
+            const yearInitial = parseFloat(perfConfig[currentYear + "_initial"]) || 0;
+            const yearAdded = parseFloat(perfConfig[currentYear + "_added"]) || 0;
+            
+            // 1. 今年持倉總賺蝕 (%) = 總資產淨值 / (本年起初金額 + 本年總新增資金) * 100 - 100
+            let yearlyPerfPlPct = 0;
+            const yearlyCapitalDenominator = yearInitial + yearAdded; // 注資計入分母
+            if (yearlyCapitalDenominator > 0) {
+                yearlyPerfPlPct = ((totalAssetUsd / yearlyCapitalDenominator) - 1) * 100;
+            }
+            
+            // 2. 歷來持倉總賺蝕 (%) = 總資產淨值 / 歷史起初金額 * 100 - 100
+            const histStartYear = perfConfig["historical_start_year"] || currentYear;
+            const histInitialAmount = parseFloat(perfConfig[histStartYear + "_initial"]) || yearInitial;
+            let histPerfPlPct = 0;
+            if (histInitialAmount > 0) {
+                histPerfPlPct = ((totalAssetUsd / histInitialAmount) - 1) * 100;
+            }
 
+            // 前端動態渲染業績魔方
+            document.getElementById('headerPerfYearlyPl').innerText = `${yearlyPerfPlPct >= 0 ? '+' : ''}${yearlyPerfPlPct.toFixed(2)}%`;
+            document.getElementById('headerPerfYearlyPl').className = `text-3xl font-black mt-1 ${yearlyPerfPlPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
+            document.getElementById('headerPerfHistPlDetail').innerHTML = `歷來總賺蝕 (%): <span class="font-extrabold ${histPerfPlPct >= 0 ? 'text-emerald-600':'text-rose-600'}">${histPerfPlPct >= 0 ? '+' : ''}${histPerfPlPct.toFixed(2)}%</span> <span class="text-[10px] text-gray-400 font-normal">(基準年: ${histStartYear})</span>`;
+
+            // 美股戰略 Status Bar 進度渲染
+            const usAssetPlanWeight = assetPlan["US"] || 0; 
+            const plannedUsTotalUsd = totalAssetUsd * (usAssetPlanWeight / 100);
             let attPctOfPlan = plannedUsTotalUsd > 0 ? (attackValueUsd / plannedUsTotalUsd * 100) : 0;
             let defPctOfPlan = plannedUsTotalUsd > 0 ? (defenseValueUsd / plannedUsTotalUsd * 100) : 0;
             let totalDeployedPct = attPctOfPlan + defPctOfPlan;
             let remainingQuotaPct = Math.max(0, 100 - totalDeployedPct);
 
-            // 更新文字標籤（精確到小數點後第一位，完美映射大表的“資產真實%”）
             document.getElementById('attackBarPct').innerText = `${attPctOfPlan.toFixed(1)}%`;
             document.getElementById('defenseBarPct').innerText = `${defPctOfPlan.toFixed(1)}%`;
             document.getElementById('strategyBarTitle').innerText = `美股真實建倉進度 (已配: ${totalDeployedPct.toFixed(1)}% | 剩餘額度: ${remainingQuotaPct.toFixed(1)}%)`;
 
-            // 防禦溢出：如果實際大於計劃 (例如股票暴漲導致超過100%滿配)，等比例縮放進度條寬度
             if (totalDeployedPct > 100) {
                 let scaleFactor = 100 / totalDeployedPct;
                 document.getElementById('attackBarSeg').style.width = `${attPctOfPlan * scaleFactor}%`;
@@ -717,6 +751,18 @@
             }
         }
 
+        // 🚀 新增績效年份 HTML 渲染小助手
+        function addPerfYearRow(year = '', initial = 0, added = 0) {
+            const container = document.getElementById('perfYearRowsContainer');
+            container.insertAdjacentHTML('beforeend', `
+                <div class="perf-year-row grid grid-cols-3 gap-1.5 bg-white p-2 rounded border border-gray-200 shadow-sm">
+                    <div><input type="number" value="${year}" placeholder="年份" class="w-full text-center rounded border border-gray-300 font-bold py-1 sp-perf-year"></div>
+                    <div><input type="number" value="${initial}" placeholder="起初金額" class="w-full text-right rounded border border-gray-300 font-semibold text-emerald-600 py-1 sp-perf-initial"></div>
+                    <div><input type="number" value="${added}" placeholder="新增資金" class="w-full text-right rounded border border-gray-300 font-semibold text-blue-600 py-1 sp-perf-added"></div>
+                </div>
+            `);
+        }
+
         function renderSettingsPage() {
             if (userRole !== 'PM') return;
             const container = document.getElementById('assetSettingInputs'); container.innerHTML = '';
@@ -738,13 +784,25 @@
             }
             document.getElementById('assetTotalCheck').innerText = `總計: ${total.toFixed(1)}%`;
 
+            // 🚀 動態渲染性能參數配置介面
+            document.getElementById('inputHistStartYear').value = perfConfig["historical_start_year"] || new Date().getFullYear();
+            const perfContainer = document.getElementById('perfYearRowsContainer'); perfContainer.innerHTML = '';
+            
+            let uniqueYears = new Set();
+            for (let k in perfConfig) {
+                if (k.endsWith('_initial') || k.endsWith('_added')) { uniqueYears.add(k.split('_')[0]); }
+            }
+            if (uniqueYears.size === 0) { uniqueYears.add(new Date().getFullYear().toString()); }
+            
+            let sortedYears = Array.from(uniqueYears).sort((a, b) => b - a);
+            sortedYears.forEach(y => {
+                addPerfYearRow(y, perfConfig[y + "_initial"] || 0, perfConfig[y + "_added"] || 0);
+            });
+
             const tbody = document.getElementById('stockPlanSettingRows'); tbody.innerHTML = '';
             stockPlan.forEach((s) => {
                 let optionsHtml = '';
-                for(const key in assetLabels) {
-                    if (key === 'CASH_TOTAL') continue;
-                    optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`;
-                }
+                for(const key in assetLabels) { if (key === 'CASH_TOTAL') continue; optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`; }
                 const stockCodeUpper = s.code.toUpperCase().trim();
                 const earnObj = earningsMap[stockCodeUpper] || { date: s.earnings_date || '', type: s.date_type || '手動' };
                 const currentStrategy = s.strategy || '攻擊';
@@ -804,6 +862,7 @@
         async function saveAllSettings() {
             if (userRole !== 'PM') { alert("❌ 權限被拒絕"); return; }
             updateStatus("🚀 正在儲存參數與財報防線至雲端...", "loading");
+            
             let newAssetPlan = {}; let newAssetHidden = {};
             document.querySelectorAll('.asset-plan-input').forEach(input => { newAssetPlan[input.getAttribute('data-asset')] = parseFloat(input.value) || 0; });
             document.querySelectorAll('.asset-hide-checkbox').forEach(cb => { newAssetHidden[cb.getAttribute('data-asset')] = cb.checked; });
@@ -819,9 +878,21 @@
                 let date_type = earningsInput ? earningsInput.getAttribute('data-type') : "手動";
                 const strategySelect = row.querySelector('.sp-strategy');
                 const strategy = strategySelect ? strategySelect.value : "攻擊";
-
                 if (earnings_date && !date_type) date_type = "手動";
                 if (code) newStockPlan.push({ code, market, target_weight: weight, sector, earnings_date, date_type, strategy });
+            });
+
+            // 🚀 封包業績基準設定數據
+            let newPerfConfig = {};
+            newPerfConfig["historical_start_year"] = document.getElementById('inputHistStartYear').value.trim();
+            document.querySelectorAll('.perf-year-row').forEach(row => {
+                const y = row.querySelector('.sp-perf-year').value.trim();
+                const initVal = parseFloat(row.querySelector('.sp-perf-initial').value) || 0;
+                const addVal = parseFloat(row.querySelector('.sp-perf-added').value) || 0;
+                if (y) {
+                    newPerfConfig[y + "_initial"] = initVal;
+                    newPerfConfig[y + "_added"] = addVal;
+                }
             });
 
             try {
@@ -829,10 +900,11 @@
                     method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
                         action: "SAVE_SETTINGS", token: userGoogleToken, 
-                        assetPlan: newAssetPlan, assetHidden: newAssetHidden, stockPlan: newStockPlan 
+                        assetPlan: newAssetPlan, assetHidden: newAssetHidden, stockPlan: newStockPlan,
+                        perfConfig: newPerfConfig // 同步上傳績效對照表
                     })
                 });
-                assetPlan = newAssetPlan; assetHidden = newAssetHidden; stockPlan = newStockPlan;
+                assetPlan = newAssetPlan; assetHidden = newAssetHidden; stockPlan = newStockPlan; perfConfig = newPerfConfig;
                 updateStatus("✅ 保存成功！正在重新精算...", "success");
                 setTimeout(async () => { await loadData(); switchTab('dashboard-tab'); }, 1200);
             } catch(e) { updateStatus("❌ 參數儲存失敗", "error"); }
