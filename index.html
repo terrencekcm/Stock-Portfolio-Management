@@ -9,6 +9,7 @@
 </head>
 <body class="bg-gray-100 font-sans p-6">
 
+    <!-- Google 登入驗證牆 -->
     <div id="loginWall" class="fixed inset-0 bg-gray-900 flex flex-col justify-center items-center z-50 p-4">
         <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
             <div class="space-y-2">
@@ -26,6 +27,7 @@
         </div>
     </div>
 
+    <!-- 主程式介面 -->
     <div id="mainApp" class="max-w-7xl mx-auto hidden">
         <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
             <div>
@@ -35,6 +37,7 @@
             <div class="flex items-center gap-3">
                 <nav class="flex bg-gray-100 p-1 rounded-lg text-sm font-medium">
                     <button id="btn-dashboard-tab" onclick="switchTab('dashboard-tab')" class="px-4 py-2 rounded-md bg-white shadow-sm text-blue-600">📊 投資儀表板</button>
+                    <!-- 💡 初始設為隱藏，只有 PM 登入後才會揭露 -->
                     <button id="btn-settings-tab" onclick="switchTab('settings-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 hidden">⚙️ 配置計劃設定</button>
                 </nav>
                 <div class="flex items-center gap-2">
@@ -44,8 +47,10 @@
             </div>
         </header>
 
+        <!-- 頁籤一：投資儀表板 -->
         <div id="tab-dashboard" class="space-y-6">
             
+            <!-- 7日內財報風險雷達牆 Banner -->
             <div id="earningsRadarContainer" class="hidden space-y-2">
                 <div class="bg-amber-50 border-l-4 border-rose-500 p-4 rounded-xl shadow-sm">
                     <div class="flex items-center">
@@ -59,6 +64,7 @@
                 </div>
             </div>
 
+            <!-- 綜合核心數據看板 -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-blue-500 flex flex-col justify-between">
                     <div>
@@ -85,6 +91,7 @@
                 </div>
             </div>
 
+            <!-- 大類資產 -->
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h3 class="text-lg font-bold text-gray-700 mb-4">🗺️ 宏觀資產大類計劃偏離度 (Target vs Actual)</h3>
                 <div class="overflow-x-auto">
@@ -104,9 +111,11 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 左側表單 -->
                 <div class="bg-white p-6 rounded-xl shadow-md h-fit">
                     <h2 class="text-lg font-bold mb-4 text-gray-700">✍️ 新增資產交易 / 流水</h2>
                     
+                    <!-- 訪客專用阻斷面板 -->
                     <div id="visitorBlockMessage" class="hidden p-5 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-center text-gray-400 text-xs font-semibold leading-relaxed">
                         🔒 您當前的登入身分權限為 <span class="text-gray-600 bg-gray-200 px-1.5 py-0.5 rounded font-bold">訪客 Visitor</span><br>儀表板已鎖定唯讀模式，無權進行記帳或出入市下單。
                     </div>
@@ -163,6 +172,7 @@
                     </div>
                 </div>
 
+                <!-- 右側持倉 -->
                 <div class="lg:col-span-2 space-y-6">
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">💼 目前證券持倉與觀察名單 (含三層權重透視)</h2>
@@ -188,6 +198,7 @@
                         </div>
                     </div>
 
+                    <!-- 美股板塊 -->
                     <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
                         <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度 (Within Planned US Portfolio)</h3>
                         <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模</p>
@@ -208,6 +219,7 @@
                         </div>
                     </div>
 
+                    <!-- 流水帳 -->
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明細流水帳</h2>
                         <div class="overflow-x-auto max-h-48 overflow-y-auto">
@@ -231,6 +243,7 @@
             </div>
         </div>
 
+        <!-- 設定頁籤 (僅限 PM 投資組合經理看見) -->
         <div id="tab-settings" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -282,7 +295,7 @@
         };
 
         let userGoogleToken = ""; 
-        let userRole = "Visitor"; // 💡 預設為訪客
+        let userRole = "Visitor"; 
         let transactions = []; let prices = {}; let exchangeRate = 7.82;
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
@@ -299,7 +312,6 @@
             loadData();
         }
 
-        // 🚀 前端權限安全哨兵：阻止 Trader 和 Visitor 透過 Console 呼叫切換設定分頁
         function switchTab(tabId) {
             if (tabId === 'settings-tab' && userRole !== 'PM') {
                 alert("❌ 權限被拒絕：您的角色無法進入配置計劃設定頁面！");
@@ -341,7 +353,7 @@
             }`;
         }
 
-        // 🚀 動態渲染身分標籤（Role Badge）
+        // 🚀 修正身分標籤名稱：PM 項目經理 -> PM 投資組合經理
         function applyRoleUI(role) {
             userRole = role || "Visitor";
             const badge = document.getElementById('roleBadge');
@@ -349,7 +361,7 @@
             
             if (userRole === 'PM') {
                 badge.className = "text-xs px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 font-extrabold shadow-sm";
-                badge.innerText = "👑 PM 項目經理";
+                badge.innerText = "👑 PM 投資組合經理";
                 document.getElementById('btn-settings-tab').classList.remove('hidden');
                 document.getElementById('visitorBlockMessage').classList.add('hidden');
                 document.getElementById('txFormFieldsWrap').classList.remove('hidden');
@@ -360,7 +372,6 @@
                 document.getElementById('visitorBlockMessage').classList.add('hidden');
                 document.getElementById('txFormFieldsWrap').classList.remove('hidden');
             } else {
-                // 👁️ Visitor 鎖定
                 badge.className = "text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-extrabold border border-gray-200 shadow-sm";
                 badge.innerText = "👁️ Visitor 訪客 (唯讀)";
                 document.getElementById('btn-settings-tab').classList.add('hidden');
@@ -390,7 +401,6 @@
                 pdfMap = data.pdfMap || {}; 
                 earningsMap = data.earningsMap || {}; 
                 
-                // 🚀 套用最新權限狀態
                 applyRoleUI(data.userRole);
                 
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -657,7 +667,6 @@
             renderHistoryRows();
         }
 
-        // 💡 歷史收支渲染：如果是 Visitor (唯讀) 角色，則將「刪除」按鈕遮蔽隱藏
         function renderHistoryRows() {
             const historyTableBody = document.getElementById('historyTable'); historyTableBody.innerHTML = '';
             transactions.forEach(t => {
@@ -705,7 +714,7 @@
         }
 
         function renderSettingsPage() {
-            if (userRole !== 'PM') return; // 安全冗餘守衛
+            if (userRole !== 'PM') return; 
             const container = document.getElementById('assetSettingInputs'); container.innerHTML = '';
             let total = 0;
             for (const ac in assetLabels) {
