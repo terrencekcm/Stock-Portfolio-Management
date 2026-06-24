@@ -35,9 +35,12 @@
             <div class="flex items-center gap-3">
                 <nav class="flex bg-gray-100 p-1 rounded-lg text-sm font-medium">
                     <button id="btn-dashboard-tab" onclick="switchTab('dashboard-tab')" class="px-4 py-2 rounded-md bg-white shadow-sm text-blue-600">📊 投資儀表板</button>
-                    <button id="btn-settings-tab" onclick="switchTab('settings-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900">⚙️ 配置計劃設定</button>
+                    <button id="btn-settings-tab" onclick="switchTab('settings-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 hidden">⚙️ 配置計劃設定</button>
                 </nav>
-                <div id="statusIndicator" class="text-xs px-3 py-2 rounded-full bg-yellow-100 text-yellow-800 font-medium">🔄 同步中...</div>
+                <div class="flex items-center gap-2">
+                    <div id="roleBadge" class="text-xs px-3 py-2 rounded-full font-bold hidden"></div>
+                    <div id="statusIndicator" class="text-xs px-3 py-2 rounded-full bg-yellow-100 text-yellow-800 font-medium">🔄 同步中...</div>
+                </div>
             </div>
         </header>
 
@@ -103,54 +106,61 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-md h-fit">
                     <h2 class="text-lg font-bold mb-4 text-gray-700">✍️ 新增資產交易 / 流水</h2>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">資產類別</label>
-                        <select id="txCategory" onchange="toggleFormFields()" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 text-sm focus:outline-blue-500">
-                            <option value="STOCK">📈 證券交易 (股票/債券/金)</option>
-                            <option value="CASH">💵 現金存取 (美金/港幣本金)</option>
-                        </select>
+                    
+                    <div id="visitorBlockMessage" class="hidden p-5 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-center text-gray-400 text-xs font-semibold leading-relaxed">
+                        🔒 您當前的登入身分權限為 <span class="text-gray-600 bg-gray-200 px-1.5 py-0.5 rounded font-bold">訪客 Visitor</span><br>儀表板已鎖定唯讀模式，無權進行記帳或出入市下單。
                     </div>
-                    <form id="txForm" class="space-y-4 text-sm">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">資產大類 / 市場</label>
-                            <select id="txMarket" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
-                                <option value="US">🇺🇸 美股 (US)</option>
-                                <option value="HK">🇭🇰 港股 (HK)</option>
-                                <option value="BOND_L">📉 US 長債 (BOND_L)</option>
-                                <option value="BOND_S">⏱️ US 短債 (BOND_S)</option>
-                                <option value="GOLD">🪙 金 (GOLD)</option>
+
+                    <div id="txFormFieldsWrap">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700">資產類別</label>
+                            <select id="txCategory" onchange="toggleFormFields()" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 text-sm focus:outline-blue-500">
+                                <option value="STOCK">📈 證券交易 (股票/債券/金)</option>
+                                <option value="CASH">💵 現金存取 (美金/港幣本金)</option>
                             </select>
                         </div>
-                        <div id="stockFields" class="space-y-4">
+                        <form id="txForm" class="space-y-4 text-sm">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">標的代號 (Code)</label>
-                                <input type="text" id="stockCode" placeholder="例如: AVGO, 0700, TLT" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">交易動作</label>
-                                <select id="stockType" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
-                                    <option value="BUY">🟢 買入 (BUY)</option>
-                                    <option value="SELL">🔴 賣出 (SELL)</option>
+                                <label class="block text-sm font-medium text-gray-700">資產大類 / 市場</label>
+                                <select id="txMarket" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
+                                    <option value="US">🇺🇸 美股 (US)</option>
+                                    <option value="HK">🇭🇰 港股 (HK)</option>
+                                    <option value="BOND_L">📉 US 長債 (BOND_L)</option>
+                                    <option value="BOND_S">⏱️ US 短債 (BOND_S)</option>
+                                    <option value="GOLD">🪙 金 (GOLD)</option>
                                 </select>
                             </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div><label class="block text-sm font-medium text-gray-700">交易價格 (市場本幣)</label><input type="number" id="txPrice" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
-                                <div><label class="block text-sm font-medium text-gray-700">交易數量</label><input type="number" id="txQty" step="any" placeholder="0" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
+                            <div id="stockFields" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">標的代號 (Code)</label>
+                                    <input type="text" id="stockCode" placeholder="例如: AVGO, 0700, TLT" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">交易動作</label>
+                                    <select id="stockType" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
+                                        <option value="BUY">🟢 買入 (BUY)</option>
+                                        <option value="SELL">🔴 賣出 (SELL)</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div><label class="block text-sm font-medium text-gray-700">交易價格 (市場本幣)</label><input type="number" id="txPrice" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
+                                    <div><label class="block text-sm font-medium text-gray-700">交易數量</label><input type="number" id="txQty" step="any" placeholder="0" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
+                                </div>
                             </div>
-                        </div>
-                        <div id="cashFields" class="space-y-4 hidden">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">流水動作</label>
-                                <select id="cashType" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
-                                    <option value="DEPOSIT">💰 存入現金 (Deposit)</option>
-                                    <option value="WITHDRAW">💸 提取現金 (Withdraw)</option>
-                                </select>
+                            <div id="cashFields" class="space-y-4 hidden">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">流水動作</label>
+                                    <select id="cashType" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
+                                        <option value="DEPOSIT">💰 存入現金 (Deposit)</option>
+                                        <option value="WITHDRAW">💸 提取現金 (Withdraw)</option>
+                                    </select>
+                                </div>
+                                <div><label class="block text-sm font-medium text-gray-700">流動金額 (市場本幣)</label><input type="number" id="cashAmount" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
                             </div>
-                            <div><label class="block text-sm font-medium text-gray-700">流動金額 (市場本幣)</label><input type="number" id="cashAmount" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
-                        </div>
-                        <div><label class="block text-sm font-medium text-gray-700">異動日期</label><input type="date" id="txDate" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500" required></div>
-                        <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 font-medium disabled:bg-gray-400 cursor-pointer">儲存變更</button>
-                    </form>
+                            <div><label class="block text-sm font-medium text-gray-700">異動日期</label><input type="date" id="txDate" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500" required></div>
+                            <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 font-medium disabled:bg-gray-400 cursor-pointer">儲存變更</button>
+                        </form>
+                    </div>
                 </div>
 
                 <div class="lg:col-span-2 space-y-6">
@@ -272,6 +282,7 @@
         };
 
         let userGoogleToken = ""; 
+        let userRole = "Visitor"; // 💡 預設為訪客
         let transactions = []; let prices = {}; let exchangeRate = 7.82;
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
@@ -288,12 +299,19 @@
             loadData();
         }
 
+        // 🚀 前端權限安全哨兵：阻止 Trader 和 Visitor 透過 Console 呼叫切換設定分頁
         function switchTab(tabId) {
+            if (tabId === 'settings-tab' && userRole !== 'PM') {
+                alert("❌ 權限被拒絕：您的角色無法進入配置計劃設定頁面！");
+                return;
+            }
+            
             if (tabId === 'dashboard-tab') {
                 document.getElementById('tab-dashboard').classList.remove('hidden');
                 document.getElementById('tab-settings').classList.add('hidden');
                 document.getElementById('btn-dashboard-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
                 document.getElementById('btn-settings-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
+                if(userRole !== 'PM') document.getElementById('btn-settings-tab').classList.add('hidden');
             } else {
                 document.getElementById('tab-dashboard').classList.add('hidden');
                 document.getElementById('tab-settings').classList.remove('hidden');
@@ -323,6 +341,34 @@
             }`;
         }
 
+        // 🚀 動態渲染身分標籤（Role Badge）
+        function applyRoleUI(role) {
+            userRole = role || "Visitor";
+            const badge = document.getElementById('roleBadge');
+            badge.classList.remove('hidden');
+            
+            if (userRole === 'PM') {
+                badge.className = "text-xs px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 font-extrabold shadow-sm";
+                badge.innerText = "👑 PM 項目經理";
+                document.getElementById('btn-settings-tab').classList.remove('hidden');
+                document.getElementById('visitorBlockMessage').classList.add('hidden');
+                document.getElementById('txFormFieldsWrap').classList.remove('hidden');
+            } else if (userRole === 'Trader') {
+                badge.className = "text-xs px-3 py-1.5 rounded-full bg-blue-100 text-blue-800 font-extrabold shadow-sm";
+                badge.innerText = "⚡ Trader 交易員";
+                document.getElementById('btn-settings-tab').classList.add('hidden');
+                document.getElementById('visitorBlockMessage').classList.add('hidden');
+                document.getElementById('txFormFieldsWrap').classList.remove('hidden');
+            } else {
+                // 👁️ Visitor 鎖定
+                badge.className = "text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-extrabold border border-gray-200 shadow-sm";
+                badge.innerText = "👁️ Visitor 訪客 (唯讀)";
+                document.getElementById('btn-settings-tab').classList.add('hidden');
+                document.getElementById('visitorBlockMessage').classList.remove('hidden');
+                document.getElementById('txFormFieldsWrap').classList.add('hidden');
+            }
+        }
+
         async function loadData() {
             try {
                 updateStatus("🔄 讀取即時數據中...", "loading");
@@ -343,6 +389,9 @@
                 stockPlan = data.stockPlan || [];
                 pdfMap = data.pdfMap || {}; 
                 earningsMap = data.earningsMap || {}; 
+                
+                // 🚀 套用最新權限狀態
+                applyRoleUI(data.userRole);
                 
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 renderComponents();
@@ -388,7 +437,7 @@
                     } else if (typeStr === 'SELL') {
                         pos.shares -= qty; cashBalances[marketStr] += amt;
                         if (pos.shares <= 0) delete positions[codeStr];
-                        else pos.totalCost = pos.shares * (pos.shares + qty);
+                        else pos.totalCost = pos.shares * (pos.totalCost / (pos.shares + qty));
                     }
                 }
             });
@@ -587,7 +636,6 @@
                     }
                 }
 
-                // 🚀 核心優化：移除內容贅字，將市值與未實現盈虧純淨化為 "$1,234" 格式
                 posTableBody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100 ${p.isPlannedOnly ? 'bg-amber-50/40 opacity-70' : ''}">
                         <td class="px-2 py-3 font-bold">
@@ -609,6 +657,7 @@
             renderHistoryRows();
         }
 
+        // 💡 歷史收支渲染：如果是 Visitor (唯讀) 角色，則將「刪除」按鈕遮蔽隱藏
         function renderHistoryRows() {
             const historyTableBody = document.getElementById('historyTable'); historyTableBody.innerHTML = '';
             transactions.forEach(t => {
@@ -616,6 +665,14 @@
                 let badge = t.type === 'BUY' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
                 if(t.type === 'DEPOSIT') badge = 'bg-emerald-100 text-emerald-800';
                 if(t.type === 'WITHDRAW') badge = 'bg-orange-100 text-orange-800';
+                
+                let actionHtml = '';
+                if (userRole === 'PM' || userRole === 'Trader') {
+                    actionHtml = `<button onclick="deleteTx('${t.id}')" class="text-red-500 hover:underline cursor-pointer">刪除</button>`;
+                } else {
+                    actionHtml = `<span class="text-gray-300 select-none">唯讀鎖定</span>`;
+                }
+
                 historyTableBody.innerHTML += `
                     <tr class="border-b border-gray-100 hover:bg-gray-50">
                         <td class="px-3 py-1.5">${t.date}</td>
@@ -624,7 +681,7 @@
                         <td class="px-3 py-1.5"><span class="px-1.5 py-0.5 rounded font-semibold ${badge}">${t.type}</span></td>
                         <td class="px-3 py-1.5">$${Number(t.price).toFixed(2)}</td>
                         <td class="px-3 py-1.5">${Number(t.qty).toLocaleString()}</td>
-                        <td class="px-3 py-1.5"><button onclick="deleteTx('${t.id}')" class="text-red-500 hover:underline">刪除</button></td>
+                        <td class="px-3 py-1.5">${actionHtml}</td>
                     </tr>`;
             });
         }
@@ -648,6 +705,7 @@
         }
 
         function renderSettingsPage() {
+            if (userRole !== 'PM') return; // 安全冗餘守衛
             const container = document.getElementById('assetSettingInputs'); container.innerHTML = '';
             let total = 0;
             for (const ac in assetLabels) {
@@ -732,6 +790,7 @@
         }
 
         async function saveAllSettings() {
+            if (userRole !== 'PM') { alert("❌ 權限被拒絕"); return; }
             updateStatus("🚀 正在儲存參數與財報防線至雲端...", "loading");
             let newAssetPlan = {}; let newAssetHidden = {};
             document.querySelectorAll('.asset-plan-input').forEach(input => { newAssetPlan[input.getAttribute('data-asset')] = parseFloat(input.value) || 0; });
@@ -754,7 +813,7 @@
             });
 
             try {
-                await fetch(API_URL, {
+                const res = await fetch(API_URL, {
                     method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
                         action: "SAVE_SETTINGS", token: userGoogleToken, 
@@ -768,7 +827,10 @@
         }
 
         document.getElementById('txForm').addEventListener('submit', async function(e) {
-            e.preventDefault(); const submitBtn = document.getElementById('submitBtn'); submitBtn.disabled = true;
+            e.preventDefault(); 
+            if (userRole === 'Visitor') { alert("❌ 訪客角色無權異動數據！"); return; }
+            
+            const submitBtn = document.getElementById('submitBtn'); submitBtn.disabled = true;
             updateStatus("🚀 正在寫入交易紀錄...", "loading");
             const category = document.getElementById('txCategory').value;
             let tx = { id: Date.now().toString(), token: userGoogleToken, date: document.getElementById('txDate').value, market: document.getElementById('txMarket').value };
@@ -785,6 +847,7 @@
         });
 
         async function deleteTx(id) {
+            if (userRole === 'Visitor') { alert("❌ 訪客角色無權異動數據！"); return; }
             if (!confirm("確定要刪除嗎？")) return;
             updateStatus("🗑️ 正在刪除交易...", "loading");
             try {
