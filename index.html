@@ -9,7 +9,6 @@
 </head>
 <body class="bg-gray-100 font-sans p-6">
 
-    <!-- Google 登入驗證牆 -->
     <div id="loginWall" class="fixed inset-0 bg-gray-900 flex flex-col justify-center items-center z-50 p-4">
         <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
             <div class="space-y-2">
@@ -27,7 +26,6 @@
         </div>
     </div>
 
-    <!-- 主程式介面 -->
     <div id="mainApp" class="max-w-7xl mx-auto hidden">
         <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
             <div>
@@ -47,9 +45,7 @@
             </div>
         </header>
 
-        <!-- 頁籤一：投資儀表板 -->
         <div id="tab-dashboard" class="space-y-6">
-            <!-- 7日內財報風險雷達牆 Banner -->
             <div id="earningsRadarContainer" class="hidden space-y-2">
                 <div class="bg-amber-50 border-l-4 border-rose-500 p-4 rounded-xl shadow-sm">
                     <div class="flex items-center">
@@ -63,7 +59,6 @@
                 </div>
             </div>
 
-            <!-- 綜合核心數據看板 -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-blue-500 flex flex-col justify-between">
                     <div>
@@ -94,11 +89,16 @@
                         <p id="headerPerfYearlyPl" class="text-3xl font-bold text-gray-950 mt-1">0.00%</p>
                         <p class="text-[10px] text-gray-400 font-semibold mt-0.5 tracking-wider uppercase">📈 今年度全倉資產回報率</p>
                     </div>
+                    
+                    <div class="text-[11px] text-gray-500 mt-2 pt-1.5 border-t border-dashed border-gray-100 flex justify-between gap-1">
+                        <span>🇺🇸 S&P500 YTD: <span id="benchSP500" class="font-extrabold text-gray-700">0.00%</span></span>
+                        <span>💻 IXIC YTD: <span id="benchNASDAQ" class="font-extrabold text-gray-700">0.00%</span></span>
+                    </div>
+
                     <div id="headerPerfHistPlDetail" class="text-xs text-gray-500 font-medium mt-2 border-t pt-1.5 border-gray-100">歷來總賺蝕 (%): <span class="font-bold">0.00%</span></div>
                 </div>
             </div>
 
-            <!-- 大類資產 -->
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h3 class="text-lg font-bold text-gray-700 mb-4">🗺️ 宏觀資產大類計劃偏離度 (Target vs Actual)</h3>
                 <div class="overflow-x-auto">
@@ -118,7 +118,6 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- 左側表單 -->
                 <div class="bg-white p-6 rounded-xl shadow-md h-fit">
                     <h2 class="text-lg font-bold mb-4 text-gray-700">✍️ 新增資產交易 / 流水</h2>
                     <div id="visitorBlockMessage" class="hidden p-5 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-center text-gray-400 text-xs font-semibold leading-relaxed">
@@ -176,9 +175,7 @@
                     </div>
                 </div>
 
-                <!-- 右側持倉 -->
                 <div class="lg:col-span-2 space-y-4">
-                    <!-- 美股建倉戰略 Status Bar -->
                     <div id="usStrategyBarContainer" class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 space-y-1.5">
                         <div class="flex justify-between items-center text-[11px] font-bold text-gray-600">
                             <div class="flex items-center gap-1 text-rose-600"><span>⚔️ 攻擊持倉:</span> <span id="attackBarPct">0.0%</span></div>
@@ -215,7 +212,6 @@
                         </div>
                     </div>
 
-                    <!-- 美股板塊 -->
                     <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
                         <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度</h3>
                         <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模</p>
@@ -234,7 +230,6 @@
                         </div>
                     </div>
 
-                    <!-- 流水帳 -->
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明細流水帳</h2>
                         <div class="overflow-x-auto max-h-48 overflow-y-auto">
@@ -258,7 +253,6 @@
             </div>
         </div>
 
-        <!-- 頁籤二：出入市計劃專屬工作視窗 (🚀 精準修改文案標題與副標題描述) -->
         <div id="tab-trading-plan" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="border-b pb-3 mb-4">
@@ -281,7 +275,6 @@
             </div>
         </div>
 
-        <!-- 設定頁籤 -->
         <div id="tab-settings" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -344,7 +337,6 @@
         </div>
     </div>
 
-    <!-- 彈窗一：新增計畫填報 Modal -->
     <div id="planInputModal" class="fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50 p-4 hidden">
         <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full space-y-4 border border-gray-100">
             <div class="flex justify-between items-center border-b pb-2">
@@ -368,7 +360,6 @@
         </div>
     </div>
 
-    <!-- 彈窗二：TradingView 高清圖表大圖彈窗 Review 牆 -->
     <div id="tvImageModal" class="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-4 hidden" onclick="closeTvModal()">
         <div class="relative bg-white p-2 rounded-xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
             <button onclick="closeTvModal()" class="absolute top-3 right-3 bg-gray-900/80 hover:bg-black text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow-md cursor-pointer z-10 transition">✕</button>
@@ -395,6 +386,9 @@
         let stockPlan = []; let pdfMap = {}; let earningsMap = {}; let perfConfig = {};
         let tradingPlans = []; 
         let activePlanTarget = { code: "", market: "" };
+
+        // 🎯 全局存儲緩存大盤對比數據物件
+        let latestBenchmarks = { sp500: 0, nasdaq: 0 };
 
         document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
 
@@ -497,6 +491,9 @@
                 stockPlan = data.stockPlan || [];
                 pdfMap = data.pdfMap || {}; earningsMap = data.earningsMap || {}; perfConfig = data.perfConfig || {};
                 tradingPlans = data.tradingPlans || []; 
+                
+                // 🎯 解析並載入後端傳回的大盤 YTD 數據
+                latestBenchmarks = data.benchmarks || { sp500: 0, nasdaq: 0 };
                 
                 applyRoleUI(data.userRole);
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -650,6 +647,18 @@
             document.getElementById('headerPerfYearlyPl').className = `text-3xl font-black mt-1 ${yearlyPerfPlPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
             document.getElementById('headerPerfHistPlDetail').innerHTML = `歷來總賺蝕 (%): <span class="font-extrabold ${histPerfPlPct >= 0 ? 'text-emerald-600':'text-rose-600'}">${histPerfPlPct >= 0 ? '+' : ''}${histPerfPlPct.toFixed(2)}%</span> <span class="text-[10px] text-gray-400 font-normal">(基準年: ${histStartYear})</span>`;
 
+            // 🎯 【渲染大盤基準 YTD】將數據吐給資訊盒，並自動掛載盈虧變色樣式
+            const spPct = latestBenchmarks.sp500 || 0;
+            const nasPct = latestBenchmarks.nasdaq || 0;
+            
+            const spEl = document.getElementById('benchSP500');
+            spEl.innerText = `${spPct >= 0 ? '+' : ''}${spPct.toFixed(1)}%`;
+            spEl.className = `font-extrabold ${spPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
+
+            const nasEl = document.getElementById('benchNASDAQ');
+            nasEl.innerText = `${nasPct >= 0 ? '+' : ''}${nasPct.toFixed(1)}%`;
+            nasEl.className = `font-extrabold ${nasPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
+
             const usAssetPlanWeight = assetPlan["US"] || 0; const plannedUsTotalUsd = totalAssetUsd * (usAssetPlanWeight / 100);
             let attPctOfPlan = plannedUsTotalUsd > 0 ? (attackValueUsd / plannedUsTotalUsd * 100) : 0;
             let defPctOfPlan = plannedUsTotalUsd > 0 ? (defenseValueUsd / plannedUsTotalUsd * 100) : 0;
@@ -761,7 +770,6 @@
             renderHistoryRows();
         }
 
-        // 🚀 頁籤二：【出入市技術面計劃牆】(已引入日期強校正切片算法，洗淨尾綴)
         function renderTradingPlanPage() {
             const { positions } = calculatePortfolio();
             const tableBody = document.getElementById('tradingPlanWatchlistTable');
@@ -817,7 +825,6 @@
                             ? `<button onclick="deletePlan('${plan.id}')" class="text-rose-500 hover:text-rose-700 font-extrabold cursor-pointer hover:underline">🗑️ 刪除</button>`
                             : `<span class="text-gray-300">唯讀</span>`;
 
-                        // 🚀 【強格式校正截斷】：精確切割並封鎖 ISO 的 T16:00:00 尾綴，僅輸出 YYYY-MM-DD
                         let cleanDateDisplay = plan.date ? String(plan.date).split('T')[0] : '---';
 
                         tableBody.innerHTML += `
