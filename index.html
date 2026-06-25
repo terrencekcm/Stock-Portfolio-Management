@@ -6,10 +6,12 @@
     <title>全球資產配置與計劃管理系統 (USD Base)</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- 🎯 強制鎖定穩定版 4.2.3 繪圖引擎 -->
     <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body class="bg-gray-100 font-sans p-6">
 
+    <!-- Google 登入驗證牆 -->
     <div id="loginWall" class="fixed inset-0 bg-gray-900 flex flex-col justify-center items-center z-50 p-4">
         <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
             <div class="space-y-2">
@@ -27,6 +29,7 @@
         </div>
     </div>
 
+    <!-- 主程式介面 -->
     <div id="mainApp" class="max-w-7xl mx-auto hidden">
         <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
             <div>
@@ -46,7 +49,9 @@
             </div>
         </header>
 
+        <!-- 頁籤一：投資儀表板 -->
         <div id="tab-dashboard" class="space-y-6">
+            <!-- 7日內財報風險雷達牆 Banner -->
             <div id="earningsRadarContainer" class="hidden space-y-2">
                 <div class="bg-amber-50 border-l-4 border-rose-500 p-4 rounded-xl shadow-sm">
                     <div class="flex items-center">
@@ -60,6 +65,7 @@
                 </div>
             </div>
 
+            <!-- 綜合核心數據看板 -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-blue-500 flex flex-col justify-between">
                     <div>
@@ -98,6 +104,7 @@
                 </div>
             </div>
 
+            <!-- 大類資產 -->
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h3 class="text-lg font-bold text-gray-700 mb-4">🗺️ 宏觀資產大類計劃偏離度 (Target vs Actual)</h3>
                 <div class="overflow-x-auto">
@@ -117,6 +124,7 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 左側表單 -->
                 <div class="bg-white p-6 rounded-xl shadow-md h-fit">
                     <h2 class="text-lg font-bold mb-4 text-gray-700">✍️ 新增資產交易 / 流水</h2>
                     <div id="visitorBlockMessage" class="hidden p-5 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-center text-gray-400 text-xs font-semibold leading-relaxed">
@@ -174,7 +182,9 @@
                     </div>
                 </div>
 
+                <!-- 右側持倉 -->
                 <div class="lg:col-span-2 space-y-4">
+                    <!-- 美股建倉戰略 Status Bar -->
                     <div id="usStrategyBarContainer" class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 space-y-1.5">
                         <div class="flex justify-between items-center text-[11px] font-bold text-gray-600">
                             <div class="flex items-center gap-1 text-rose-600"><span>⚔️ 攻擊持倉:</span> <span id="attackBarPct">0.0%</span></div>
@@ -211,6 +221,7 @@
                         </div>
                     </div>
 
+                    <!-- 美股板塊 -->
                     <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
                         <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度</h3>
                         <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模</p>
@@ -229,6 +240,7 @@
                         </div>
                     </div>
 
+                    <!-- 流水帳 -->
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明細流水帳</h2>
                         <div class="overflow-x-auto max-h-48 overflow-y-auto">
@@ -252,6 +264,7 @@
             </div>
         </div>
 
+        <!-- 頁籤二：出入市計劃專屬工作視窗 -->
         <div id="tab-trading-plan" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="border-b pb-3 mb-4">
@@ -275,6 +288,7 @@
             </div>
         </div>
 
+        <!-- 設定頁籤 -->
         <div id="tab-settings" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -337,6 +351,7 @@
         </div>
     </div>
 
+    <!-- 彈窗一：新增計畫填報 Modal -->
     <div id="planInputModal" class="fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50 p-4 hidden">
         <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full space-y-4 border border-gray-100">
             <div class="flex justify-between items-center border-b pb-2">
@@ -360,6 +375,7 @@
         </div>
     </div>
 
+    <!-- 彈窗二：TradingView 快照大圖彈窗 Review 牆 -->
     <div id="tvImageModal" class="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-4 hidden" onclick="closeTvModal()">
         <div class="relative bg-white p-2 rounded-xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
             <button onclick="closeTvModal()" class="absolute top-3 right-3 bg-gray-900/80 hover:bg-black text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow-md cursor-pointer z-10 transition">✕</button>
@@ -372,6 +388,7 @@
         </div>
     </div>
 
+    <!-- 彈窗三：Lightweight Charts 量化多週期陰陽燭 K 線圖彈窗牆 (🚀 v4.2.3 修正完美重疊版) -->
     <div id="candlestickModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 hidden" onclick="closeCandlestickModal()">
         <div class="bg-gray-900 text-gray-100 p-6 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col space-y-4 border border-gray-800 animate-fade-in" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center border-b border-gray-800 pb-3">
@@ -382,6 +399,7 @@
                 <button onclick="closeCandlestickModal()" class="text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow transition cursor-pointer">✕</button>
             </div>
             
+            <!-- 週期切換按鈕面板 -->
             <div class="flex bg-gray-800 p-1 rounded-lg text-xs font-bold self-start border border-gray-700">
                 <button id="tf-4H" onclick="changeTimeframe('4H')" class="px-4 py-1.5 rounded-md transition duration-200">4小時</button>
                 <button id="tf-D" onclick="changeTimeframe('D')" class="px-4 py-1.5 rounded-md transition duration-200">日線</button>
@@ -389,10 +407,12 @@
                 <button id="tf-M" onclick="changeTimeframe('M')" class="px-4 py-1.5 rounded-md transition duration-200">月線</button>
             </div>
 
+            <!-- 動態載入骨架牆 -->
             <div id="chartLoadingIndicator" class="hidden flex justify-center items-center h-96 text-xs text-emerald-400 font-mono font-bold tracking-wider bg-gray-950 rounded-xl border border-gray-800 shadow-inner">
                 <span class="animate-pulse">🔄 正在自 Alpha Vantage 雲端安全網關抓取並進行高精度 K 線與成交量數據校正...</span>
             </div>
 
+            <!-- Lightweight Charts 實體畫布掛載容器 -->
             <div id="chartContainer" class="w-full h-96 bg-gray-950 rounded-xl border border-gray-800 overflow-hidden shadow-inner"></div>
         </div>
     </div>
@@ -931,7 +951,6 @@
             let func = "TIME_SERIES_DAILY";
             let intervalParam = "";
             
-            // 🎯 核心修正：降維回調為預設的 Compact 模式，一擊必殺，100 條 K 線輕量無感
             if (currentTimeframe === 'D') func = "TIME_SERIES_DAILY";
             else if (currentTimeframe === 'W') func = "TIME_SERIES_WEEKLY";
             else if (currentTimeframe === 'M') func = "TIME_SERIES_MONTHLY";
@@ -969,7 +988,12 @@
                 console.error(err);
                 loader.classList.add('hidden');
                 container.classList.remove('hidden');
-                container.innerHTML = `<div class="flex items-center justify-center h-full text-xs font-bold text-rose-400">❌ 網路通訊異常，無法與 Alpha Vantage 網關建立聯接。</div>`;
+                // 🎯 核心防禦：動態輸出真正的崩潰病因，防止盲目掩蓋錯誤
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-xs font-bold text-rose-400 p-6 text-center leading-relaxed">
+                        ❌ 圖表核心加載失敗：${err.message}<br>
+                        <span class="text-gray-500 font-normal mt-2 block">請按 F12 檢查 Console 主控台日誌，或檢查 API 金鑰是否有效。</span>
+                    </div>`;
             }
         }
 
@@ -1060,12 +1084,14 @@
             });
             activeSeriesInstance.setData(chartData);
 
+            // 🎯 核心語法修正：鎖定獨立的 'volume' 座標軸，不可留空
             const volumeSeries = activeChartInstance.addHistogramSeries({
                 priceFormat: { type: 'volume' },
-                priceScaleId: '', 
+                priceScaleId: 'volume', 
             });
 
-            volumeSeries.priceScale().setOptions({
+            // 🚀 核心語法修正：使用主圖實例控制命名空間，完美相容 v4.2.3 疊加比率
+            activeChartInstance.priceScale('volume').setOptions({
                 scaleMargins: {
                     top: 0.8,
                     bottom: 0,
