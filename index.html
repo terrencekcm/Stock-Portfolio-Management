@@ -415,6 +415,8 @@
         let latestBenchmarks = { sp500: 0, nasdaq: 0 };
         
         let alphaVantageApiKey = ""; 
+        let avKeysArray = []; // 🚀 多金鑰負載陣列
+        let avKeyIndex = 0;   // 🚀 當前作用金鑰索引
         let chartCache = {}; 
         let currentChartTicker = ""; let currentChartMarket = ""; let currentTimeframe = "D";
         let activeChartInstance = null; let activeSeriesInstance = null;
@@ -521,7 +523,17 @@
                 pdfMap = data.pdfMap || {}; earningsMap = data.earningsMap || {}; perfConfig = data.perfConfig || {};
                 tradingPlans = data.tradingPlans || []; 
                 latestBenchmarks = data.benchmarks || { sp500: 0, nasdaq: 0 };
+                
+                // 🚀 解析多金鑰字串 (支援逗號隔開)
                 alphaVantageApiKey = data.avApiKey || ""; 
+                if (alphaVantageApiKey.includes(',')) {
+                    avKeysArray = alphaVantageApiKey.split(',').map(k => k.trim()).filter(k => k);
+                } else if (alphaVantageApiKey) {
+                    avKeysArray = [alphaVantageApiKey.trim()];
+                } else {
+                    avKeysArray = [];
+                }
+                avKeyIndex = 0;
                 
                 applyRoleUI(data.userRole);
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -898,7 +910,7 @@
             fetchAndRenderChart();
         }
 
-        async function fetchAndRenderChart() {
+        async function fetchAndRenderChart(retryCount = 0) {
             const timeframes = ['4H', 'D', 'W', 'M'];
             timeframes.forEach(t => {
                 const btn = document.getElementById(`tf-${t}`);
@@ -920,7 +932,7 @@
                 return;
             }
 
-            if (!alphaVantageApiKey) {
+            if (avKeysArray.length === 0) {
                 container.innerHTML = `<div class="flex items-center justify-center h-full text-xs font-bold text-rose-400">⚠️ 後端 Code.gs 未成功填入或傳遞有效的 ALPHA_VANTAGE_API_KEY！</div>`;
                 return;
             }
@@ -936,16 +948,32 @@
             else if (currentTimeframe === 'M') func = "TIME_SERIES_MONTHLY";
             else if (currentTimeframe === '4H') { func = "TIME_SERIES_INTRADAY"; intervalParam = "&interval=60min"; }
 
-            const url = `https://www.alphavantage.co/query?function=${func}&symbol=${currentChartTicker}${intervalParam}&apikey=${alphaVantageApiKey}`;
+            // 🚀 使用當前輪詢到的金鑰
+            const currentKey = avKeysArray[avKeyIndex];
+            const url = `https://www.alphavantage.co/query?function=${func}&symbol=${currentChartTicker}${intervalParam}&apikey=${currentKey}`;
 
             try {
                 const response = await fetch(url);
                 const json = await response.json();
 
                 if (json["Note"] || json["Information"]) {
+                    // 🚀 核心優化：如果綁定了多個金鑰，且尚未全部重試完畢，立刻自動輪詢下一張金鑰試試！
+                    if (avKeysArray.length > 1 && retryCount < avKeysArray.length - 1) {
+                        avKeyIndex = (avKeyIndex + 1) % avKeysArray.length;
+                        console.warn(`⚠️ 金鑰觸發限制，自動秒級切換至第 ${avKeyIndex + 1}/${avKeysArray.length} 把備用金鑰重試...`);
+                        fetchAndRenderChart(retryCount + 1);
+                        return;
+                    }
+
+                    // 如果所有金鑰都被點爆，或者只有一把金鑰，才彈出優雅提示
                     loader.classList.add('hidden');
                     container.classList.remove('hidden');
-                    container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-xs font-bold text-amber-400 p-6 text-center leading-relaxed">⚠️ 觸發 Alpha Vantage 免費版頻率限制 (每分鐘僅限 5 次)。<br>請等候一分鐘後再試，或使用已緩存的週期！</div>`;
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full text-xs font-bold text-amber-400 p-6 text-center leading-relaxed">
+                            ⚠️ 觸發 Alpha Vantage 免費版頻率限制 (每分鐘僅限 5 次)。<br>
+                            <span class="text-gray-400 font-normal mt-2 block">原因：剛才連續高頻點擊切換週期（日線、4H、週線、月線）。</span>
+                            <span class="text-emerald-400 font-bold mt-2 block">💡 專業策略提示：請稍等 30 秒再點擊；或在 Google 試算表的設定中，將多把免費金鑰以逗號隔開填入（例如: KEY1,KEY2,KEY3），系統便能自動啟動多路多網關輪詢，彻底免除等待限制！</span>
+                        </div>`;
                     return;
                 }
 
@@ -971,7 +999,7 @@
                 container.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-full text-xs font-bold text-rose-400 p-6 text-center leading-relaxed">
                         ❌ 圖表核心加載失敗：${err.message}<br>
-                        <span class="text-gray-500 font-normal mt-2 block">請按 F12 檢查 Console 主控台日誌，或檢查 API 金鑰是否有效。</span>
+                        <span class="text-gray-500 font-normal mt-2 block">請按 F12 檢查 Console 主控台日誌，或檢查網路聯接。</span>
                     </div>`;
             }
         }
@@ -1063,13 +1091,11 @@
             });
             activeSeriesInstance.setData(chartData);
 
-            // 🎯 核心語法修正 1：鎖定獨立的 'volume' 座標軸命名空間
             const volumeSeries = activeChartInstance.addHistogramSeries({
                 priceFormat: { type: 'volume' },
                 priceScaleId: 'volume', 
             });
 
-            // 🎯 核心語法修正 2：改用相容 v4.2.3 的官方 .applyOptions 語法修改坐標軸邊距
             activeChartInstance.priceScale('volume').applyOptions({
                 scaleMargins: {
                     top: 0.8,
@@ -1280,7 +1306,7 @@
             for(const key in assetLabels) { if (key === 'CASH_TOTAL') continue; optionsHtml += `<option value="${key}">${assetLabels[key]}</option>`; }
             const newRowHtml = `
                 <tr class="stock-plan-row bg-amber-50/30">
-                    <td class="px-2 py-2"><input type="text" placeholder="標的" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold text-center"></td>
+                    <td class="px-2 py-2"><input type="text" placeholder="標補" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold text-center"></td>
                     <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
                     <td class="px-2 py-2"><input type="number" step="any" value="0" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
                     <td class="px-2 py-2"><input type="text" placeholder="板塊" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
