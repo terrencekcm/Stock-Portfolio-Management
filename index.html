@@ -6,7 +6,8 @@
     <title>全球資產配置與計劃管理系統 (USD Base)</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <!-- 🎯 強制鎖定穩定版，永久絕育因官方改版導致的破圖問題 -->
+    <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body class="bg-gray-100 font-sans p-6">
 
@@ -975,15 +976,19 @@
                 loader.classList.add('hidden');
                 container.classList.remove('hidden');
                 
-                // 🎯 聰明的防錯判斷：如果是被 AdBlock 攔截，給出精準提示
-                if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+                // 🎯 修正後的精準錯誤提示
+                if (err.message === 'Failed to fetch') {
                     container.innerHTML = `
                         <div class="flex flex-col items-center justify-center h-full text-xs font-bold text-amber-400 p-6 text-center leading-relaxed">
-                            ⚠️ 請求遭瀏覽器攔截 (ERR_BLOCKED_BY_CLIENT)<br>
-                            <span class="text-gray-400 font-normal mt-2 block">請檢查並【暫時關閉 AdBlock / uBlock 廣告攔截器】或將本站加入白名單，然後重整網頁。</span>
+                            ⚠️ API 請求未成功發出<br>
+                            <span class="text-gray-400 font-normal mt-2 block">請確認是否開啟了強力的隱私阻擋套件，或檢查免費 API Key 是否已達今日上限。</span>
                         </div>`;
                 } else {
-                    container.innerHTML = `<div class="flex items-center justify-center h-full text-xs font-bold text-rose-400">❌ 網路通訊異常，無法與 Alpha Vantage 網關建立聯接。</div>`;
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full text-xs font-bold text-rose-400 p-6 text-center">
+                            ❌ 系統異常: ${err.message}<br>
+                            <span class="text-gray-500 font-normal mt-1 block">若問題持續，請按 Ctrl + F5 強制刷新網頁。</span>
+                        </div>`;
                 }
             }
         }
