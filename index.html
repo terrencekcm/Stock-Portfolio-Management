@@ -35,6 +35,7 @@
             <div class="flex items-center gap-3">
                 <nav class="flex bg-gray-100 p-1 rounded-lg text-sm font-medium">
                     <button id="btn-dashboard-tab" onclick="switchTab('dashboard-tab')" class="px-4 py-2 rounded-md bg-white shadow-sm text-blue-600">📊 投資儀表板</button>
+                    <button id="btn-trading-tab" onclick="switchTab('trading-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900">🎯 出入市計劃</button>
                     <button id="btn-settings-tab" onclick="switchTab('settings-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 hidden">⚙️ 配置計劃設定</button>
                 </nav>
                 <div class="flex items-center gap-2">
@@ -45,7 +46,6 @@
         </header>
 
         <div id="tab-dashboard" class="space-y-6">
-            
             <div id="earningsRadarContainer" class="hidden space-y-2">
                 <div class="bg-amber-50 border-l-4 border-rose-500 p-4 rounded-xl shadow-sm">
                     <div class="flex items-center">
@@ -83,16 +83,13 @@
                     </div>
                     <p id="headerTotalPlDetail" class="text-xs text-gray-400 mt-2 border-t pt-1 border-gray-100">正在計算...</p>
                 </div>
-                
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-emerald-500 flex flex-col justify-between">
                     <div>
                         <p class="text-sm text-gray-500 font-medium">📊 持倉總賺蝕 (%)</p>
                         <p id="headerPerfYearlyPl" class="text-3xl font-bold text-gray-950 mt-1">0.00%</p>
                         <p class="text-[10px] text-gray-400 font-semibold mt-0.5 tracking-wider uppercase">📈 今年度全倉資產回報率</p>
                     </div>
-                    <div id="headerPerfHistPlDetail" class="text-xs text-gray-500 font-medium mt-2 border-t pt-1.5 border-gray-100">
-                        歷來總賺蝕 (%): <span class="font-bold">0.00%</span>
-                    </div>
+                    <div id="headerPerfHistPlDetail" class="text-xs text-gray-500 font-medium mt-2 border-t pt-1.5 border-gray-100">歷來總賺蝕 (%): <span class="font-bold">0.00%</span></div>
                 </div>
             </div>
 
@@ -117,11 +114,9 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-md h-fit">
                     <h2 class="text-lg font-bold mb-4 text-gray-700">✍️ 新增資產交易 / 流水</h2>
-                    
                     <div id="visitorBlockMessage" class="hidden p-5 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-center text-gray-400 text-xs font-semibold leading-relaxed">
                         🔒 您當前的登入身分權限為 <span class="text-gray-600 bg-gray-200 px-1.5 py-0.5 rounded font-bold">訪客 Visitor</span><br>儀表板已鎖定唯讀模式，無權進行記帳或出入市下單。
                     </div>
-
                     <div id="txFormFieldsWrap">
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700">資產類別</label>
@@ -175,16 +170,11 @@
                 </div>
 
                 <div class="lg:col-span-2 space-y-4">
-                    
                     <div id="usStrategyBarContainer" class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 space-y-1.5">
                         <div class="flex justify-between items-center text-[11px] font-bold text-gray-600">
-                            <div class="flex items-center gap-1 text-rose-600">
-                                <span>⚔️ 攻擊持倉:</span> <span id="attackBarPct">0.0%</span>
-                            </div>
-                            <div class="text-gray-500 font-extrabold tracking-wide" id="strategyBarTitle">美股戰略建倉進度 (錨定美股計劃總額)</div>
-                            <div class="flex items-center gap-1 text-blue-600">
-                                <span>🛡️ 防守持倉:</span> <span id="defenseBarPct">0.0%</span>
-                            </div>
+                            <div class="flex items-center gap-1 text-rose-600"><span>⚔️ 攻擊持倉:</span> <span id="attackBarPct">0.0%</span></div>
+                            <div class="text-gray-500 font-extrabold tracking-wide" id="strategyBarTitle">美股戰略建倉進度</div>
+                            <div class="flex items-center gap-1 text-blue-600"><span>🛡️ 防守持倉:</span> <span id="defenseBarPct">0.0%</span></div>
                         </div>
                         <div class="flex h-2.5 w-full rounded-full bg-gray-200 overflow-hidden shadow-inner">
                             <div id="attackBarSeg" class="bg-rose-500 transition-all duration-700" style="width: 0%"></div>
@@ -217,7 +207,7 @@
                     </div>
 
                     <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-amber-500">
-                        <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度 (Within Planned US Portfolio)</h3>
+                        <h3 class="text-md font-bold text-gray-700 mb-1">🧱 美股持倉自定義板塊集中度</h3>
                         <p class="text-xs text-gray-400 mb-3">分母錨定於：美股計劃總配額規模</p>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-left text-xs">
@@ -229,9 +219,7 @@
                                         <th class="px-4 py-2.5 text-gray-700 font-semibold">板塊當前總持倉市值 (USD)</th>
                                     </tr>
                                 </thead>
-                                <tbody id="sectorBreakdownTable" class="divide-y divide-gray-100 text-gray-800">
-                                    <tr><td colspan="4" class="px-4 py-3 text-center text-gray-400">正在統計美股持倉板塊...</td></tr>
-                                </tbody>
+                                <tbody id="sectorBreakdownTable" class="divide-y divide-gray-100 text-gray-800"></tbody>
                             </table>
                         </div>
                     </div>
@@ -259,6 +247,29 @@
             </div>
         </div>
 
+        <div id="tab-trading-plan" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <div class="border-b pb-3 mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">🎯 觀察名單出入市技術面計劃牆</h2>
+                    <p class="text-sm text-gray-500">對齊 Trader 圖表與 PM 風控排期（僅限白名單 Trader / PM 編輯，每隻標的最多存留 5 筆紀錄）</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left text-xs">
+                        <thead class="bg-gray-100 text-gray-600 font-bold uppercase border-b border-gray-200">
+                            <tr>
+                                <th class="px-4 py-3 w-1/4">觀察標的代號</th>
+                                <th class="px-4 py-3 w-1/4">資產市場</th>
+                                <th class="px-4 py-3 w-1/4">宏觀大類計劃分配 %</th>
+                                <th class="px-4 py-3 w-1/4 text-center">操作指令</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tradingPlanWatchlistTable" class="divide-y divide-gray-200">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div id="tab-settings" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -269,7 +280,6 @@
                     <button onclick="saveAllSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded-lg shadow transition cursor-pointer">💾 儲存設定至雲端</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    
                     <div class="md:col-span-1 space-y-6">
                         <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
                             <h3 class="font-bold text-gray-700 mb-3 text-sm flex justify-between">
@@ -278,11 +288,8 @@
                             </h3>
                             <div class="space-y-3 text-sm" id="assetSettingInputs"></div>
                         </div>
-                        
                         <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 space-y-4">
-                            <h3 class="font-bold text-gray-700 text-sm flex justify-between items-center">
-                                <span>📊 3. 全倉績效業績基準設定 (USD)</span>
-                            </h3>
+                            <h3 class="font-bold text-gray-700 text-sm"><span>📊 3. 全倉績效業績基準設定 (USD)</span></h3>
                             <div class="text-xs space-y-3">
                                 <div>
                                     <label class="block font-bold text-gray-600 mb-1">歷來持倉計算起始年份</label>
@@ -298,7 +305,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div class="md:col-span-2 bg-gray-50 p-5 rounded-xl border border-gray-200">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-bold text-gray-700 text-sm">🎯 2. 個股內部計劃佔比 ＆ 戰術風控排期</h3>
@@ -326,6 +332,41 @@
         </div>
     </div>
 
+    <div id="planInputModal" class="fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50 p-4 hidden">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full space-y-4 border border-gray-100">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="text-sm font-black text-gray-800">✍️ 部署全新技術進出場計劃 (<span id="modalTargetLabel" class="text-blue-600"></span>)</h3>
+                <button onclick="closePlanInputModal()" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-gray-600 mb-1">TradingView 快照網址 (Link)</label>
+                    <input type="url" id="inputTvLink" placeholder="https://www.tradingview.com/x/73DS19vb/" class="w-full rounded-md border border-gray-300 p-2.5 font-mono text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-600 mb-1">戰術出入市計畫備註</label>
+                    <textarea id="inputTvNotes" rows="4" placeholder="請詳細錄入支撐阻力位、加減倉觸發標準或止損防線..." class="w-full rounded-md border border-gray-300 p-2.5 text-gray-700 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 text-xs pt-2">
+                <button onclick="closePlanInputModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg font-medium cursor-pointer">取消</button>
+                <button onclick="submitNewPlan()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-md cursor-pointer">確認建檔</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tvImageModal" class="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-4 hidden" onclick="closeTvModal()">
+        <div class="relative bg-white p-2 rounded-xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeTvModal()" class="absolute top-3 right-3 bg-gray-900/80 hover:bg-black text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow-md cursor-pointer z-10 transition">✕</button>
+            <div class="overflow-auto p-1 flex justify-center items-center bg-gray-900 rounded-lg max-h-[80vh]">
+                <img id="tvModalImg" src="" alt="TradingView Chart Snapshot" class="max-w-full h-auto rounded shadow-md cursor-zoom-in transition-transform duration-300 select-none" onclick="toggleZoom(this)">
+            </div>
+            <div class="p-2 text-center text-xs text-gray-400 font-medium mt-1">
+                💡 提示：點擊圖表內部可以【無級別原圖放大/縮小】。點擊外面黑色陰影處即可隨時關閉。
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzsDE79EEEn1EpdYYTg44A8HeXzIEXs1hpV4JSjQUXeWo8uzeucaKndIm-RWce_l3Gy/exec";
 
@@ -337,8 +378,9 @@
         let transactions = []; let prices = {}; let exchangeRate = 7.82;
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
-        let stockPlan = []; let pdfMap = {}; let earningsMap = {}; 
-        let perfConfig = {}; // 🚀 全倉業績資本基準儲存庫
+        let stockPlan = []; let pdfMap = {}; let earningsMap = {}; let perfConfig = {};
+        let tradingPlans = []; // 🚀 全局技術圖表儲存庫
+        let activePlanTarget = { code: "", market: "" }; // 暫存目前正在編輯的對象
 
         document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
 
@@ -353,16 +395,26 @@
             if (tabId === 'settings-tab' && userRole !== 'PM') {
                 alert("❌ 權限被拒絕：您的角色無法進入配置計劃設定頁面！"); return;
             }
+            // 重置按鈕樣式
+            document.getElementById('btn-dashboard-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
+            document.getElementById('btn-trading-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
+            document.getElementById('btn-settings-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
+            if(userRole !== 'PM') document.getElementById('btn-settings-tab').classList.add('hidden');
+
+            document.getElementById('tab-dashboard').classList.add('hidden');
+            document.getElementById('tab-trading-plan').classList.add('hidden');
+            document.getElementById('tab-settings').classList.add('hidden');
+
             if (tabId === 'dashboard-tab') {
                 document.getElementById('tab-dashboard').classList.remove('hidden');
-                document.getElementById('tab-settings').classList.add('hidden');
                 document.getElementById('btn-dashboard-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
-                document.getElementById('btn-settings-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
-                if(userRole !== 'PM') document.getElementById('btn-settings-tab').classList.add('hidden');
-            } else {
-                document.getElementById('tab-dashboard').classList.add('hidden');
+            } else if (tabId === 'trading-tab') {
+                // 🚀 切換到技術計畫牆
+                document.getElementById('tab-trading-plan').classList.remove('hidden');
+                document.getElementById('btn-trading-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
+                renderTradingPlanPage();
+            } else if (tabId === 'settings-tab') {
                 document.getElementById('tab-settings').classList.remove('hidden');
-                document.getElementById('btn-dashboard-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
                 document.getElementById('btn-settings-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
                 renderSettingsPage();
             }
@@ -431,18 +483,18 @@
                     assetHidden[key] = data.assetHidden && data.assetHidden[key] ? true : false;
                 }
                 stockPlan = data.stockPlan || [];
-                pdfMap = data.pdfMap || {}; earningsMap = data.earningsMap || {};
-                perfConfig = data.perfConfig || {}; // 🚀 注入全倉績效配置表
+                pdfMap = data.pdfMap || {}; earningsMap = data.earningsMap || {}; perfConfig = data.perfConfig || {};
+                tradingPlans = data.tradingPlans || []; // 🚀 讀取技術計畫
                 
                 applyRoleUI(data.userRole);
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-                renderComponents();
                 
-                if (data.driveError) {
-                    updateStatus(`⚠️ 同步完成 (但 PDF 載入失敗: ${data.driveError})`, "error");
-                } else {
-                    updateStatus(`✅ 雲端同步完成 (已識別 ${Object.keys(pdfMap).length} 份 PDF)`, "success");
+                renderComponents();
+                // 如果目前停留在計畫牆，同步重繪
+                if(!document.getElementById('tab-trading-plan').classList.contains('hidden')){
+                    renderTradingPlanPage();
                 }
+                updateStatus(`✅ 雲端同步完成 (已識別 ${Object.keys(pdfMap).length} 份 PDF)`, "success");
             } catch (err) { console.error(err); updateStatus("❌ 讀取失敗，請核對網址", "error"); }
         }
 
@@ -572,42 +624,27 @@
             let totalCashUsd = 0;
             for (const mkt in cashBalances) { totalCashUsd += (cashBalances[mkt] * ((mkt === 'HK') ? (1 / exchangeRate) : 1)); }
             assetRealValuesUsd["CASH_TOTAL"] = totalCashUsd;
-            
-            // 📊 總資產淨值 (NAV) = 現金 + 股票 + 長短債 + 黃金
             const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd;
 
-            // 🚀 【全倉宏觀業績歸因】核心數學模型
+            // 全倉性能收益精算
             const currentYear = new Date().getFullYear();
             const yearInitial = parseFloat(perfConfig[currentYear + "_initial"]) || 0;
             const yearAdded = parseFloat(perfConfig[currentYear + "_added"]) || 0;
-            
-            // 1. 今年持倉總賺蝕 (%) = 總資產淨值 / (本年起初金額 + 本年總新增資金) * 100 - 100
-            let yearlyPerfPlPct = 0;
-            const yearlyCapitalDenominator = yearInitial + yearAdded; // 注資計入分母
-            if (yearlyCapitalDenominator > 0) {
-                yearlyPerfPlPct = ((totalAssetUsd / yearlyCapitalDenominator) - 1) * 100;
-            }
-            
-            // 2. 歷來持倉總賺蝕 (%) = 總資產淨值 / 歷史起初金額 * 100 - 100
+            let yearlyPerfPlPct = 0; const yearlyCapitalDenominator = yearInitial + yearAdded;
+            if (yearlyCapitalDenominator > 0) { yearlyPerfPlPct = ((totalAssetUsd / yearlyCapitalDenominator) - 1) * 100; }
             const histStartYear = perfConfig["historical_start_year"] || currentYear;
             const histInitialAmount = parseFloat(perfConfig[histStartYear + "_initial"]) || yearInitial;
-            let histPerfPlPct = 0;
-            if (histInitialAmount > 0) {
-                histPerfPlPct = ((totalAssetUsd / histInitialAmount) - 1) * 100;
-            }
+            let histPerfPlPct = 0; if (histInitialAmount > 0) { histPerfPlPct = ((totalAssetUsd / histInitialAmount) - 1) * 100; }
 
-            // 前端動態渲染業績魔方
             document.getElementById('headerPerfYearlyPl').innerText = `${yearlyPerfPlPct >= 0 ? '+' : ''}${yearlyPerfPlPct.toFixed(2)}%`;
             document.getElementById('headerPerfYearlyPl').className = `text-3xl font-black mt-1 ${yearlyPerfPlPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
             document.getElementById('headerPerfHistPlDetail').innerHTML = `歷來總賺蝕 (%): <span class="font-extrabold ${histPerfPlPct >= 0 ? 'text-emerald-600':'text-rose-600'}">${histPerfPlPct >= 0 ? '+' : ''}${histPerfPlPct.toFixed(2)}%</span> <span class="text-[10px] text-gray-400 font-normal">(基準年: ${histStartYear})</span>`;
 
             // 美股戰略 Status Bar 進度渲染
-            const usAssetPlanWeight = assetPlan["US"] || 0; 
-            const plannedUsTotalUsd = totalAssetUsd * (usAssetPlanWeight / 100);
+            const usAssetPlanWeight = assetPlan["US"] || 0; const plannedUsTotalUsd = totalAssetUsd * (usAssetPlanWeight / 100);
             let attPctOfPlan = plannedUsTotalUsd > 0 ? (attackValueUsd / plannedUsTotalUsd * 100) : 0;
             let defPctOfPlan = plannedUsTotalUsd > 0 ? (defenseValueUsd / plannedUsTotalUsd * 100) : 0;
-            let totalDeployedPct = attPctOfPlan + defPctOfPlan;
-            let remainingQuotaPct = Math.max(0, 100 - totalDeployedPct);
+            let totalDeployedPct = attPctOfPlan + defPctOfPlan; let remainingQuotaPct = Math.max(0, 100 - totalDeployedPct);
 
             document.getElementById('attackBarPct').innerText = `${attPctOfPlan.toFixed(1)}%`;
             document.getElementById('defenseBarPct').innerText = `${defPctOfPlan.toFixed(1)}%`;
@@ -654,8 +691,6 @@
 
             const sectorTableBody = document.getElementById('sectorBreakdownTable'); sectorTableBody.innerHTML = '';
             const sectorNames = Object.keys(usSectorsData);
-            const plannedUsTotalUsdForSector = totalAssetUsd * ((assetPlan["US"] || 0) / 100);
-
             if (sectorNames.length === 0) {
                 sectorTableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-center text-gray-400">目前美股持倉或計劃中沒有任何板塊數據</td></tr>`;
             } else {
@@ -666,7 +701,7 @@
                         <tr class="hover:bg-gray-50 border-b border-gray-100">
                             <td class="px-4 py-2.5 font-bold text-gray-700">🏷️ ${sec}</td>
                             <td class="px-4 py-2.5 font-bold text-blue-600 bg-blue-50/30">${data.plannedWeight.toFixed(1)}%</td>
-                            <td class="px-4 py-2.5 font-bold text-indigo-600 bg-indigo-50/30">${plannedUsTotalUsdForSector > 0 ? (data.actualValueUsd / plannedUsTotalUsdForSector * 100).toFixed(1) : '0.0'}%</td>
+                            <td class="px-4 py-2.5 font-bold text-indigo-600 bg-indigo-50/30">${plannedUsTotalUsd > 0 ? (data.actualValueUsd / plannedUsTotalUsd * 100).toFixed(1) : '0.0'}%</td>
                             <td class="px-4 py-2.5 text-gray-600 font-medium">USD $${data.actualValueUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                         </tr>`;
                 });
@@ -681,14 +716,12 @@
                 const assetRealWeight = plannedAssetClassTotalUsd > 0 ? (p.mktValUsd / plannedAssetClassTotalUsd * 100) : 0;
                 const totalRealWeight = totalAssetUsd > 0 ? (p.mktValUsd / totalAssetUsd * 100) : 0;
 
-                const stockCodeUpper = p.code.toUpperCase().trim();
-                const fileLink = pdfMap[stockCodeUpper];
+                const stockCodeUpper = p.code.toUpperCase().trim(); const fileLink = pdfMap[stockCodeUpper];
                 let codeCellHtml = fileLink ? `<a href="${fileLink}" target="_blank" class="text-blue-600 hover:underline font-bold cursor-pointer">📄 ${p.code}</a>` : `<span class="font-bold text-gray-800">${p.code}</span>`;
 
                 let earningsBadgeHtml = "";
                 if (earningsMap[stockCodeUpper]) {
-                    const earnObj = earningsMap[stockCodeUpper];
-                    const earnDateStr = (typeof earnObj === 'object') ? earnObj.date : earnObj;
+                    const earnObj = earningsMap[stockCodeUpper]; const earnDateStr = (typeof earnObj === 'object') ? earnObj.date : earnObj;
                     if (earnDateStr) {
                         const earnDate = new Date(earnDateStr.replace(/-/g, '/')); earnDate.setHours(0,0,0,0);
                         const diffDays = Math.round((earnDate - todayObj) / (1000 * 60 * 60 * 24));
@@ -717,6 +750,155 @@
                     </tr>`;
             });
             renderHistoryRows();
+        }
+
+        // 🚀 頁籤二：【出入市技術面計劃牆】核心渲染引擎 (限觀察名單 + 雙向安全策略レビュー)
+        function renderTradingPlanPage() {
+            const { positions } = calculatePortfolio();
+            const tableBody = document.getElementById('tradingPlanWatchlistTable');
+            tableBody.innerHTML = '';
+
+            // 精確過濾：只篩選出「觀察名單」(即未持有仓位 shares === 0 或是純計劃標的)
+            const watchListItems = stockPlan.filter(s => {
+                const activePos = positions[s.code];
+                return !activePos || activePos.shares <= 0 || activePos.isPlannedOnly;
+            });
+
+            if (watchListItems.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-6 text-center text-gray-400 font-medium bg-white">⚠️ 頂層設定中目前無任何觀察名單標的。請先前往設定頁添加！</td></tr>`;
+                return;
+            }
+
+            watchListItems.forEach(item => {
+                const stockCodeUpper = item.code.toUpperCase().trim();
+                
+                // 1. 先渲染觀察名單主行
+                tableBody.innerHTML += `
+                    <tr class="bg-gray-100/80 border-t-2 border-gray-200 font-bold text-gray-800">
+                        <td class="px-4 py-3 text-sm flex items-center gap-1.5">🔍 <span class="tracking-wide">${stockCodeUpper}</span></td>
+                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200">${assetLabels[item.market]||item.market}</span></td>
+                        <td class="px-4 py-3 text-indigo-600 font-extrabold">${Number(item.target_weight).toFixed(1)}%</td>
+                        <td class="px-4 py-3 text-center">
+                            ${(userRole === 'PM' || userRole === 'Trader') 
+                                ? `<button onclick="openPlanInputModal('${stockCodeUpper}', '${item.market}')" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-3 py-1 rounded-md shadow-md text-[11px] cursor-pointer transition">🎯 計劃</button>` 
+                                : `<span class="text-gray-400 select-none font-medium text-[11px]">🔒 唯讀鎖定</span>`}
+                        </td>
+                    </tr>`;
+
+                // 2. 獲取此標的所有歷史計畫並精密限流：依最新日期排序，最多抓 5 行
+                const matchedPlans = tradingPlans
+                    .filter(p => p.code === stockCodeUpper && p.market === item.market)
+                    .sort((a, b) => b.id - a.id) // 降序：最新上傳的在前
+                    .slice(0, 5); // 嚴格限流 5 筆
+
+                if (matchedPlans.length === 0) {
+                    tableBody.innerHTML += `
+                        <tr class="bg-white text-gray-400 italic text-xs">
+                            <td colspan="4" class="px-6 py-2.5 pl-10 border-b border-gray-100">📋 該觀察標的目前暫無錄入任何 Tradingview 技術面進出市計劃。</td>
+                        </tr>`;
+                } else {
+                    matchedPlans.forEach(plan => {
+                        let tvLinkRaw = plan.tv_link || "";
+                        let imageSrc = tvLinkRaw;
+                        
+                        // 🚀 TradingView 快照原生內嵌防禦演算法：將 /x/ 快照轉為 charts.tradingview.com 的原畫直鏈
+                        const tvTokenMatch = tvLinkRaw.match(/\/x\/(\w+)/);
+                        if (tvTokenMatch && tvTokenMatch[1]) {
+                            imageSrc = `https://charts.tradingview.com/x/${tvTokenMatch[1]}.png`;
+                        }
+
+                        let deleteActionHtml = (userRole === 'PM' || userRole === 'Trader')
+                            ? `<button onclick="deletePlan('${plan.id}')" class="text-rose-500 hover:text-rose-700 font-extrabold cursor-pointer hover:underline">🗑️ 刪除</button>`
+                            : `<span class="text-gray-300">唯讀</span>`;
+
+                        tableBody.innerHTML += `
+                            <tr class="bg-white border-b border-gray-100 hover:bg-blue-50/30 transition text-xs">
+                                <td class="px-4 py-2 text-gray-400 pl-10 font-bold">📅 紀錄日期：${plan.date || '---'}</td>
+                                <td class="px-4 py-2 font-bold">
+                                    <button onclick="openTvModal('${imageSrc}')" class="text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer font-bold text-left hover:underline">
+                                        📊 檢視圖表 (${tvTokenMatch ? tvTokenMatch[1] : '外部快照'})
+                                    </button>
+                                </td>
+                                <td class="px-4 py-2 text-gray-600 whitespace-pre-wrap break-all leading-relaxed font-medium">${plan.notes || '---'}</td>
+                                <td class="px-4 py-2 text-center font-semibold">${deleteActionHtml}</td>
+                            </tr>`;
+                    });
+                }
+            });
+        }
+
+        // 🚀 彈窗交互與遠端異動函數庫 (Trader & PM 專享)
+        function openPlanInputModal(code, market) {
+            if (userRole !== 'PM' && userRole !== 'Trader') return;
+            activePlanTarget = { code, market };
+            document.getElementById('modalTargetLabel').innerText = `${code} (${assetLabels[market]||market})`;
+            document.getElementById('inputTvLink').value = '';
+            document.getElementById('inputTvNotes').value = '';
+            document.getElementById('planInputModal').classList.remove('hidden');
+        }
+
+        function closePlanInputModal() {
+            document.getElementById('planInputModal').classList.add('hidden');
+        }
+
+        async function submitNewPlan() {
+            const link = document.getElementById('inputTvLink').value.trim();
+            const notes = document.getElementById('inputTvNotes').value.trim();
+            if (!link) { alert("❌ 請填入 Tradingview 快照網址！"); return; }
+
+            updateStatus("🚀 正在儲存戰術圖表與備忘錄至雲端...", "loading");
+            closePlanInputModal();
+
+            const newPlanPayload = {
+                action: "ADD_PLAN",
+                token: userGoogleToken,
+                id: Date.now().toString(),
+                code: activePlanTarget.code,
+                market: activePlanTarget.market,
+                date: new Date().toISOString().split('T')[0], // 自動記錄當前日期
+                tv_link: link,
+                notes: notes || "無備註"
+            };
+
+            try {
+                await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(newPlanPayload) });
+                updateStatus("✅ 計畫成功寫入 Google Sheet！", "success");
+                setTimeout(loadData, 1500);
+            } catch(e) { updateStatus("❌ 計畫寫入失敗", "error"); }
+        }
+
+        async function deletePlan(id) {
+            if (userRole !== 'PM' && userRole !== 'Trader') return;
+            if (!confirm("⚠️ 確定要刪除該條技術面進出市計劃快照嗎？此操作不可逆！")) return;
+
+            updateStatus("🗑️ 正在從雲端抹除計畫...", "loading");
+            try {
+                await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "DELETE_PLAN", token: userGoogleToken, id: id }) });
+                updateStatus("✅ 計畫抹除成功", "success");
+                setTimeout(loadData, 1500);
+            } catch(e) { updateStatus("❌ 刪除失敗", "error"); }
+        }
+
+        // 🚀 TradingView 彈窗放大鏡核心機制
+        function openTvModal(imgSrc) {
+            const modal = document.getElementById('tvImageModal');
+            const img = document.getElementById('tvModalImg');
+            img.src = imgSrc;
+            img.classList.remove('scale-150'); // 還原可能留存的放大倍率
+            modal.classList.remove('hidden');
+        }
+
+        function closeTvModal() {
+            document.getElementById('tvImageModal').classList.add('hidden');
+        }
+
+        function toggleZoom(img) {
+            // 無級切換放大檢視，方便操盤復盤檢視微小指標
+            if (img.classList.contains('scale-150')) {
+                img.classList.remove('scale-150', 'z-20');
+            } else {
+                img.classList.add('scale-150', 'z-20');
+            }
         }
 
         function renderHistoryRows() {
@@ -751,7 +933,6 @@
             }
         }
 
-        // 🚀 新增績效年份 HTML 渲染小助手
         function addPerfYearRow(year = '', initial = 0, added = 0) {
             const container = document.getElementById('perfYearRowsContainer');
             container.insertAdjacentHTML('beforeend', `
@@ -784,20 +965,13 @@
             }
             document.getElementById('assetTotalCheck').innerText = `總計: ${total.toFixed(1)}%`;
 
-            // 🚀 動態渲染性能參數配置介面
             document.getElementById('inputHistStartYear').value = perfConfig["historical_start_year"] || new Date().getFullYear();
             const perfContainer = document.getElementById('perfYearRowsContainer'); perfContainer.innerHTML = '';
-            
             let uniqueYears = new Set();
-            for (let k in perfConfig) {
-                if (k.endsWith('_initial') || k.endsWith('_added')) { uniqueYears.add(k.split('_')[0]); }
-            }
+            for (let k in perfConfig) { if (k.endsWith('_initial') || k.endsWith('_added')) { uniqueYears.add(k.split('_')[0]); } }
             if (uniqueYears.size === 0) { uniqueYears.add(new Date().getFullYear().toString()); }
-            
             let sortedYears = Array.from(uniqueYears).sort((a, b) => b - a);
-            sortedYears.forEach(y => {
-                addPerfYearRow(y, perfConfig[y + "_initial"] || 0, perfConfig[y + "_added"] || 0);
-            });
+            sortedYears.forEach(y => { addPerfYearRow(y, perfConfig[y + "_initial"] || 0, perfConfig[y + "_added"] || 0); });
 
             const tbody = document.getElementById('stockPlanSettingRows'); tbody.innerHTML = '';
             stockPlan.forEach((s) => {
@@ -862,47 +1036,34 @@
         async function saveAllSettings() {
             if (userRole !== 'PM') { alert("❌ 權限被拒絕"); return; }
             updateStatus("🚀 正在儲存參數與財報防線至雲端...", "loading");
-            
             let newAssetPlan = {}; let newAssetHidden = {};
             document.querySelectorAll('.asset-plan-input').forEach(input => { newAssetPlan[input.getAttribute('data-asset')] = parseFloat(input.value) || 0; });
             document.querySelectorAll('.asset-hide-checkbox').forEach(cb => { newAssetHidden[cb.getAttribute('data-asset')] = cb.checked; });
 
             let newStockPlan = [];
             document.querySelectorAll('.stock-plan-row').forEach(row => {
-                const code = row.querySelector('.sp-code').value.trim();
-                const market = row.querySelector('.sp-market').value;
+                const code = row.querySelector('.sp-code').value.trim(); const market = row.querySelector('.sp-market').value;
                 const weight = parseFloat(row.querySelector('.sp-weight').value) || 0;
                 const sector = row.querySelector('.sp-sector') ? row.querySelector('.sp-sector').value.trim() : "未分類";
-                const earningsInput = row.querySelector('.sp-earnings');
-                const earnings_date = earningsInput ? earningsInput.value.trim() : "";
+                const earningsInput = row.querySelector('.sp-earnings'); const earnings_date = earningsInput ? earningsInput.value.trim() : "";
                 let date_type = earningsInput ? earningsInput.getAttribute('data-type') : "手動";
-                const strategySelect = row.querySelector('.sp-strategy');
-                const strategy = strategySelect ? strategySelect.value : "攻擊";
+                const strategySelect = row.querySelector('.sp-strategy'); const strategy = strategySelect ? strategySelect.value : "攻擊";
                 if (earnings_date && !date_type) date_type = "手動";
                 if (code) newStockPlan.push({ code, market, target_weight: weight, sector, earnings_date, date_type, strategy });
             });
 
-            // 🚀 封包業績基準設定數據
-            let newPerfConfig = {};
-            newPerfConfig["historical_start_year"] = document.getElementById('inputHistStartYear').value.trim();
+            let newPerfConfig = {}; newPerfConfig["historical_start_year"] = document.getElementById('inputHistStartYear').value.trim();
             document.querySelectorAll('.perf-year-row').forEach(row => {
                 const y = row.querySelector('.sp-perf-year').value.trim();
                 const initVal = parseFloat(row.querySelector('.sp-perf-initial').value) || 0;
                 const addVal = parseFloat(row.querySelector('.sp-perf-added').value) || 0;
-                if (y) {
-                    newPerfConfig[y + "_initial"] = initVal;
-                    newPerfConfig[y + "_added"] = addVal;
-                }
+                if (y) { newPerfConfig[y + "_initial"] = initVal; newPerfConfig[y + "_added"] = addVal; }
             });
 
             try {
                 await fetch(API_URL, {
                     method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        action: "SAVE_SETTINGS", token: userGoogleToken, 
-                        assetPlan: newAssetPlan, assetHidden: newAssetHidden, stockPlan: newStockPlan,
-                        perfConfig: newPerfConfig // 同步上傳績效對照表
-                    })
+                    body: JSON.stringify({ action: "SAVE_SETTINGS", token: userGoogleToken, assetPlan: newAssetPlan, assetHidden: newAssetHidden, stockPlan: newStockPlan, perfConfig: newPerfConfig })
                 });
                 assetPlan = newAssetPlan; assetHidden = newAssetHidden; stockPlan = newStockPlan; perfConfig = newPerfConfig;
                 updateStatus("✅ 保存成功！正在重新精算...", "success");
