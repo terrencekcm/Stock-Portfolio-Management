@@ -974,7 +974,17 @@
                 console.error(err);
                 loader.classList.add('hidden');
                 container.classList.remove('hidden');
-                container.innerHTML = `<div class="flex items-center justify-center h-full text-xs font-bold text-rose-400">❌ 網路通訊異常，無法與 Alpha Vantage 網關建立聯接。</div>`;
+                
+                // 🎯 聰明的防錯判斷：如果是被 AdBlock 攔截，給出精準提示
+                if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full text-xs font-bold text-amber-400 p-6 text-center leading-relaxed">
+                            ⚠️ 請求遭瀏覽器攔截 (ERR_BLOCKED_BY_CLIENT)<br>
+                            <span class="text-gray-400 font-normal mt-2 block">請檢查並【暫時關閉 AdBlock / uBlock 廣告攔截器】或將本站加入白名單，然後重整網頁。</span>
+                        </div>`;
+                } else {
+                    container.innerHTML = `<div class="flex items-center justify-center h-full text-xs font-bold text-rose-400">❌ 網路通訊異常，無法與 Alpha Vantage 網關建立聯接。</div>`;
+                }
             }
         }
 
