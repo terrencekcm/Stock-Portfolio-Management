@@ -6,7 +6,6 @@
     <title>全球資產配置與計劃管理系統 (USD Base)</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <!-- 🎯 強制鎖定穩定版，永久絕育因官方改版導致的破圖問題 -->
     <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body class="bg-gray-100 font-sans p-6">
@@ -266,7 +265,8 @@
                                 <th class="px-4 py-3 w-1/5">觀察標的代號</th>
                                 <th class="px-4 py-3 w-1/5">資產市場</th>
                                 <th class="px-4 py-3 w-1/5">宏觀大類計劃分配 %</th>
-                                <th class="px-4 py-3 w-1/5 text-center bg-blue-50/40 text-blue-700">🕯️ 圖表</th> <th class="px-4 py-3 w-1/5 text-center">操作指令</th>
+                                <th class="px-4 py-3 w-1/5 text-center bg-blue-50/40 text-blue-700">🕯️ 圖表</th>
+                                <th class="px-4 py-3 w-1/5 text-center">操作指令</th>
                             </tr>
                         </thead>
                         <tbody id="tradingPlanWatchlistTable" class="divide-y divide-gray-200"></tbody>
@@ -377,7 +377,7 @@
             <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                 <div>
                     <h3 class="text-base font-black tracking-wide text-white">📊 美股即時技術指標陰陽燭：<span id="chartModalTitle" class="text-emerald-400 font-mono">AAPL</span></h3>
-                    <p class="text-[10px] text-gray-400 mt-0.5 tracking-wide">數據信號源：Alpha Vantage Realtime Feed (內置內存快照保護，防頻繁呼叫熔斷)</p>
+                    <p class="text-[10px] text-gray-400 mt-0.5 tracking-wide">數據信號源：Alpha Vantage Realtime Feed (內置歷史長圖解鎖與多週期成交量柱狀圖)</p>
                 </div>
                 <button onclick="closeCandlestickModal()" class="text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow transition cursor-pointer">✕</button>
             </div>
@@ -390,7 +390,7 @@
             </div>
 
             <div id="chartLoadingIndicator" class="hidden flex justify-center items-center h-96 text-xs text-emerald-400 font-mono font-bold tracking-wider bg-gray-950 rounded-xl border border-gray-800 shadow-inner">
-                <span class="animate-pulse">🔄 正在自 Alpha Vantage 雲端安全網關抓取並進行高精度 K 線數據校正...</span>
+                <span class="animate-pulse">🔄 正在自 Alpha Vantage 雲端安全網關抓取並進行高精度 K 線與成交量數據校正...</span>
             </div>
 
             <div id="chartContainer" class="w-full h-96 bg-gray-950 rounded-xl border border-gray-800 overflow-hidden shadow-inner"></div>
@@ -414,9 +414,8 @@
 
         let latestBenchmarks = { sp500: 0, nasdaq: 0 };
         
-        // 🎯 全局美股 K 線圖繪圖與高效快照緩存變數群
         let alphaVantageApiKey = ""; 
-        let chartCache = {}; // 記憶體 K 線快取：鍵值格式為 `${ticker}_${timeframe}`
+        let chartCache = {}; 
         let currentChartTicker = ""; let currentChartMarket = ""; let currentTimeframe = "D";
         let activeChartInstance = null; let activeSeriesInstance = null;
 
@@ -522,7 +521,7 @@
                 pdfMap = data.pdfMap || {}; earningsMap = data.earningsMap || {}; perfConfig = data.perfConfig || {};
                 tradingPlans = data.tradingPlans || []; 
                 latestBenchmarks = data.benchmarks || { sp500: 0, nasdaq: 0 };
-                alphaVantageApiKey = data.avApiKey || ""; // 🎯 同步後端傳遞過來的 Alpha Vantage API Key
+                alphaVantageApiKey = data.avApiKey || ""; 
                 
                 applyRoleUI(data.userRole);
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -735,7 +734,7 @@
             const sectorTableBody = document.getElementById('sectorBreakdownTable'); sectorTableBody.innerHTML = '';
             const sectorNames = Object.keys(usSectorsData);
             if (sectorNames.length === 0) {
-                sectorTableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-center text-gray-400">目前美股持倉或計劃中沒有任何板塊數據</td></tr>`;
+                sectorTableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-center text-gray-400">目美股持倉或計劃中沒有任何板塊數據</td></tr>`;
             } else {
                 sectorNames.sort((a, b) => usSectorsData[b].plannedWeight - usSectorsData[a].plannedWeight);
                 sectorNames.forEach(sec => {
@@ -795,7 +794,6 @@
             renderHistoryRows();
         }
 
-        // 🚀 頁籤二：【出入市技術面計劃牆】(已加入“圖表”專屬 Column 與 Lightweight 呼叫入口)
         function renderTradingPlanPage() {
             const { positions } = calculatePortfolio();
             const tableBody = document.getElementById('tradingPlanWatchlistTable');
@@ -813,8 +811,6 @@
 
             watchListItems.forEach(item => {
                 const stockCodeUpper = item.code.toUpperCase().trim();
-                
-                // 🎯 判斷市場，只針對美股 (US) 開放 Alpha Vantage 高性能陰陽燭圖
                 const isUsMarket = item.market === 'US';
                 const chartButtonHtml = isUsMarket 
                     ? `<button onclick="openCandlestickModal('${stockCodeUpper}', 'US')" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold px-3 py-1 rounded-md shadow text-[10px] cursor-pointer transition flex items-center gap-1 mx-auto">🕯️ K線圖</button>`
@@ -825,7 +821,8 @@
                         <td class="px-4 py-3 text-sm flex items-center gap-1.5">🔍 <span class="tracking-wide">${stockCodeUpper}</span></td>
                         <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200">${assetLabels[item.market]||item.market}</span></td>
                         <td class="px-4 py-3 text-indigo-600 font-extrabold">${Number(item.target_weight).toFixed(1)}%</td>
-                        <td class="px-4 py-3 text-center">${chartButtonHtml}</td> <td class="px-4 py-3 text-center">
+                        <td class="px-4 py-3 text-center">${chartButtonHtml}</td>
+                        <td class="px-4 py-3 text-center">
                             ${(userRole === 'PM' || userRole === 'Trader') 
                                 ? `<button onclick="openPlanInputModal('${stockCodeUpper}', '${item.market}')" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-3 py-1 rounded-md shadow-md text-[11px] cursor-pointer transition">🎯 計劃</button>` 
                                 : `<span class="text-gray-400 select-none font-medium text-[11px]">🔒 唯讀鎖定</span>`}
@@ -876,11 +873,10 @@
             });
         }
 
-        // 🎯 全局 Lightweight Charts 多週期核心渲染與緩存阻斷控制器
         function openCandlestickModal(ticker, market) {
             currentChartTicker = ticker.toUpperCase().trim();
             currentChartMarket = market;
-            currentTimeframe = "D"; // 預設打開「日線」
+            currentTimeframe = "D"; 
             
             document.getElementById('chartModalTitle').innerText = currentChartTicker;
             document.getElementById('candlestickModal').classList.remove('hidden');
@@ -903,7 +899,6 @@
         }
 
         async function fetchAndRenderChart() {
-            // 更新頁籤 UI 狀態
             const timeframes = ['4H', 'D', 'W', 'M'];
             timeframes.forEach(t => {
                 const btn = document.getElementById(`tf-${t}`);
@@ -918,7 +913,6 @@
             const container = document.getElementById('chartContainer');
             const loader = document.getElementById('chartLoadingIndicator');
 
-            // ⚡ 【快取防護盾防禦機制】：如果記憶體內存中已有數據，直接提取渲染，零重複消耗 API 次數
             if (chartCache[cacheKey]) {
                 loader.classList.add('hidden');
                 container.classList.remove('hidden');
@@ -931,13 +925,16 @@
                 return;
             }
 
-            // 開啟骨架載入動畫
+            container.add;
             container.classList.add('hidden');
             loader.classList.remove('hidden');
 
             let func = "TIME_SERIES_DAILY";
             let intervalParam = "";
-            if (currentTimeframe === 'W') func = "TIME_SERIES_WEEKLY";
+            
+            // 🎯 核心解鎖：日線追加 &outputsize=full，直接穿透 5 個月限制，獲取 20 年超長歷史線
+            if (currentTimeframe === 'D') func = "TIME_SERIES_DAILY&outputsize=full";
+            else if (currentTimeframe === 'W') func = "TIME_SERIES_WEEKLY";
             else if (currentTimeframe === 'M') func = "TIME_SERIES_MONTHLY";
             else if (currentTimeframe === '4H') { func = "TIME_SERIES_INTRADAY"; intervalParam = "&interval=60min"; }
 
@@ -954,7 +951,6 @@
                     return;
                 }
 
-                // 調用解析器進行量化聚合
                 const formattedData = parseAlphaVantageSeries(json, currentTimeframe);
 
                 if (!formattedData || formattedData.length === 0) {
@@ -964,7 +960,6 @@
                     return;
                 }
 
-                // 🎯 寫入內存 Cache 庫中備份
                 chartCache[cacheKey] = formattedData;
 
                 loader.classList.add('hidden');
@@ -975,25 +970,10 @@
                 console.error(err);
                 loader.classList.add('hidden');
                 container.classList.remove('hidden');
-                
-                // 🎯 修正後的精準錯誤提示
-                if (err.message === 'Failed to fetch') {
-                    container.innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-full text-xs font-bold text-amber-400 p-6 text-center leading-relaxed">
-                            ⚠️ API 請求未成功發出<br>
-                            <span class="text-gray-400 font-normal mt-2 block">請確認是否開啟了強力的隱私阻擋套件，或檢查免費 API Key 是否已達今日上限。</span>
-                        </div>`;
-                } else {
-                    container.innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-full text-xs font-bold text-rose-400 p-6 text-center">
-                            ❌ 系統異常: ${err.message}<br>
-                            <span class="text-gray-500 font-normal mt-1 block">若問題持續，請按 Ctrl + F5 強制刷新網頁。</span>
-                        </div>`;
-                }
+                container.innerHTML = `<div class="flex items-center justify-center h-full text-xs font-bold text-rose-400">❌ 網路通訊異常，無法與 Alpha Vantage 網關建立聯接。</div>`;
             }
         }
 
-        // 🎯 Alpha Vantage 數據解析與 4 小時線精密聚合引擎
         function parseAlphaVantageSeries(json, timeframe) {
             let key = "Time Series (Daily)";
             if (timeframe === 'W') key = "Weekly Time Series";
@@ -1004,22 +984,20 @@
             if (!rawData) return null;
 
             if (timeframe === '4H') {
-                // 🚀 【4H 級別量化聚合算法】：Alpha Vantage 免費版無直接 4H，在此抓取 60min 排列聚合
                 let hourlyBars = [];
                 for (let timestampStr in rawData) {
                     let bar = rawData[timestampStr];
                     hourlyBars.push({
-                        // 轉換為 UNIX 時間戳以符合 Lightweight Intraday 的需求
                         time: Math.floor(new Date(timestampStr.replace(/-/g, '/')).getTime() / 1000),
                         open: parseFloat(bar["1. open"]),
                         high: parseFloat(bar["2. high"]),
                         low: parseFloat(bar["3. low"]),
-                        close: parseFloat(bar["4. close"])
+                        close: parseFloat(bar["4. close"]),
+                        volume: parseFloat(bar["5. volume"] || 0) // 🎯 追加成交量解析
                     });
                 }
-                hourlyBars.sort((a, b) => a.time - b.time); // 正向時間排序
+                hourlyBars.sort((a, b) => a.time - b.time);
 
-                // 每 4 根 1 小時 K 線融合成 1 根 4 小時 K 線
                 let aggregated4H = [];
                 for (let i = 0; i < hourlyBars.length; i += 4) {
                     let group = hourlyBars.slice(i, i + 4);
@@ -1028,21 +1006,22 @@
                         open: group[0].open,
                         high: Math.max(...group.map(g => g.high)),
                         low: Math.min(...group.map(g => g.low)),
-                        close: group[group.length - 1].close
+                        close: group[group.length - 1].close,
+                        volume: group.reduce((sum, g) => sum + g.volume, 0) // 4H 內成交量累加
                     });
                 }
                 return aggregated4H;
             } else {
-                // 日、週、月線解析
                 let formatted = [];
                 for (let dateStr in rawData) {
                     let bar = rawData[dateStr];
                     formatted.push({
-                        time: dateStr, // YYYY-MM-DD 格式
+                        time: dateStr, 
                         open: parseFloat(bar["1. open"]),
                         high: parseFloat(bar["2. high"]),
                         low: parseFloat(bar["3. low"]),
-                        close: parseFloat(bar["4. close"])
+                        close: parseFloat(bar["4. close"]),
+                        volume: parseFloat(bar["5. volume"] || 0) // 🎯 追加成交量解析
                     });
                 }
                 formatted.sort((a, b) => new Date(a.time) - new Date(b.time));
@@ -1050,48 +1029,63 @@
             }
         }
 
-        // 🎨 使用 Lightweight Charts 渲染頂級深色暗黑操盤風格
         function renderChartWithData(chartData, timeframe) {
             const container = document.getElementById('chartContainer');
-            container.innerHTML = ''; // 清空之前的畫布
+            container.innerHTML = ''; 
 
-            // 建立 K 線圖實例
             activeChartInstance = LightweightCharts.createChart(container, {
                 width: container.clientWidth,
                 height: 384,
                 layout: {
-                    background: { type: 'solid', color: '#090d16' }, // 頂級黑曜石底色
+                    background: { type: 'solid', color: '#090d16' }, 
                     textColor: '#94a3b8',
                 },
                 grid: {
                     vertLines: { color: '#1e293b' },
                     horzLines: { color: '#1e293b' },
                 },
-                crosshair: {
-                    mode: LightweightCharts.CrosshairMode.Normal,
-                },
-                rightPriceScale: {
-                    borderColor: '#334155',
-                },
+                crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+                rightPriceScale: { borderColor: '#334155' },
                 timeScale: {
                     borderColor: '#334155',
-                    timeVisible: timeframe === '4H', // 4小時線模式下自動顯示精確時分
+                    timeVisible: timeframe === '4H', 
                 },
             });
 
-            // 掛載陰陽燭 K 線數據序列
+            // 1. 先建立主圖：陰陽燭主體線
             activeSeriesInstance = activeChartInstance.addCandlestickSeries({
-                upColor: '#10b981',    // 經典華爾街綠
-                downColor: '#ef4444',  // 警示回撤紅
+                upColor: '#10b981',    
+                downColor: '#ef4444',  
                 borderVisible: false,
                 wickUpColor: '#10b981',
                 wickDownColor: '#ef4444',
             });
-
             activeSeriesInstance.setData(chartData);
+
+            // 2. 🎯 副圖外掛：成交量直方圖 (Histogram Series)
+            const volumeSeries = activeChartInstance.addHistogramSeries({
+                priceFormat: { type: 'volume' },
+                priceScaleId: '', // 設置為空字串，啟用『重疊覆蓋模式』，與 K 線共用同一個 X 軸畫布
+            });
+
+            // 🎯 將成交量直方圖壓在最底部（佔據下方 20% 高度），不干擾上方的陰陽燭走勢
+            volumeSeries.priceScale().setOptions({
+                scaleMargins: {
+                    top: 0.8,
+                    bottom: 0,
+                },
+            });
+
+            // 🎯 量化變色器：當天 K 線收綠，成交量柱就顯著為透明綠；收紅則顯著為透明紅
+            const volumeData = chartData.map(d => ({
+                time: d.time,
+                value: d.volume,
+                color: d.close >= d.open ? 'rgba(16, 185, 129, 0.35)' : 'rgba(239, 68, 68, 0.35)'
+            }));
+
+            volumeSeries.setData(volumeData);
             activeChartInstance.timeScale().fitContent();
 
-            // 監聽視窗變化，保持無級自適應
             window.addEventListener('resize', handleChartResize);
         }
 
