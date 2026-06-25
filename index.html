@@ -136,8 +136,8 @@
                                 <select id="txMarket" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
                                     <option value="US">🇺🇸 美股 (US)</option>
                                     <option value="HK">🇭🇰 港股 (HK)</option>
-                                    <option value="BOND_L">📉 US 長債 (BOND_L)</option>
-                                    <option value="BOND_S">⏱️ US 短債 (BOND_S)</option>
+                                    <option value="BOND_L">長債 (BOND_L)</option>
+                                    <option value="BOND_S">⏱️ 短債 (BOND_S)</option>
                                     <option value="GOLD">🪙 金 (GOLD)</option>
                                 </select>
                             </div>
@@ -377,9 +377,9 @@
             <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                 <div>
                     <h3 class="text-base font-black tracking-wide text-white">📊 美股即時技術指標陰陽燭：<span id="chartModalTitle" class="text-emerald-400 font-mono">AAPL</span></h3>
-                    <p class="text-[10px] text-gray-400 mt-0.5 tracking-wide">數據信號源：Alpha Vantage Realtime Feed (內置歷史長圖優化與多週期成交量柱狀圖)</p>
+                    <p class="text-[10px] text-gray-400 mt-0.5 tracking-wide">數據信號源：Alpha Vantage Realtime Feed (內置 100 根精準操盤 K 線與即時成交量柱)</p>
                 </div>
-                <button onclick="closeCandlestickModal()" class="text-gray-400 hover:text-white bg-gray-880 hover:bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow transition cursor-pointer">✕</button>
+                <button onclick="closeCandlestickModal()" class="text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow transition cursor-pointer">✕</button>
             </div>
             
             <div class="flex bg-gray-800 p-1 rounded-lg text-xs font-bold self-start border border-gray-700">
@@ -931,7 +931,8 @@
             let func = "TIME_SERIES_DAILY";
             let intervalParam = "";
             
-            if (currentTimeframe === 'D') func = "TIME_SERIES_DAILY&outputsize=full";
+            // 🎯 核心修正：降維回調為預設的 Compact 模式，一擊必殺，100 條 K 線輕量無感
+            if (currentTimeframe === 'D') func = "TIME_SERIES_DAILY";
             else if (currentTimeframe === 'W') func = "TIME_SERIES_WEEKLY";
             else if (currentTimeframe === 'M') func = "TIME_SERIES_MONTHLY";
             else if (currentTimeframe === '4H') { func = "TIME_SERIES_INTRADAY"; intervalParam = "&interval=60min"; }
@@ -1023,13 +1024,6 @@
                     });
                 }
                 formatted.sort((a, b) => new Date(a.time) - new Date(b.time));
-                
-                // 🎯 核心效能修正：如果是日線圖，強制只留最後 250 筆數據（約 1 個交易年）
-                // 這樣既解決了 5 個月不夠看的問題，又防止了 20 年的巨量 K 線導致圖表或網卡崩潰
-                if (timeframe === 'D') {
-                    return formatted.slice(-250);
-                }
-                // 週線與月線的點數本來就很少（20年週K也才 1000 根），因此直接完整保留
                 return formatted;
             }
         }
@@ -1145,7 +1139,7 @@
                 await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "DELETE_PLAN", token: userGoogleToken, id: id }) });
                 updateStatus("✅ 計畫抹除成功", "success");
                 setTimeout(loadData, 1500);
-            } catch(e) { updateStatus("🗑️ 刪除失敗", "error"); }
+            } catch(e) { updateStatus("❌ 刪除失敗", "error"); }
         }
 
         function openTvModal(imgSrc) {
@@ -1222,7 +1216,7 @@
                         <div class="flex justify-between items-center">
                             <span class="font-bold text-gray-800">${assetLabels[ac]}</span>
                             <label class="inline-flex items-center text-xs text-gray-500 cursor-pointer select-none">
-                                <input type="checkbox" data-asset="${ac}" class="asset-hide-checkbox mr-1" ${assetHidden[ac]?'checked':''}> 👁️ 隱藏
+                                <input type="checkbox" data-asset="${ac}" class="asset-hide-checkbox mr-1" ${assetHidden[ac]?'checked':''}> 隱藏
                             </label>
                         </div>
                         <div class="flex items-center justify-end gap-1">
