@@ -263,8 +263,7 @@
                                 <th class="px-4 py-3 w-1/4 text-center">操作指令</th>
                             </tr>
                         </thead>
-                        <tbody id="tradingPlanWatchlistTable" class="divide-y divide-gray-200">
-                            </tbody>
+                        <tbody id="tradingPlanWatchlistTable" class="divide-y divide-gray-200"></tbody>
                     </table>
                 </div>
             </div>
@@ -379,8 +378,8 @@
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
         let stockPlan = []; let pdfMap = {}; let earningsMap = {}; let perfConfig = {};
-        let tradingPlans = []; // 🚀 全局技術圖表儲存庫
-        let activePlanTarget = { code: "", market: "" }; // 暫存目前正在編輯的對象
+        let tradingPlans = []; 
+        let activePlanTarget = { code: "", market: "" };
 
         document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
 
@@ -395,7 +394,6 @@
             if (tabId === 'settings-tab' && userRole !== 'PM') {
                 alert("❌ 權限被拒絕：您的角色無法進入配置計劃設定頁面！"); return;
             }
-            // 重置按鈕樣式
             document.getElementById('btn-dashboard-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
             document.getElementById('btn-trading-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
             document.getElementById('btn-settings-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
@@ -409,7 +407,6 @@
                 document.getElementById('tab-dashboard').classList.remove('hidden');
                 document.getElementById('btn-dashboard-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
             } else if (tabId === 'trading-tab') {
-                // 🚀 切換到技術計畫牆
                 document.getElementById('tab-trading-plan').classList.remove('hidden');
                 document.getElementById('btn-trading-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
                 renderTradingPlanPage();
@@ -484,13 +481,12 @@
                 }
                 stockPlan = data.stockPlan || [];
                 pdfMap = data.pdfMap || {}; earningsMap = data.earningsMap || {}; perfConfig = data.perfConfig || {};
-                tradingPlans = data.tradingPlans || []; // 🚀 讀取技術計畫
+                tradingPlans = data.tradingPlans || []; 
                 
                 applyRoleUI(data.userRole);
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 
                 renderComponents();
-                // 如果目前停留在計畫牆，同步重繪
                 if(!document.getElementById('tab-trading-plan').classList.contains('hidden')){
                     renderTradingPlanPage();
                 }
@@ -626,7 +622,6 @@
             assetRealValuesUsd["CASH_TOTAL"] = totalCashUsd;
             const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd;
 
-            // 全倉性能收益精算
             const currentYear = new Date().getFullYear();
             const yearInitial = parseFloat(perfConfig[currentYear + "_initial"]) || 0;
             const yearAdded = parseFloat(perfConfig[currentYear + "_added"]) || 0;
@@ -640,7 +635,6 @@
             document.getElementById('headerPerfYearlyPl').className = `text-3xl font-black mt-1 ${yearlyPerfPlPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
             document.getElementById('headerPerfHistPlDetail').innerHTML = `歷來總賺蝕 (%): <span class="font-extrabold ${histPerfPlPct >= 0 ? 'text-emerald-600':'text-rose-600'}">${histPerfPlPct >= 0 ? '+' : ''}${histPerfPlPct.toFixed(2)}%</span> <span class="text-[10px] text-gray-400 font-normal">(基準年: ${histStartYear})</span>`;
 
-            // 美股戰略 Status Bar 進度渲染
             const usAssetPlanWeight = assetPlan["US"] || 0; const plannedUsTotalUsd = totalAssetUsd * (usAssetPlanWeight / 100);
             let attPctOfPlan = plannedUsTotalUsd > 0 ? (attackValueUsd / plannedUsTotalUsd * 100) : 0;
             let defPctOfPlan = plannedUsTotalUsd > 0 ? (defenseValueUsd / plannedUsTotalUsd * 100) : 0;
@@ -752,13 +746,12 @@
             renderHistoryRows();
         }
 
-        // 🚀 頁籤二：【出入市技術面計劃牆】核心渲染引擎 (限觀察名單 + 雙向安全策略レビュー)
+        // 🚀 頁籤二：【出入市技術面計劃牆】(已修正 TradingView S3 原生高清解碼直鏈)
         function renderTradingPlanPage() {
             const { positions } = calculatePortfolio();
             const tableBody = document.getElementById('tradingPlanWatchlistTable');
             tableBody.innerHTML = '';
 
-            // 精確過濾：只篩選出「觀察名單」(即未持有仓位 shares === 0 或是純計劃標的)
             const watchListItems = stockPlan.filter(s => {
                 const activePos = positions[s.code];
                 return !activePos || activePos.shares <= 0 || activePos.isPlannedOnly;
@@ -771,8 +764,6 @@
 
             watchListItems.forEach(item => {
                 const stockCodeUpper = item.code.toUpperCase().trim();
-                
-                // 1. 先渲染觀察名單主行
                 tableBody.innerHTML += `
                     <tr class="bg-gray-100/80 border-t-2 border-gray-200 font-bold text-gray-800">
                         <td class="px-4 py-3 text-sm flex items-center gap-1.5">🔍 <span class="tracking-wide">${stockCodeUpper}</span></td>
@@ -785,11 +776,10 @@
                         </td>
                     </tr>`;
 
-                // 2. 獲取此標的所有歷史計畫並精密限流：依最新日期排序，最多抓 5 行
                 const matchedPlans = tradingPlans
                     .filter(p => p.code === stockCodeUpper && p.market === item.market)
-                    .sort((a, b) => b.id - a.id) // 降序：最新上傳的在前
-                    .slice(0, 5); // 嚴格限流 5 筆
+                    .sort((a, b) => b.id - a.id) 
+                    .slice(0, 5); 
 
                 if (matchedPlans.length === 0) {
                     tableBody.innerHTML += `
@@ -801,10 +791,12 @@
                         let tvLinkRaw = plan.tv_link || "";
                         let imageSrc = tvLinkRaw;
                         
-                        // 🚀 TradingView 快照原生內嵌防禦演算法：將 /x/ 快照轉為 charts.tradingview.com 的原畫直鏈
+                        // 🚀 【核心修復機制】：將 Tradingview 網頁代碼精密重組為 S3 高清原畫直鏈
                         const tvTokenMatch = tvLinkRaw.match(/\/x\/(\w+)/);
                         if (tvTokenMatch && tvTokenMatch[1]) {
-                            imageSrc = `https://charts.tradingview.com/x/${tvTokenMatch[1]}.png`;
+                            const token = tvTokenMatch[1];
+                            const firstChar = token.charAt(0).toLowerCase(); // 抓取代碼首字元 (支援數字與英文字母)
+                            imageSrc = `https://s3.tradingview.com/snapshots/${firstChar}/${token}.png`;
                         }
 
                         let deleteActionHtml = (userRole === 'PM' || userRole === 'Trader')
@@ -827,7 +819,6 @@
             });
         }
 
-        // 🚀 彈窗交互與遠端異動函數庫 (Trader & PM 專享)
         function openPlanInputModal(code, market) {
             if (userRole !== 'PM' && userRole !== 'Trader') return;
             activePlanTarget = { code, market };
@@ -855,7 +846,7 @@
                 id: Date.now().toString(),
                 code: activePlanTarget.code,
                 market: activePlanTarget.market,
-                date: new Date().toISOString().split('T')[0], // 自動記錄當前日期
+                date: new Date().toISOString().split('T')[0],
                 tv_link: link,
                 notes: notes || "無備註"
             };
@@ -879,12 +870,11 @@
             } catch(e) { updateStatus("❌ 刪除失敗", "error"); }
         }
 
-        // 🚀 TradingView 彈窗放大鏡核心機制
         function openTvModal(imgSrc) {
             const modal = document.getElementById('tvImageModal');
             const img = document.getElementById('tvModalImg');
             img.src = imgSrc;
-            img.classList.remove('scale-150'); // 還原可能留存的放大倍率
+            img.classList.remove('scale-150'); 
             modal.classList.remove('hidden');
         }
 
@@ -893,7 +883,6 @@
         }
 
         function toggleZoom(img) {
-            // 無級切換放大檢視，方便操盤復盤檢視微小指標
             if (img.classList.contains('scale-150')) {
                 img.classList.remove('scale-150', 'z-20');
             } else {
