@@ -1134,59 +1134,29 @@
 
         function renderChartWithData(chartData, timeframe) {
             const container = document.getElementById('chartContainer');
-            container.innerHTML = ''; 
-
-            activeChartInstance = LightweightCharts.createChart(container, {
-                width: container.clientWidth,
-                height: 384,
-                layout: {
-                    background: { type: 'solid', color: '#090d16' }, 
-                    textColor: '#94a3b8',
-                },
-                grid: {
-                    vertLines: { color: '#1e293b' },
-                    horzLines: { color: '#1e293b' },
-                },
-                crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-                rightPriceScale: { borderColor: '#334155' },
-                timeScale: {
-                    borderColor: '#334155',
-                    timeVisible: timeframe === '4H', 
-                },
-            });
-
-            activeSeriesInstance = activeChartInstance.addCandlestickSeries({
-                upColor: '#10b981',    
-                downColor: '#ef4444',  
-                borderVisible: false,
-                wickUpColor: '#10b981',
-                wickDownColor: '#wickDownColor',
-                wickDownColor: '#ef4444'
-            });
-            activeSeriesInstance.setData(chartData);
-
-            const volumeSeries = activeChartInstance.addHistogramSeries({
-                priceFormat: { type: 'volume' },
-                priceScaleId: 'volume', 
-            });
-
-            activeChartInstance.priceScale('volume').applyOptions({
-                scaleMargins: {
-                    top: 0.8,
-                    bottom: 0,
-                },
-            });
-
-            const volumeData = chartData.map(d => ({
-                time: d.time,
-                value: d.volume,
-                color: d.close >= d.open ? 'rgba(16, 185, 129, 0.35)' : 'rgba(239, 68, 68, 0.35)'
-            }));
-
-            volumeSeries.setData(volumeData);
-            activeChartInstance.timeScale().fitContent();
-
-            window.addEventListener('resize', handleChartResize);
+            container.innerHTML = ''; // 清空原有畫布
+        
+            // 🎯 轉換週期代碼以符合 TradingView 規範
+            let tvInterval = "D";
+            if (timeframe === '4H') tvInterval = "240";
+            else if (timeframe === 'W') tvInterval = "W";
+            else if (timeframe === 'M') tvInterval = "M";
+        
+            // 🎯 處理美股代號
+            let symbol = currentChartTicker;
+            
+            // 🚀 直接嵌入 TradingView 金融級免金鑰高互動圖表組件
+            container.innerHTML = `
+                <iframe 
+                    src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=${symbol}&interval=${tvInterval}&symboledit=0&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=dark&style=1&timezone=Asia%2FHong_Kong&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=zh_TW"
+                    width="100%" 
+                    height="384" 
+                    frameborder="0" 
+                    allowfullscreen="true" 
+                    scrolling="no"
+                    style="display: block; background: #090d16;"
+                ></iframe>
+            `;
         }
 
         function handleChartResize() {
