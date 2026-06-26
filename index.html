@@ -394,7 +394,7 @@
             <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                 <div>
                     <h3 class="text-base font-black tracking-wide text-white">📊 美股即時技術指標陰陽燭：<span id="chartModalTitle" class="text-emerald-400 font-mono">AAPL</span></h3>
-                    <p class="text-[10px] text-gray-400 mt-0.5 tracking-wide">數據信號源：TradingView Realtime Financial Feed (免金鑰全功能解鎖版)</p>
+                    <p class="text-[10px] text-gray-400 mt-0.5 tracking-wide">數據信號源：Alpha Vantage Realtime Feed (內置 100 根精準操盤 K 線與即時成交量柱)</p>
                 </div>
                 <button onclick="closeCandlestickModal()" class="text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm shadow transition cursor-pointer">✕</button>
             </div>
@@ -950,7 +950,7 @@
             }
         }
 
-        async function fetchAndRenderChart() {
+        async function fetchAndRenderChart(retryCount = 0) {
             const timeframes = ['4H', 'D', 'W', 'M'];
             timeframes.forEach(t => {
                 const btn = document.getElementById(`tf-${t}`);
@@ -960,14 +960,132 @@
                     btn.className = "px-4 py-1.5 rounded-md text-gray-400 hover:text-gray-200";
                 }
             });
-        
+
+            const cacheKey = `${currentChartTicker}_${currentTimeframe}`;
             const container = document.getElementById('chartContainer');
             const loader = document.getElementById('chartLoadingIndicator');
-        
-            // 🚀 0 秒無縫對接：不再請求任何 Alpha Vantage 接口，直接呼叫 TradingView 渲染
-            loader.classList.add('hidden');
-            container.classList.remove('hidden');
-            renderChartWithData(null, currentTimeframe);
+
+            if (chartCache[cacheKey]) {
+                loader.classList.add('hidden');
+                container.classList.remove('hidden');
+                renderChartWithData(chartCache[cacheKey], currentTimeframe);
+                return;
+            }
+
+            if (avKeysArray.length === 0) {
+                container.innerHTML = `<div class="flex items-center justify-center h-full text-xs font-bold text-rose-400">⚠️ 後端 Code.gs 未成功填入或傳遞有效的 ALPHA_VANTAGE_API_KEY！</div>`;
+                return;
+            }
+
+            container.classList.add('hidden');
+            loader.classList.remove('hidden');
+
+            let func = "TIME_SERIES_DAILY";
+            let intervalParam = "";
+            
+            if (currentTimeframe === 'D') func = "TIME_SERIES_DAILY";
+            else if (currentTimeframe === 'W') func = "TIME_SERIES_WEEKLY";
+            else if (currentTimeframe === 'M') func = "TIME_SERIES_MONTHLY";
+            else if (currentTimeframe === '4H') { func = "TIME_SERIES_INTRADAY"; intervalParam = "&interval=60min"; }
+
+            const currentKey = avKeysArray[avKeyIndex];
+            const url = `https://www.alphavantage.co/query?function=${func}&symbol=${currentChartTicker}${intervalParam}&apikey=${currentKey}`;
+
+            try {
+                const response = await fetch(url);
+                const json = await response.json();
+
+                // 🎯 頻率限制過載攔截
+                if (json["Note"]) {
+                    if (avKeysArray.length > 1 && retryCount < avKeysArray.length - 1) {
+                        avKeyIndex = (avKeyIndex + 1) % avKeysArray.length;
+                        fetchAndRenderChart(retryCount + 1);
+                        return;
+                    }
+                    loader.classList.add('hidden');
+                    container.classList.remove('hidden');
+                    container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-xs font-bold text-amber-400 p-6 text-center leading-relaxed">
+                        ⚠️ 觸發 Alpha Vantage 免費版頻率限制 (每分鐘 5 次)。<br>請等候 30 秒再試，或在後台綁定多把金鑰自動分流！
+                    </div>`;
+                    return;
+                }
+
+                // 🎯 權限攔截：精準抽離官方對免費金鑰限制個股分時（Intraday）的進階風控警告
+                // 🎯 完美分流：精準識別「每日25次耗盡」與「4H高級權限鎖」
+                // 🎯 尋找並替換 fetchAndRenderChart 裡面的 json["Information"] 區塊：
+
+                if (json["Information"]) {
+                    const infoStr = String(json["Information"]);
+                    
+                    // 🚀 【核心修正】不論遇到什麼限制，只要還有「備用金鑰」沒用過，就立刻換下一把重試！
+                    if (avKeysArray.length > 1 && retryCount < avKeysArray.length - 1) {
+                        avKeyIndex = (avKeyIndex + 1) % avKeysArray.length;
+                        console.warn(`⚠️ 金鑰受限，自動秒級切換至第 ${avKeyIndex + 1}/${avKeysArray.length} 把備用金鑰重試...`);
+                        fetchAndRenderChart(retryCount + 1);
+                        return; // 順利交棒，交給下一把 Key 去抓數據
+                    }
+                
+                    // 🔒 只有當「所有金鑰都全軍覆沒」重試失敗後，才顯示最終診斷牆
+                    loader.classList.add('hidden');
+                    container.classList.remove('hidden');
+                    
+                    // 🚪 閘門 A：如果是每日 25 次總額度用盡
+                    if (infoStr.includes("25 requests per day") || infoStr.includes("rate limit")) {
+                        container.innerHTML = `
+                            <div class="flex flex-col items-center justify-center h-full text-xs text-amber-400 p-6 text-center leading-relaxed bg-gray-950 rounded-xl border border-dashed border-amber-500/30">
+                                <span class="text-base font-black text-rose-500">❌ 操盤終端警報：您綁定的 ${avKeysArray.length} 把金鑰額度已集體全數耗盡！</span>
+                                <span class="block bg-gray-950 p-2 text-gray-500 rounded font-mono text-[10px] my-2 select-all max-w-full border border-gray-800">最後一把金鑰回覆: "${infoStr}"</span>
+                                <p class="text-gray-400 font-normal text-left text-[11px] mt-1">
+                                    <span class="text-amber-500 font-black">現狀分析：</span>系統剛才已經自動幫您把彈夾裡的 <span class="text-emerald-400 font-bold">${avKeysArray.length} 把金鑰</span> 全部輪流打了一遍，但遺憾的是，這些金鑰在官方那邊當天的 25 次額度都已經被識別為歸零了。
+                                </p>
+                                <div class="text-emerald-400 font-bold text-left w-full mt-3">💡 終極應對方針：</div>
+                                <ul class="text-left text-gray-400 font-normal list-disc list-inside space-y-1 text-[11px] mt-1 w-full">
+                                    <li>建議今天先切換至 <span class="text-emerald-400 font-bold">日線或週線</span> 查看（如果之前有快照緩存，可直接點開）。</li>
+                                    <li>若明天额度重置後仍出現此集體封鎖，代表這幾把 Key 已經被官方判定為「高頻共用同源 Key」，建議重新申請 1 把純個人私有的乾淨金鑰填入。</li>
+                                </ul>
+                            </div>`;
+                        return;
+                    }
+                    
+                    // 🚪 閘門 B：如果是 4H 的進階數據權限鎖
+                    if (infoStr.includes("premium") || infoStr.includes("Premium") || infoStr.includes("subscribe")) {
+                        container.innerHTML = `
+                            <div class="flex flex-col items-center justify-center h-full text-xs text-amber-400 p-6 text-center leading-relaxed bg-gray-950 rounded-xl border border-dashed border-amber-500/30">
+                                <span class="text-base font-bold">👑 官方金鑰權限限制 (4H 分時專屬鎖)</span>
+                                <span class="block bg-gray-950 p-2 text-gray-500 rounded font-mono text-[10px] my-2 select-all max-w-full border border-gray-800">官方回覆: "${infoStr}"</span>
+                                <p class="text-gray-400 font-normal text-left text-[11px] mt-1">
+                                    <span class="text-amber-500 font-black">原因核心：</span>4小時圖已被官方強行劃歸為 Premium 付費功能，免費金鑰無法讀取。
+                                </p>
+                                <div class="text-emerald-400 font-bold text-left w-full mt-2">💡 策略提示：</div>
+                                <p class="text-left text-gray-400 text-[11px] w-full">免費版請切換使用【日線、週線、月線】進行操盤部署。</p>
+                            </div>`;
+                        return;
+                    }
+                    
+                    container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-xs font-bold text-amber-400 p-6 text-center">⚠️ 官方公告：${infoStr}</div>`;
+                    return;
+                }
+
+                const formattedData = parseAlphaVantageSeries(json, currentTimeframe);
+
+                if (!formattedData || formattedData.length === 0) {
+                    loader.classList.add('hidden');
+                    container.classList.remove('hidden');
+                    container.innerHTML = `<div class="flex items-center justify-center h-full text-xs font-bold text-rose-400">❌ 找不到該標的的數據，或該週期數據暫未開放。</div>`;
+                    return;
+                }
+
+                chartCache[cacheKey] = formattedData;
+                loader.classList.add('hidden');
+                container.classList.remove('hidden');
+                renderChartWithData(formattedData, currentTimeframe);
+
+            } catch (err) {
+                console.error(err);
+                loader.classList.add('hidden');
+                container.classList.remove('hidden');
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-xs font-bold text-rose-400 p-6 text-center">❌ 圖表加載異常：${err.message}</div>`;
+            }
         }
 
         function parseAlphaVantageSeries(json, timeframe) {
