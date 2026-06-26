@@ -1011,33 +1011,45 @@
                 }
 
                 // 🎯 權限攔截：精準抽離官方對免費金鑰限制個股分時（Intraday）的進階風控警告
+                // 🎯 完美分流：精準識別「每日25次耗盡」與「4H高級權限鎖」
                 if (json["Information"]) {
                     loader.classList.add('hidden');
                     container.classList.remove('hidden');
                     const infoStr = String(json["Information"]);
                     
-                    if (infoStr.includes("premium") || infoStr.includes("Premium") || infoStr.includes("subscribe") || infoStr.includes("claim")) {
+                    // 🚪 閘門 A：如果是每日 25 次總額度用盡
+                    if (infoStr.includes("25 requests per day") || infoStr.includes("rate limit")) {
                         container.innerHTML = `
                             <div class="flex flex-col items-center justify-center h-full text-xs text-amber-400 p-6 text-center leading-relaxed bg-gray-950 rounded-xl border border-dashed border-amber-500/30">
-                                <span class="text-base">👑 官方金鑰權限限制 (Premium Required)</span>
+                                <span class="text-base font-black text-rose-500">⚠️ 警告：這把 API 金鑰當日 25 次額度已完全耗盡！</span>
                                 <span class="block bg-gray-950 p-2 text-gray-500 rounded font-mono text-[10px] my-2 select-all max-w-full border border-gray-800">官方回覆: "${infoStr}"</span>
                                 <p class="text-gray-400 font-normal text-left text-[11px] mt-1">
-                                    <span class="text-amber-500 font-black">原因核心：</span>您當前綁定的是 Alpha Vantage <span class="text-amber-400 font-bold">Free 免費版金鑰</span>。官方近期對分時底層數據進行了權限分割：<span class="text-rose-400 font-bold">4小時圖（TIME_SERIES_INTRADAY 分時 K 線）</span>對於個股大盤權重股（如 NVDA, AVGO 等科技巨頭）已被強制劃歸為 <span class="text-amber-400 font-bold">Premium 高級付費專屬功能</span>，因此免費金鑰任何時間都會被官方伺服器直接拒絕連線。
+                                    <span class="text-amber-500 font-black">現狀分析：</span>官方免費金鑰限制<span class="text-rose-400 font-bold">每天總共只能呼叫 25 次</span>。因為這把 Key 今天的額度已經歸零，所以不論點擊【日線、週線、月線】都會被伺服器全面拒絕。
                                 </p>
-                                <div class="text-emerald-400 font-bold text-left w-full mt-3">💡 操盤手應對方針：</div>
+                                <div class="text-emerald-400 font-bold text-left w-full mt-3">🚀 操盤組合拳破解方案：</div>
                                 <ul class="text-left text-gray-400 font-normal list-disc list-inside space-y-1 text-[11px] mt-1 w-full">
-                                    <li>如果您擁有官方 Premium 付費金鑰，可直接填入後台表格，系統將自動秒級解鎖。</li>
-                                    <li>若繼續使用免費版，目前系統已完美支援無限制的 <span class="text-emerald-400 font-bold">「日線 (D)、週線 (W)、月線 (M)」</span> 量化高精度繪圖，建議轉用日線或週線進行宏觀波段技術面部署！</li>
+                                    <li><span class="text-emerald-400 font-bold">最推薦改法</span>：去官方多申辦 2~3 把免費 Key，按照昨晚教的方法填入 Google Sheet 儲存格並用英文逗號 <code class="bg-gray-800 px-1 rounded text-white">,</code> 隔開。</li>
+                                    <li>系統會自動開啟<strong>多路網關自動輪詢</strong>，一把耗盡自動切換下一把，日呼叫量直接翻倍擴容到 75~100 次，徹底免除等待！</li>
                                 </ul>
                             </div>`;
                         return;
                     }
                     
-                    if (avKeysArray.length > 1 && retryCount < avKeysArray.length - 1) {
-                        avKeyIndex = (avKeyIndex + 1) % avKeysArray.length;
-                        fetchAndRenderChart(retryCount + 1);
+                    // 🚪 閘門 B：如果是 4H 的進階數據權限鎖 (且不是因為次數耗盡)
+                    if (infoStr.includes("premium") || infoStr.includes("Premium") || infoStr.includes("subscribe")) {
+                        container.innerHTML = `
+                            <div class="flex flex-col items-center justify-center h-full text-xs text-amber-400 p-6 text-center leading-relaxed bg-gray-950 rounded-xl border border-dashed border-amber-500/30">
+                                <span class="text-base font-bold">👑 官方金鑰權限限制 (4H 分時專屬鎖)</span>
+                                <span class="block bg-gray-950 p-2 text-gray-500 rounded font-mono text-[10px] my-2 select-all max-w-full border border-gray-800">官方回覆: "${infoStr}"</span>
+                                <p class="text-gray-400 font-normal text-left text-[11px] mt-1">
+                                    <span class="text-amber-500 font-black">原因核心：</span>在額度充裕時，<span class="text-rose-400 font-bold">4小時圖（Intraday 分時 K 線）</span>對於個股已被官方劃歸為 Premium 高級付費功能，免費金鑰無法讀取。
+                                </p>
+                                <div class="text-emerald-400 font-bold text-left w-full mt-2">💡 策略提示：</div>
+                                <p class="text-left text-gray-400 text-[11px] w-full">免費版請專注切換使用【日線、週線、月線】進行大波段操盤部署，完全不受此權限影響。</p>
+                            </div>`;
                         return;
                     }
+                    
                     container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-xs font-bold text-amber-400 p-6 text-center">⚠️ 官方公告：${infoStr}</div>`;
                     return;
                 }
