@@ -950,7 +950,7 @@
             }
         }
 
-        async function fetchAndRenderChart(retryCount = 0) {
+        async function fetchAndRenderChart() {
             const timeframes = ['4H', 'D', 'W', 'M'];
             timeframes.forEach(t => {
                 const btn = document.getElementById(`tf-${t}`);
@@ -961,120 +961,13 @@
                 }
             });
         
-            const cacheKey = `${currentChartTicker}_${currentTimeframe}`;
             const container = document.getElementById('chartContainer');
             const loader = document.getElementById('chartLoadingIndicator');
         
-            if (chartCache[cacheKey]) {
-                loader.classList.add('hidden');
-                container.classList.remove('hidden');
-                renderChartWithData(chartCache[cacheKey], currentTimeframe);
-                return;
-            }
-        
-            if (avKeysArray.length === 0) {
-                container.innerHTML = `<div class="flex items-center justify-center h-full text-xs font-bold text-rose-400">⚠️ 後端 Code.gs 未成功填入或傳遞有效的 ALPHA_VANTAGE_API_KEY！</div>`;
-                return;
-            }
-        
-            container.classList.add('hidden');
-            loader.classList.remove('hidden');
-        
-            let func = "TIME_SERIES_DAILY";
-            let intervalParam = "";
-            
-            if (currentTimeframe === 'D') func = "TIME_SERIES_DAILY";
-            else if (currentTimeframe === 'W') func = "TIME_SERIES_WEEKLY";
-            else if (currentTimeframe === 'M') func = "TIME_SERIES_MONTHLY";
-            else if (currentTimeframe === '4H') { func = "TIME_SERIES_INTRADAY"; intervalParam = "&interval=60min"; }
-        
-            // 🎯 【動態去狀態化分流】核心修正：直接用目前遞迴重試次數作為金鑰索引，100% 避開全域變數受多線程干擾的死鎖可能
-            const currentKey = avKeysArray[retryCount % avKeysArray.length];
-            const url = `https://www.alphavantage.co/query?function=${func}&symbol=${currentChartTicker}${intervalParam}&apikey=${currentKey}`;
-        
-            try {
-                const response = await fetch(url);
-                const json = await response.json();
-        
-                // 🎯 頻率超載限制攔截 (每分鐘 5 次)
-                if (json["Note"]) {
-                    if (avKeysArray.length > 1 && retryCount < avKeysArray.length - 1) {
-                        console.warn(`⚠️ 觸發頻率限制，自動秒級切換至第 ${retryCount + 2}/${avKeysArray.length} 把備用金鑰重試...`);
-                        fetchAndRenderChart(retryCount + 1);
-                        return;
-                    }
-                    loader.classList.add('hidden');
-                    container.classList.remove('hidden');
-                    container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-xs font-bold text-amber-400 p-6 text-center leading-relaxed">
-                        ⚠️ 觸發 Alpha Vantage 免費版頻率限制 (每分鐘 5 次)。<br>請稍候 30 秒再點擊切換。
-                    </div>`;
-                    return;
-                }
-        
-                // 🎯 雙閘門精準診斷：識別每日 25 次耗盡與 4H 高級權限鎖
-                if (json["Information"]) {
-                    const infoStr = String(json["Information"]);
-                    
-                    // 🚀 【強行換彈夾機制】核心修正：只要還有沒用過的備用金鑰，立刻強制遞增進入下一把 Key，絕不彈出錯誤畫面！
-                    if (avKeysArray.length > 1 && retryCount < avKeysArray.length - 1) {
-                        console.warn(`⚠️ 金鑰受限 (${currentKey.slice(0,5)}...)，無痛自動交棒至第 ${retryCount + 2}/${avKeysArray.length} 把備用金鑰重試...`);
-                        fetchAndRenderChart(retryCount + 1);
-                        return;
-                    }
-        
-                    // 🔒 只有當所有子彈集體耗盡、全軍覆沒之後，才解鎖並呈現最終真實的診斷牆畫面
-                    loader.classList.add('hidden');
-                    container.classList.remove('hidden');
-                    
-                    if (infoStr.includes("25 requests per day") || infoStr.includes("rate limit")) {
-                        container.innerHTML = `
-                            <div class="flex flex-col items-center justify-center h-full text-xs text-amber-400 p-6 text-center leading-relaxed bg-gray-950 rounded-xl border border-dashed border-amber-500/30">
-                                <span class="text-base font-black text-rose-500">❌ 操盤終端警報：您配置的 ${avKeysArray.length} 把金鑰已集體全數耗盡！</span>
-                                <span class="block bg-gray-950 p-2 text-gray-500 rounded font-mono text-[10px] my-2 select-all max-w-full border border-gray-800">最後一把重試金鑰 (${currentKey.slice(0,6)}...) 的官方回覆: "${infoStr}"</span>
-                                <p class="text-gray-400 font-normal text-left text-[11px] mt-1">
-                                    <span class="text-amber-500 font-black">現狀診斷：</span>系統剛才已強制執行無狀態輪詢，將你配置的 ${avKeysArray.length} 把金鑰全部消耗完畢。若今天均無法出圖，說明此批次金鑰在官方端已被識別為同源高頻請求遭鎖定。
-                                </p>
-                            </div>`;
-                        return;
-                    }
-                    
-                    if (infoStr.includes("premium") || infoStr.includes("Premium") || infoStr.includes("subscribe")) {
-                        container.innerHTML = `
-                            <div class="flex flex-col items-center justify-center h-full text-xs text-amber-400 p-6 text-center leading-relaxed bg-gray-950 rounded-xl border border-dashed border-amber-500/30">
-                                <span class="text-base font-bold">👑 官方金鑰權限限制 (4H 分時專屬鎖)</span>
-                                <span class="block bg-gray-950 p-2 text-gray-500 rounded font-mono text-[10px] my-2 select-all max-w-full border border-gray-800">官方回覆: "${infoStr}"</span>
-                                <p class="text-gray-400 font-normal text-left text-[11px] mt-1">
-                                    <span class="text-amber-500 font-black">原因核心：</span>4小時個股分時圖已被官方強行劃歸為 Premium 付費功能，免費金鑰無法讀取。免費版請聚焦於【日線 (D)、週線 (W)】進行大波段戰術部署！
-                                </p>
-                            </div>`;
-                        return;
-                    }
-                    
-                    container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-xs font-bold text-amber-400 p-6 text-center">⚠️ 官方公告：${infoStr}</div>`;
-                    return;
-                }
-        
-                // 🎯 高精度繪圖與緩存機制
-                const formattedData = parseAlphaVantageSeries(json, currentTimeframe);
-        
-                if (!formattedData || formattedData.length === 0) {
-                    loader.classList.add('hidden');
-                    container.classList.remove('hidden');
-                    container.innerHTML = `<div class="flex items-center justify-center h-full text-xs font-bold text-rose-400">❌ 找不到該標的的數據，或該週期數據暫未開放。</div>`;
-                    return;
-                }
-        
-                chartCache[cacheKey] = formattedData;
-                loader.classList.add('hidden');
-                container.classList.remove('hidden');
-                renderChartWithData(formattedData, currentTimeframe);
-        
-            } catch (err) {
-                console.error(err);
-                loader.classList.add('hidden');
-                container.classList.remove('hidden');
-                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-xs font-bold text-rose-400 p-6 text-center">❌ 圖表加載異常：${err.message}</div>`;
-            }
+            // 🚀 0 秒無縫對接：不再請求任何 Alpha Vantage 接口，直接呼叫 TradingView 渲染
+            loader.classList.add('hidden');
+            container.classList.remove('hidden');
+            renderChartWithData(null, currentTimeframe);
         }
 
         function parseAlphaVantageSeries(json, timeframe) {
