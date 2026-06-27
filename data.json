@@ -1,14 +1,14 @@
 {
-    "last_updated": "2026-06-21 14:29",
+    "last_updated": "2026-06-27 04:51",
     "stock_metrics": {
-        "nvda_close": 210.69,
-        "nvda_50ma": 209.12,
-        "asic_strength": "normal"
+        "nvda_close": 192.53,
+        "nvda_50ma": 209.92,
+        "asic_strength": "warning"
     },
     "supply_chain_news": {
         "dram": {
-            "title": "美光還沒漲完？花旗喊目標價1200美元 DRAM超級周期才剛開始 - news.cnyes.com",
-            "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE9JMU9MZ3g1bEx2eGtBdl8taTF2OU9DUVRTUEhzY3d0azU3NWtFNklicXYxX092Q2VYMnU3dlJrb0JJN1gxaVotQlplSGk3ejA?oc=5"
+            "title": "【06/25 產業即時新聞】記憶體族群盤中強勢表態，DRAM合約價築底反彈帶動類股齊揚 - CMoney投資網誌",
+            "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPZzM3ek51aENia2VTUkxmVnlld1dyY3BWdm5heVNwZm9ZZHBmc3ZobzYyWkpUbE9TblpxMHdXaS1nZUJfX0NXUHpQYVMwd2c0WE9TdzVJaHFLS3dsMl9ST0FqWmFqRDdFUndWUWUzYVI5QTVfQ2FvZHFkdUlNa1RWQ21OX3ZpeFg2clpSWEVn?oc=5"
         },
         "cowos": {
             "title": "【美股動態】輝達Vera Rubin宣布全面量產，台積電CoWoS吃單了嗎？ - CMoney投資網誌",
