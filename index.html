@@ -198,7 +198,18 @@
                     </div>
 
                     <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h2 class="text-lg font-bold mb-4 text-gray-700">💼 目前證券持倉與觀察名單 (含三層權重透視)</h2>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 border-b pb-2 border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-700">💼 目前證券持倉與觀察名單 (含三層權重透視)</h2>
+                            <div class="flex items-center gap-2">
+                                <label class="text-xs font-bold text-gray-500">排序方式:</label>
+                                <select id="positionSortSelect" onchange="applyPositionSort()" class="text-xs rounded-md border-gray-300 p-1.5 bg-gray-50 focus:outline-blue-500 shadow-sm border font-medium text-gray-700 cursor-pointer">
+                                    <option value="default">🌟 系統預設排序</option>
+                                    <option value="shares">⚖️ 持股數量 (多 ➔ 少)</option>
+                                    <option value="code">🔤 標的代號 (A ➔ Z)</option>
+                                    <option value="sector">🏷️ 自定義板塊 (A ➔ Z)</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-left text-xs">
                                 <thead class="bg-gray-50 text-gray-500 font-medium uppercase">
@@ -325,11 +336,20 @@
                         </div>
                     </div>
                     <div class="md:col-span-2 bg-gray-50 p-5 rounded-xl border border-gray-200">
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-3 gap-2">
                             <h3 class="font-bold text-gray-700 text-sm">🎯 2. 個股內部計劃佔比 ＆ 戰術風控排期</h3>
-                            <button type="button" onclick="addStockPlanRow()" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">+ 新增計劃標的</button>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <select id="settingsSortSelect" onchange="applySettingsSort()" class="text-xs bg-white border border-gray-300 text-gray-600 rounded p-1 shadow-sm cursor-pointer focus:outline-blue-500">
+                                    <option value="">-- 快速整理清單 --</option>
+                                    <option value="system">🌟 系統優選排序 (策略 ➔ 板塊 ➔ 代號)</option>
+                                    <option value="code">🔤 標的代號 (A ➔ Z)</option>
+                                    <option value="sector">🏷️ 自定義板塊 (A ➔ Z)</option>
+                                </select>
+                                <button type="button" onclick="addStockPlanRow()" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 shadow-sm cursor-pointer">+ 新增計劃標的</button>
+                            </div>
                         </div>
                         <div class="overflow-x-auto">
+                            <!-- 下方維持原 table 不動 -->
                             <table class="min-w-full text-left text-xs">
                                 <thead class="bg-gray-200 text-gray-600 font-semibold uppercase">
                                     <tr>
@@ -424,6 +444,9 @@
             "US": "美股", "HK": "港股", "BOND_L": "US 長債", "BOND_S": "US 短債", "GOLD": "金", "CASH_TOTAL": "現金"
         };
 
+        let tradingPlans = []; 
+        let activePlanTarget = { code: "", market: "" };
+        let currentPosSort = 'default'; // 🔥 新增這行追蹤儀表板排序狀態
         let userGoogleToken = ""; let userRole = "Visitor"; 
         let transactions = []; let prices = {}; let exchangeRate = 7.82;
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
@@ -613,6 +636,84 @@
             return { cashBalances, positions };
         }
 
+        function applyPositionSort() {
+            currentPosSort = document.getElementById('positionSortSelect').value;
+            renderComponents(); // 重新渲染持倉表與組件
+        }
+
+        function applySettingsSort() {
+            const criteria = document.getElementById('settingsSortSelect').value;
+            if (!criteria) return;
+
+            // 1. 抓取畫面上當前填寫的資料 (保留未儲存的異動)
+            let currentRows = [];
+            document.querySelectorAll('.stock-plan-row').forEach(row => {
+                const code = row.querySelector('.sp-code').value.trim().toUpperCase();
+                const market = row.querySelector('.sp-market').value;
+                const weight = row.querySelector('.sp-weight').value;
+                const sector = row.querySelector('.sp-sector') ? row.querySelector('.sp-sector').value.trim() : "未分類";
+                const strategySelect = row.querySelector('.sp-strategy');
+                const strategy = strategySelect ? strategySelect.value : "攻擊";
+                const earningsInput = row.querySelector('.sp-earnings');
+                const earnings_date = earningsInput ? earningsInput.value : "";
+                const date_type = earningsInput ? earningsInput.getAttribute('data-type') : "手動";
+                
+                currentRows.push({ code, market, target_weight: weight, sector, strategy, earnings_date, date_type });
+            });
+
+            // 2. 進行排序邏輯
+            currentRows.sort((a, b) => {
+                if (criteria === 'code') {
+                    return a.code.localeCompare(b.code);
+                } else if (criteria === 'sector') {
+                    if (a.sector === b.sector) return a.code.localeCompare(b.code);
+                    return a.sector.localeCompare(b.sector);
+                } else if (criteria === 'system') {
+                    // 先排策略: 攻擊=0, 防守=1
+                    const stratA = a.strategy === '攻擊' ? 0 : 1;
+                    const stratB = b.strategy === '攻擊' ? 0 : 1;
+                    if (stratA !== stratB) return stratA - stratB;
+                    // 再排板塊
+                    if (a.sector !== b.sector) return a.sector.localeCompare(b.sector);
+                    // 最後排代號
+                    return a.code.localeCompare(b.code);
+                }
+                return 0;
+            });
+
+            // 3. 重新產生設定清單的 HTML
+            const tbody = document.getElementById('stockPlanSettingRows');
+            tbody.innerHTML = '';
+            currentRows.forEach(s => {
+                let optionsHtml = '';
+                for(const key in assetLabels) { 
+                    if (key === 'CASH_TOTAL') continue; 
+                    optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`; 
+                }
+                const earnObj = earningsMap[s.code.toUpperCase()] || { date: s.earnings_date, type: s.date_type };
+                
+                tbody.innerHTML += `
+                    <tr class="stock-plan-row">
+                        <td class="px-2 py-2"><input type="text" value="${s.code}" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold text-center"></td>
+                        <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
+                        <td class="px-2 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
+                        <td class="px-2 py-2"><input type="text" value="${s.sector}" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
+                        <td class="px-2 py-2">
+                            <select class="sp-strategy p-1 rounded border border-gray-300 bg-white font-bold text-center w-full focus:outline-blue-500">
+                                <option value="攻擊" ${s.strategy==='攻擊'?'selected':''}>⚔️ 攻擊</option>
+                                <option value="防守" ${s.strategy==='防守'?'selected':''}>🛡️ 防守</option>
+                            </select>
+                        </td>
+                        <td class="px-2 py-2">
+                            <input type="date" value="${earnObj.date || ''}" onchange="handleDateChange(this)" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center" data-type="${earnObj.type || '手動'}">
+                            ${earnObj.date ? `<span class="text-[10px] ${earnObj.type==='手動'?'text-amber-600':'text-emerald-600'} block mt-0.5 font-bold">${earnObj.type==='手動'?'✍️ 手動備份':'🤖 自動偵測: '+earnObj.date}</span>` : '<span class="text-[10px] text-gray-400 block mt-0.5 font-medium">⚠️ 暫無數據</span>'}
+                        </td>
+                        <td class="px-2 py-2 text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
+                    </tr>`;
+            });
+            document.getElementById('settingsSortSelect').value = ""; // 觸發完成後重置選單
+        }
+        
         function renderComponents() {
             const { cashBalances, positions } = calculatePortfolio();
             let assetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "CASH_TOTAL": 0 };
@@ -780,6 +881,74 @@
                 });
             }
 
+            // 🔥 新增：根據目前選擇的排序方式對持倉進行排序
+            computedStocks.sort((a, b) => {
+                const planA = stockPlan.find(s => s.code === a.code && s.market === a.market);
+                const planB = stockPlan.find(s => s.code === b.code && s.market === b.market);
+                const sectorA = planA ? (planA.sector || "未分類").trim() : "未分類";
+                const sectorB = planB ? (planB.sector || "未分類").trim() : "未分類";
+
+                if (currentPosSort === 'shares') {
+                    return b.shares - a.shares; // 持股數量由大到小 (DESC)
+                } else if (currentPosSort === 'code') {
+                    return a.code.localeCompare(b.code); // 標的代號 (ASC)
+                } else if (currentPosSort === 'sector') {
+                    if (sectorA === sectorB) return a.code.localeCompare(b.code);
+                    return sectorA.localeCompare(sectorB); // 自定義板塊 (ASC)
+                } else {
+                    // default: 系統預設排序 (根據設定檔保存順序)
+                    const indexA = planA ? stockPlan.indexOf(planA) : 999999;
+                    const indexB = planB ? stockPlan.indexOf(planB) : 999999;
+                    if (indexA !== indexB) return indexA - indexB;
+                    return a.code.localeCompare(b.code); // 無設定名單者墊底並用代號排序
+                }
+            });
+
+            // 開始產生儀表板持倉表的 HTML
+            const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
+            computedStocks.forEach(p => {
+                const isHkdMarket = p.market === 'HK'; const priceSign = isHkdMarket ? 'HKD $' : 'USD $';
+                const sPlanObj = stockPlan.find(s => s.code === p.code && s.market === p.market);
+                const assetPlannedWeight = sPlanObj ? sPlanObj.target_weight : 0;
+                const plannedAssetClassTotalUsd = totalAssetUsd * ((assetPlan[p.market] || 0) / 100);
+                const assetRealWeight = plannedAssetClassTotalUsd > 0 ? (p.mktValUsd / plannedAssetClassTotalUsd * 100) : 0;
+                const totalRealWeight = totalAssetUsd > 0 ? (p.mktValUsd / totalAssetUsd * 100) : 0;
+
+                const stockCodeUpper = p.code.toUpperCase().trim(); const fileLink = pdfMap[stockCodeUpper];
+                let codeCellHtml = fileLink ? `<a href="${fileLink}" target="_blank" class="text-blue-600 hover:underline font-bold cursor-pointer">📄 ${p.code}</a>` : `<span class="font-bold text-gray-800">${p.code}</span>`;
+
+                let earningsBadgeHtml = "";
+                if (earningsMap[stockCodeUpper]) {
+                    const earnObj = earningsMap[stockCodeUpper]; const earnDateStr = (typeof earnObj === 'object') ? earnObj.date : earnObj;
+                    if (earnDateStr) {
+                        const earnDate = new Date(earnDateStr.replace(/-/g, '/')); earnDate.setHours(0,0,0,0);
+                        const diffDays = Math.round((earnDate - todayObj) / (1000 * 60 * 60 * 24));
+                        if (diffDays >= 0 && diffDays <= 7) {
+                            earningsBadgeHtml = `<span class="inline-block ml-1 px-1 py-0.5 rounded text-[9px] font-extrabold bg-rose-600 text-white animate-bounce shadow-sm">⏰ 業績 ${earnDateStr.slice(5)}</span>`;
+                        }
+                    }
+                }
+
+                posTableBody.innerHTML += `
+                    <tr class="hover:bg-gray-50 border-b border-gray-100 ${p.isPlannedOnly ? 'bg-amber-50/40 opacity-70' : ''}">
+                        <td class="px-2 py-3 font-bold">
+                            <div class="flex items-center flex-wrap gap-1">${codeCellHtml}${earningsBadgeHtml}</div>
+                            ${p.isPlannedOnly ? '<span class="text-[10px] block font-normal text-amber-600">[觀察名單]</span>' : ''}
+                        </td>
+                        <td class="px-2 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-700">${assetLabels[p.market]||p.market}</span></td>
+                        <td class="px-2 py-3 font-semibold">${p.shares.toLocaleString()}</td>
+                        <td class="px-2 py-3 text-gray-500 font-medium">${p.isPlannedOnly ? '---' : priceSign + p.avgPrice.toFixed(2)}</td>
+                        <td class="px-2 py-3 font-semibold text-gray-600">${priceSign + (p.livePrice ? p.livePrice.toFixed(2) : '---')}</td>
+                        <td class="px-2 py-3 font-bold text-blue-600 bg-blue-50/10">$${p.mktValUsd.toLocaleString(undefined, {minimumFractionDigits:1, maximumFractionDigits:1})}</td>
+                        <td class="px-1 py-3 font-bold text-blue-600">${assetPlannedWeight.toFixed(1)}%</td>
+                        <td class="px-1 py-3 font-bold text-indigo-600 bg-indigo-50/40">${assetRealWeight.toFixed(1)}% ${assetPlannedWeight > 0 ? `<span class="text-[10px] block font-normal text-gray-500">進度: ${(assetRealWeight / assetPlannedWeight * 100).toFixed(1)}%</span>` : ''}</td>
+                        <td class="px-1 py-3 font-bold text-emerald-600 bg-emerald-50/40">${totalRealWeight.toFixed(1)}%</td>
+                        <td class="px-2 py-3 font-bold bg-rose-50/20 ${p.plUsd >= 0 ? 'text-emerald-600':'text-rose-600'}">${p.isPlannedOnly ? '---' : (p.plUsd >= 0 ? '+': '') + '$' + p.plUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                        <td class="px-1 py-3 text-gray-400">${p.isPlannedOnly ? '---' : p.holdingDays + '天'}</td>
+                    </tr>`;
+            });
+            renderHistoryRows();
+            
             const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
                 const isHkdMarket = p.market === 'HK'; const priceSign = isHkdMarket ? 'HKD $' : 'USD $';
