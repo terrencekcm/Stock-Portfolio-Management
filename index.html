@@ -198,7 +198,18 @@
                     </div>
 
                     <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h2 class="text-lg font-bold mb-4 text-gray-700">💼 目前證券持倉與觀察名單 (含三層權重透視)</h2>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 border-b pb-2 border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-700">💼 目前證券持倉與觀察名單 (含三層權重透視)</h2>
+                            <div class="flex items-center gap-2">
+                                <label class="text-xs font-bold text-gray-500">排序方式:</label>
+                                <select id="positionSortSelect" onchange="applyPositionSort()" class="text-xs rounded-md border-gray-300 p-1.5 bg-gray-50 focus:outline-blue-500 shadow-sm border font-medium text-gray-700 cursor-pointer">
+                                    <option value="default">🌟 系統預設排序</option>
+                                    <option value="shares">⚖️ 持股數量 (多 ➔ 少)</option>
+                                    <option value="code">🔤 標的代號 (A ➔ Z)</option>
+                                    <option value="sector">🏷️ 自定義板塊 (A ➔ Z)</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-left text-xs">
                                 <thead class="bg-gray-50 text-gray-500 font-medium uppercase">
