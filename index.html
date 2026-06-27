@@ -444,9 +444,8 @@
             "US": "美股", "HK": "港股", "BOND_L": "US 長債", "BOND_S": "US 短債", "GOLD": "金", "CASH_TOTAL": "現金"
         };
 
-        let tradingPlans = []; 
-        let activePlanTarget = { code: "", market: "" };
-        let currentPosSort = 'default'; // 🔥 新增這行追蹤儀表板排序狀態
+        // 🔥 排序狀態追蹤
+        let currentPosSort = 'default'; 
         
         let userGoogleToken = ""; let userRole = "Visitor"; 
         let transactions = []; let prices = {}; let exchangeRate = 7.82;
