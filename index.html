@@ -882,6 +882,31 @@
             }
 
             const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
+            // 🔥 新增：根據目前選擇的排序方式對持倉進行排序
+            computedStocks.sort((a, b) => {
+                const planA = stockPlan.find(s => s.code === a.code && s.market === a.market);
+                const planB = stockPlan.find(s => s.code === b.code && s.market === b.market);
+                const sectorA = planA ? (planA.sector || "未分類").trim() : "未分類";
+                const sectorB = planB ? (planB.sector || "未分類").trim() : "未分類";
+
+                if (currentPosSort === 'shares') {
+                    return b.shares - a.shares; // 持股數量由大到小 (DESC)
+                } else if (currentPosSort === 'code') {
+                    return a.code.localeCompare(b.code); // 標的代號 (ASC)
+                } else if (currentPosSort === 'sector') {
+                    if (sectorA === sectorB) return a.code.localeCompare(b.code);
+                    return sectorA.localeCompare(sectorB); // 自定義板塊 (ASC)
+                } else {
+                    // default: 系統預設排序 (根據設定檔保存順序)
+                    const indexA = planA ? stockPlan.indexOf(planA) : 999999;
+                    const indexB = planB ? stockPlan.indexOf(planB) : 999999;
+                    if (indexA !== indexB) return indexA - indexB;
+                    return a.code.localeCompare(b.code); // 無設定名單者墊底並用代號排序
+                }
+            });
+
+            // 開始產生儀表板持倉表的 HTML
+            const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
                 const isHkdMarket = p.market === 'HK'; const priceSign = isHkdMarket ? 'HKD $' : 'USD $';
                 const sPlanObj = stockPlan.find(s => s.code === p.code && s.market === p.market);
