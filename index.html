@@ -336,11 +336,20 @@
                         </div>
                     </div>
                     <div class="md:col-span-2 bg-gray-50 p-5 rounded-xl border border-gray-200">
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-3 gap-2">
                             <h3 class="font-bold text-gray-700 text-sm">🎯 2. 個股內部計劃佔比 ＆ 戰術風控排期</h3>
-                            <button type="button" onclick="addStockPlanRow()" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">+ 新增計劃標的</button>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <select id="settingsSortSelect" onchange="applySettingsSort()" class="text-xs bg-white border border-gray-300 text-gray-600 rounded p-1 shadow-sm cursor-pointer focus:outline-blue-500">
+                                    <option value="">-- 快速整理清單 --</option>
+                                    <option value="system">🌟 系統優選排序 (策略 ➔ 板塊 ➔ 代號)</option>
+                                    <option value="code">🔤 標的代號 (A ➔ Z)</option>
+                                    <option value="sector">🏷️ 自定義板塊 (A ➔ Z)</option>
+                                </select>
+                                <button type="button" onclick="addStockPlanRow()" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 shadow-sm cursor-pointer">+ 新增計劃標的</button>
+                            </div>
                         </div>
                         <div class="overflow-x-auto">
+                            <!-- 下方維持原 table 不動 -->
                             <table class="min-w-full text-left text-xs">
                                 <thead class="bg-gray-200 text-gray-600 font-semibold uppercase">
                                     <tr>
