@@ -444,6 +444,10 @@
             "US": "美股", "HK": "港股", "BOND_L": "US 長債", "BOND_S": "US 短債", "GOLD": "金", "CASH_TOTAL": "現金"
         };
 
+        let tradingPlans = []; 
+        let activePlanTarget = { code: "", market: "" };
+        let currentPosSort = 'default'; // 🔥 新增這行追蹤儀表板排序狀態
+        
         let userGoogleToken = ""; let userRole = "Visitor"; 
         let transactions = []; let prices = {}; let exchangeRate = 7.82;
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
@@ -633,6 +637,84 @@
             return { cashBalances, positions };
         }
 
+        function applyPositionSort() {
+            currentPosSort = document.getElementById('positionSortSelect').value;
+            renderComponents(); // 重新渲染持倉表與組件
+        }
+
+        function applySettingsSort() {
+            const criteria = document.getElementById('settingsSortSelect').value;
+            if (!criteria) return;
+
+            // 1. 抓取畫面上當前填寫的資料 (保留未儲存的異動)
+            let currentRows = [];
+            document.querySelectorAll('.stock-plan-row').forEach(row => {
+                const code = row.querySelector('.sp-code').value.trim().toUpperCase();
+                const market = row.querySelector('.sp-market').value;
+                const weight = row.querySelector('.sp-weight').value;
+                const sector = row.querySelector('.sp-sector') ? row.querySelector('.sp-sector').value.trim() : "未分類";
+                const strategySelect = row.querySelector('.sp-strategy');
+                const strategy = strategySelect ? strategySelect.value : "攻擊";
+                const earningsInput = row.querySelector('.sp-earnings');
+                const earnings_date = earningsInput ? earningsInput.value : "";
+                const date_type = earningsInput ? earningsInput.getAttribute('data-type') : "手動";
+                
+                currentRows.push({ code, market, target_weight: weight, sector, strategy, earnings_date, date_type });
+            });
+
+            // 2. 進行排序邏輯
+            currentRows.sort((a, b) => {
+                if (criteria === 'code') {
+                    return a.code.localeCompare(b.code);
+                } else if (criteria === 'sector') {
+                    if (a.sector === b.sector) return a.code.localeCompare(b.code);
+                    return a.sector.localeCompare(b.sector);
+                } else if (criteria === 'system') {
+                    // 先排策略: 攻擊=0, 防守=1
+                    const stratA = a.strategy === '攻擊' ? 0 : 1;
+                    const stratB = b.strategy === '攻擊' ? 0 : 1;
+                    if (stratA !== stratB) return stratA - stratB;
+                    // 再排板塊
+                    if (a.sector !== b.sector) return a.sector.localeCompare(b.sector);
+                    // 最後排代號
+                    return a.code.localeCompare(b.code);
+                }
+                return 0;
+            });
+
+            // 3. 重新產生設定清單的 HTML
+            const tbody = document.getElementById('stockPlanSettingRows');
+            tbody.innerHTML = '';
+            currentRows.forEach(s => {
+                let optionsHtml = '';
+                for(const key in assetLabels) { 
+                    if (key === 'CASH_TOTAL') continue; 
+                    optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`; 
+                }
+                const earnObj = earningsMap[s.code.toUpperCase()] || { date: s.earnings_date, type: s.date_type };
+                
+                tbody.innerHTML += `
+                    <tr class="stock-plan-row">
+                        <td class="px-2 py-2"><input type="text" value="${s.code}" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold text-center"></td>
+                        <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
+                        <td class="px-2 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
+                        <td class="px-2 py-2"><input type="text" value="${s.sector}" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
+                        <td class="px-2 py-2">
+                            <select class="sp-strategy p-1 rounded border border-gray-300 bg-white font-bold text-center w-full focus:outline-blue-500">
+                                <option value="攻擊" ${s.strategy==='攻擊'?'selected':''}>⚔️ 攻擊</option>
+                                <option value="防守" ${s.strategy==='防守'?'selected':''}>🛡️ 防守</option>
+                            </select>
+                        </td>
+                        <td class="px-2 py-2">
+                            <input type="date" value="${earnObj.date || ''}" onchange="handleDateChange(this)" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center" data-type="${earnObj.type || '手動'}">
+                            ${earnObj.date ? `<span class="text-[10px] ${earnObj.type==='手動'?'text-amber-600':'text-emerald-600'} block mt-0.5 font-bold">${earnObj.type==='手動'?'✍️ 手動備份':'🤖 自動偵測: '+earnObj.date}</span>` : '<span class="text-[10px] text-gray-400 block mt-0.5 font-medium">⚠️ 暫無數據</span>'}
+                        </td>
+                        <td class="px-2 py-2 text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
+                    </tr>`;
+            });
+            document.getElementById('settingsSortSelect').value = ""; // 觸發完成後重置選單
+        }
+        
         function renderComponents() {
             const { cashBalances, positions } = calculatePortfolio();
             let assetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "CASH_TOTAL": 0 };
