@@ -881,8 +881,11 @@
                 });
             }
 
-            const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
-            // 🔥 新增：根據目前選擇的排序方式對持倉進行排序
+            // 🔥 移除重複宣告，修正 Syntax Error 問題
+            const posTableBody = document.getElementById('positionTable'); 
+            posTableBody.innerHTML = '';
+
+            // 🔥 根據目前選擇的排序方式對持倉陣列進行排序
             computedStocks.sort((a, b) => {
                 const planA = stockPlan.find(s => s.code === a.code && s.market === a.market);
                 const planB = stockPlan.find(s => s.code === b.code && s.market === b.market);
@@ -906,7 +909,6 @@
             });
 
             // 開始產生儀表板持倉表的 HTML
-            const posTableBody = document.getElementById('positionTable'); posTableBody.innerHTML = '';
             computedStocks.forEach(p => {
                 const isHkdMarket = p.market === 'HK'; const priceSign = isHkdMarket ? 'HKD $' : 'USD $';
                 const sPlanObj = stockPlan.find(s => s.code === p.code && s.market === p.market);
