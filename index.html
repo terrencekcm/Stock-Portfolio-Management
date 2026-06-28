@@ -958,9 +958,16 @@
             const tableBody = document.getElementById('tradingPlanWatchlistTable');
             tableBody.innerHTML = '';
 
-            const watchListItems = stockPlan.filter(s => {
+            let watchListItems = stockPlan.filter(s => {
                 const activePos = positions[s.code];
                 return !activePos || activePos.shares <= 0 || activePos.isPlannedOnly;
+            });
+
+            // 🔥 強制鎖定：讓出入市計劃表「嚴格依照」配置計劃設定儲存後的順序 (預設排序)
+            watchListItems.sort((a, b) => {
+                const indexA = stockPlan.indexOf(a);
+                const indexB = stockPlan.indexOf(b);
+                return indexA - indexB;
             });
 
             if (watchListItems.length === 0) {
