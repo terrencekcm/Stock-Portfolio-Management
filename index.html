@@ -1174,7 +1174,134 @@
             });
         }
 
-        openValuationModal
+        function openValuationModal(code, market) {
+            activeValTarget = { code, market };
+            document.getElementById('valModalTitle').innerText = `${code} (${assetLabels[market]||market})`;
+            document.getElementById('valInputDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('valInputOpt').value = '';
+            document.getElementById('valInputPes').value = '';
+
+            // 權限控制：僅 PM 與 Analyst 可輸入
+            if (userRole === 'PM' || userRole === 'Analyst') {
+                document.getElementById('valInputFormWrap').classList.remove('hidden');
+            } else {
+                document.getElementById('valInputFormWrap').classList.add('hidden');
+            }
+
+            const modal = document.getElementById('valuationModal');
+            modal.classList.remove('hidden');
+
+            // 採用純 CSS 渲染，不需要延遲等待，直接呼叫！
+            renderValuationDetail();
+        }
+
+        function closeValuationModal() {
+            document.getElementById('valuationModal').classList.add('hidden');
+            document.getElementById('valChartContainer').innerHTML = ''; // 清空畫布
+        }
+
+        function renderValuationDetail() {
+            const tableBody = document.getElementById('valHistoryTableBody');
+            tableBody.innerHTML = '';
+            
+            // 抓取並排序 (新 -> 舊)
+            let stockVals = valuations.filter(v => v.code === activeValTarget.code && v.market === activeValTarget.market)
+                                      .sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // 只取最近 6 筆顯示
+            let recentVals = stockVals.slice(0, 6);
+
+            if (recentVals.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="px-3 py-4 text-center text-gray-400">目前尚無估值紀錄。</td></tr>`;
+            } else {
+                recentVals.forEach(v => {
+                    let cleanDate = v.date ? String(v.date).split('T')[0] : '---';
+                    let deleteActionHtml = (userRole === 'PM' || userRole === 'Analyst')
+                        ? `<button onclick="deleteValuation('${v.id}')" class="text-rose-500 hover:text-rose-700 font-bold cursor-pointer hover:underline">刪除</button>`
+                        : `<span class="text-gray-300">唯讀</span>`;
+
+                    tableBody.innerHTML += `
+                        <tr class="hover:bg-gray-50 border-b border-gray-100 font-semibold">
+                            <td class="px-3 py-2 text-gray-500">${cleanDate}</td>
+                            <td class="px-3 py-2 text-emerald-600">${Number(v.optimistic).toFixed(2)}</td>
+                            <td class="px-3 py-2 text-rose-600">${Number(v.pessimistic).toFixed(2)}</td>
+                            <td class="px-3 py-2 text-center">${deleteActionHtml}</td>
+                        </tr>`;
+                });
+            }
+
+            // 🚀 採用全新的「Tailwind CSS 動態柱狀走勢圖」
+            const container = document.getElementById('valChartContainer');
+            container.innerHTML = '';
+
+            if (recentVals.length > 0) {
+                // 將資料反轉，讓圖表從左到右為 (舊 -> 新)
+                let chartData = [...recentVals].reverse();
+                
+                // 1. 抓取全局最大值與最小值，用來動態計算柱子的高度比例
+                let allVals = [];
+                chartData.forEach(d => {
+                    if (!isNaN(Number(d.optimistic))) allVals.push(Number(d.optimistic));
+                    if (!isNaN(Number(d.pessimistic))) allVals.push(Number(d.pessimistic));
+                });
+
+                if (allVals.length === 0) {
+                    container.innerHTML = `<div class="flex items-center justify-center h-full text-xs text-gray-500">有效的歷史數據不足</div>`;
+                    return;
+                }
+
+                let maxVal = Math.max(...allVals);
+                let minVal = Math.min(...allVals);
+
+                // 給予上下各 15% 的緩衝空間，讓圖表不會頂到天花板
+                let padding = (maxVal - minVal) * 0.15;
+                if (padding === 0) padding = maxVal * 0.1; // 防止所有數字都一樣
+                let chartMax = maxVal + padding;
+                let chartMin = Math.max(0, minVal - padding);
+                let range = chartMax - chartMin;
+
+                // 2. 構建每個月份/日期的柱狀 HTML
+                let barsHtml = '';
+                chartData.forEach(d => {
+                    let dateStr = d.date ? String(d.date).split('T')[0].substring(5) : '--'; // 只顯示 MM-DD
+                    let opt = Number(d.optimistic);
+                    let pes = Number(d.pessimistic);
+
+                    // 計算高度百分比
+                    let optH = !isNaN(opt) ? Math.max(0, ((opt - chartMin) / range) * 100) : 0;
+                    let pesH = !isNaN(pes) ? Math.max(0, ((pes - chartMin) / range) * 100) : 0;
+
+                    barsHtml += `
+                        <div class="flex flex-col items-center justify-end w-full h-full relative group">
+                            <!-- 柱狀體容器 -->
+                            <div class="flex items-end justify-center w-full h-full gap-1.5 mb-2 z-10">
+                                <div title="樂觀估值: ${opt}" style="height: ${optH}%" class="w-1/3 max-w-[20px] bg-emerald-500 rounded-t-sm shadow-md transition-all duration-700 hover:bg-emerald-400 cursor-pointer"></div>
+                                <div title="悲觀估值: ${pes}" style="height: ${pesH}%" class="w-1/3 max-w-[20px] bg-rose-500 rounded-t-sm shadow-md transition-all duration-700 hover:bg-rose-400 cursor-pointer"></div>
+                            </div>
+                            <!-- 底部日期 -->
+                            <span class="text-[10px] text-gray-400 font-mono tracking-tighter">${dateStr}</span>
+                        </div>
+                    `;
+                });
+
+                // 3. 輸出完整的網格與圖表框架
+                container.innerHTML = `
+                    <div class="relative w-full h-full flex items-end justify-around px-4 pb-2 pt-8">
+                        <!-- 背景輔助橫線 -->
+                        <div class="absolute inset-0 flex flex-col justify-between px-2 pb-8 pt-8 pointer-events-none opacity-30">
+                            <div class="border-b border-gray-700 w-full"></div>
+                            <div class="border-b border-gray-700 w-full"></div>
+                            <div class="border-b border-gray-700 w-full"></div>
+                            <div class="border-b border-gray-700 w-full"></div>
+                        </div>
+                        <!-- 實體資料柱體 -->
+                        ${barsHtml}
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `<div class="flex items-center justify-center h-full text-xs text-gray-500">暫無歷史數據</div>`;
+            }
+        }
         
         async function submitValuation() {
             const date = document.getElementById('valInputDate').value;
