@@ -1246,11 +1246,32 @@
                 const optSeries = activeValuationChart.addLineSeries({ color: '#34d399', lineWidth: 2, crosshairMarkerRadius: 4 });
                 const pesSeries = activeValuationChart.addLineSeries({ color: '#fb7185', lineWidth: 2, crosshairMarkerRadius: 4 });
 
-                // 圖表需要照時間 (舊 -> 新) 餵資料
-                const chartData = [...recentVals].reverse();
-                optSeries.setData(chartData.map(d => ({ time: String(d.date).split('T')[0], value: Number(d.optimistic) })));
-                pesSeries.setData(chartData.map(d => ({ time: String(d.date).split('T')[0], value: Number(d.pessimistic) })));
-                activeValuationChart.timeScale().fitContent();
+                // 🔥 嚴格整理圖表資料：過濾 NaN，確保日期舊到新，且同一天不重複（避免圖表引擎崩潰）
+                let chartDataPool = [...recentVals].reverse();
+                let uniqueChartData = [];
+                let seenDates = new Set();
+                
+                chartDataPool.forEach(d => {
+                    let t = String(d.date).split('T')[0];
+                    let optVal = Number(d.optimistic);
+                    let pesVal = Number(d.pessimistic);
+                    
+                    if (!seenDates.has(t) && !isNaN(optVal) && !isNaN(pesVal)) {
+                        seenDates.add(t);
+                        uniqueChartData.push({ time: t, opt: optVal, pes: pesVal });
+                    }
+                });
+
+                // 再次確保時間是嚴格遞增的
+                uniqueChartData.sort((a, b) => new Date(a.time) - new Date(b.time));
+
+                if (uniqueChartData.length > 0) {
+                    optSeries.setData(uniqueChartData.map(d => ({ time: d.time, value: d.opt })));
+                    pesSeries.setData(uniqueChartData.map(d => ({ time: d.time, value: d.pes })));
+                    activeValuationChart.timeScale().fitContent();
+                } else {
+                    container.innerHTML = `<div class="flex items-center justify-center h-full text-xs text-gray-500">有效的歷史數據不足，無法繪製圖表</div>`;
+                }
             } else {
                 container.innerHTML = `<div class="flex items-center justify-center h-full text-xs text-gray-500">暫無歷史數據可供繪製圖表</div>`;
             }
@@ -1270,13 +1291,27 @@
             };
 
             try {
-                await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-                // 本地預先更新，不需重新 loadData，秒切
-                valuations.unshift(payload); 
-                document.getElementById('valInputOpt').value = ''; document.getElementById('valInputPes').value = '';
+                // 發送給後端儲存
+                fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
+                    .then(() => updateStatus("✅ 估值儲存成功", "success"))
+                    .catch(() => updateStatus("❌ 儲存失敗", "error"));
+
+                // 🔥 修復 Bug：本機插入資料時，屬性名稱必須對應 render 函數讀取的 optimistic 和 pessimistic
+                valuations.unshift({
+                    id: payload.id,
+                    code: payload.code,
+                    market: payload.market,
+                    date: payload.date,
+                    optimistic: payload.opt,
+                    pessimistic: payload.pes
+                }); 
+                
+                document.getElementById('valInputOpt').value = ''; 
+                document.getElementById('valInputPes').value = '';
+                
+                // 馬上重新渲染，這時就不會出現 NaN 了！圖表也會瞬間出現！
                 renderValuationDetail(); 
                 renderValuationPage();
-                updateStatus("✅ 估值儲存成功", "success");
             } catch(e) { updateStatus("❌ 儲存失敗", "error"); }
         }
 
