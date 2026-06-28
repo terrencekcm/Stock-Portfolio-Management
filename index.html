@@ -1191,16 +1191,19 @@
             const modal = document.getElementById('valuationModal');
             modal.classList.remove('hidden');
 
-            // 🔥 延遲 100ms：確保瀏覽器將 Modal 完全展現並計算好真實寬度後再畫圖
+            // 🔥 延遲 150ms：確保瀏覽器徹底將 Modal 渲染在畫面上後，才開始畫圖
             setTimeout(() => {
                 renderValuationDetail();
-            }, 100);
+            }, 150);
         }
 
         function closeValuationModal() {
             document.getElementById('valuationModal').classList.add('hidden');
-            if (activeValuationChart) { activeValuationChart.remove(); activeValuationChart = null; }
-            document.getElementById('valChartContainer').innerHTML = ''; // 徹底清空
+            if (activeValuationChart) { 
+                activeValuationChart.remove(); 
+                activeValuationChart = null; 
+            }
+            document.getElementById('valChartContainer').innerHTML = ''; // 徹底清空殘留畫布
         }
 
         function renderValuationDetail() {
@@ -1240,16 +1243,17 @@
                 activeValuationChart = null; 
             }
             
-            // 🔥 重點修復 1：強制清空容器，把可能佔位的文字刪除，畫布才不會被往下擠
+            // 🔥 強制清空容器內可能殘留的「暫無數據」文字，避免畫布被擠到外面
             container.innerHTML = '';
 
             if (recentVals.length > 0) {
-                // 🔥 重點修復 2：抓取容器真實寬度，不用容易失效的 autoSize
-                let chartWidth = container.clientWidth > 0 ? container.clientWidth : 700; // 防呆預設寬度
+                // 🔥 終極防線：如果 clientWidth 為 0 (塌陷)，強制給予 700px 寬度，保證能畫出線條！
+                let cWidth = container.clientWidth > 0 ? container.clientWidth : 700;
+                let cHeight = container.clientHeight > 0 ? container.clientHeight : 256;
                 
                 activeValuationChart = LightweightCharts.createChart(container, {
-                    width: chartWidth,
-                    height: 256,
+                    width: cWidth,
+                    height: cHeight,
                     layout: { background: { type: 'solid', color: '#090d16' }, textColor: '#94a3b8' },
                     grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
                     rightPriceScale: { borderColor: '#334155' },
@@ -1259,25 +1263,25 @@
                 const optSeries = activeValuationChart.addLineSeries({ color: '#34d399', lineWidth: 2, crosshairMarkerRadius: 4 });
                 const pesSeries = activeValuationChart.addLineSeries({ color: '#fb7185', lineWidth: 2, crosshairMarkerRadius: 4 });
 
-                // 🔥 重點修復 3：最乾淨的「純字串」整理法，100% 避開時區運算導致的崩潰
+                // 解析並驗證日期 (舊 -> 新)
                 let chartDataPool = [...recentVals].reverse();
                 let uniqueOptData = [];
                 let uniquePesData = [];
                 let seenDates = new Set();
                 
                 chartDataPool.forEach(d => {
-                    let t = String(d.date).split('T')[0]; // 直接擷取 YYYY-MM-DD
+                    let t = String(d.date).split('T')[0];
                     let optVal = Number(d.optimistic);
                     let pesVal = Number(d.pessimistic);
                     
-                    if (t && t !== 'undefined' && !seenDates.has(t) && !isNaN(optVal) && !isNaN(pesVal)) {
+                    // 嚴格攔截：必須是標準日期格式且為有效數字
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(t) && !seenDates.has(t) && !isNaN(optVal) && !isNaN(pesVal)) {
                         seenDates.add(t);
                         uniqueOptData.push({ time: t, value: optVal });
                         uniquePesData.push({ time: t, value: pesVal });
                     }
                 });
 
-                // 強制字串遞增排序，Lightweight Charts 最喜歡這個格式
                 uniqueOptData.sort((a, b) => a.time.localeCompare(b.time));
                 uniquePesData.sort((a, b) => a.time.localeCompare(b.time));
 
@@ -1285,6 +1289,15 @@
                     optSeries.setData(uniqueOptData);
                     pesSeries.setData(uniquePesData);
                     activeValuationChart.timeScale().fitContent();
+
+                    // 🔥 二次自癒機制：再等 300ms 重新計算容器大小，確保畫布撐滿 100% 寬度
+                    setTimeout(() => {
+                        if (activeValuationChart && container.clientWidth > 0) {
+                            activeValuationChart.resize(container.clientWidth, container.clientHeight || 256);
+                            activeValuationChart.timeScale().fitContent();
+                        }
+                    }, 300);
+
                 } else {
                     container.innerHTML = `<div class="flex items-center justify-center h-full text-xs text-gray-500">有效的歷史數據不足，無法繪製圖表</div>`;
                 }
@@ -1292,6 +1305,7 @@
                 container.innerHTML = `<div class="flex items-center justify-center h-full text-xs text-gray-500">暫無歷史數據可供繪製圖表</div>`;
             }
         }
+        
         async function submitValuation() {
             const date = document.getElementById('valInputDate').value;
             const opt = document.getElementById('valInputOpt').value;
