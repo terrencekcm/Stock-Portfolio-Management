@@ -1191,7 +1191,10 @@
             const modal = document.getElementById('valuationModal');
             modal.classList.remove('hidden');
 
-            renderValuationDetail();
+            // 🔥 重點修復 1：加上延遲 (50ms)，讓瀏覽器把 display:none 解除並計算出真實寬高後，再開始畫圖！
+            setTimeout(() => {
+                renderValuationDetail();
+            }, 50);
         }
 
         function closeValuationModal() {
@@ -1234,9 +1237,9 @@
             if (activeValuationChart) { activeValuationChart.remove(); activeValuationChart = null; }
 
             if (recentVals.length > 0) {
+                // 🔥 重點修復 2：開啟 autoSize: true，確保畫布大小永遠與容器同步，絕對不被擠扁
                 activeValuationChart = LightweightCharts.createChart(container, {
-                    width: container.clientWidth,
-                    height: 256,
+                    autoSize: true,
                     layout: { background: { type: 'solid', color: '#090d16' }, textColor: '#94a3b8' },
                     grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
                     rightPriceScale: { borderColor: '#334155' },
@@ -1246,13 +1249,21 @@
                 const optSeries = activeValuationChart.addLineSeries({ color: '#34d399', lineWidth: 2, crosshairMarkerRadius: 4 });
                 const pesSeries = activeValuationChart.addLineSeries({ color: '#fb7185', lineWidth: 2, crosshairMarkerRadius: 4 });
 
-                // 🔥 嚴格整理圖表資料：過濾 NaN，確保日期舊到新，且同一天不重複（避免圖表引擎崩潰）
+                // 🔥 重點修復 3：嚴格防呆，強制轉換標準 YYYY-MM-DD 格式，避免引擎吃錯格式崩潰
                 let chartDataPool = [...recentVals].reverse();
                 let uniqueChartData = [];
                 let seenDates = new Set();
                 
                 chartDataPool.forEach(d => {
-                    let t = String(d.date).split('T')[0];
+                    let dObj = new Date(d.date);
+                    if (isNaN(dObj)) return; // 略過無效日期
+
+                    // 確保永遠是 YYYY-MM-DD (月份和日期自動補零)
+                    const y = dObj.getFullYear();
+                    const m = String(dObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(dObj.getDate()).padStart(2, '0');
+                    const t = `${y}-${m}-${day}`;
+                    
                     let optVal = Number(d.optimistic);
                     let pesVal = Number(d.pessimistic);
                     
