@@ -1230,15 +1230,20 @@
                 });
             }
 
-            // 🚀 採用全新的「Tailwind CSS 動態柱狀走勢圖」
             const container = document.getElementById('valChartContainer');
             container.innerHTML = '';
 
+            // 🔥 動態修改右上角的圖例 (Legend) 為陰陽燭說明
+            const legendDiv = container.previousElementSibling;
+            if (legendDiv) {
+                legendDiv.innerHTML = `<span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/50">📈 陽燭 (底=悲觀, 頂=樂觀)</span>`;
+            }
+
             if (recentVals.length > 0) {
-                // 將資料反轉，讓圖表從左到右為 (舊 -> 新)
+                // 將資料反轉，圖表從左到右為 (舊 -> 新)
                 let chartData = [...recentVals].reverse();
                 
-                // 1. 抓取全局最大值與最小值，用來動態計算柱子的高度比例
+                // 1. 抓取全局最大值與最小值，用來計算畫布 Y 軸比例
                 let allVals = [];
                 chartData.forEach(d => {
                     if (!isNaN(Number(d.optimistic))) allVals.push(Number(d.optimistic));
@@ -1253,30 +1258,40 @@
                 let maxVal = Math.max(...allVals);
                 let minVal = Math.min(...allVals);
 
-                // 給予上下各 15% 的緩衝空間，讓圖表不會頂到天花板
+                // 給予上下各 15% 的緩衝空間，讓 K 線不會頂到天花板或地板
                 let padding = (maxVal - minVal) * 0.15;
-                if (padding === 0) padding = maxVal * 0.1; // 防止所有數字都一樣
+                if (padding === 0) padding = maxVal * 0.1 || 10; // 防呆：如果所有估值都一樣
                 let chartMax = maxVal + padding;
                 let chartMin = Math.max(0, minVal - padding);
                 let range = chartMax - chartMin;
 
-                // 2. 構建每個月份/日期的柱狀 HTML
-                let barsHtml = '';
+                // 2. 構建每根陰陽燭的 HTML
+                let candlesHtml = '';
                 chartData.forEach(d => {
                     let dateStr = d.date ? String(d.date).split('T')[0].substring(5) : '--'; // 只顯示 MM-DD
                     let opt = Number(d.optimistic);
                     let pes = Number(d.pessimistic);
 
-                    // 計算高度百分比
-                    let optH = !isNaN(opt) ? Math.max(0, ((opt - chartMin) / range) * 100) : 0;
-                    let pesH = !isNaN(pes) ? Math.max(0, ((pes - chartMin) / range) * 100) : 0;
+                    // 邏輯：悲觀=Open，樂觀=Close。保證顯示為陽燭 (高=樂觀, 低=悲觀)
+                    let high = Math.max(opt, pes);
+                    let low = Math.min(opt, pes);
 
-                    barsHtml += `
+                    // 計算在畫布上的絕對百分比位置
+                    let bottomPct = ((low - chartMin) / range) * 100;
+                    let heightPct = ((high - low) / range) * 100;
+
+                    // 確保哪怕數值一樣，也有最起碼的高度顯示 (看起來像十字星)
+                    if (heightPct < 1) heightPct = 1;
+
+                    candlesHtml += `
                         <div class="flex flex-col items-center justify-end w-full h-full relative group">
-                            <!-- 柱狀體容器 -->
-                            <div class="flex items-end justify-center w-full h-full gap-1.5 mb-2 z-10">
-                                <div title="樂觀估值: ${opt}" style="height: ${optH}%" class="w-1/3 max-w-[20px] bg-emerald-500 rounded-t-sm shadow-md transition-all duration-700 hover:bg-emerald-400 cursor-pointer"></div>
-                                <div title="悲觀估值: ${pes}" style="height: ${pesH}%" class="w-1/3 max-w-[20px] bg-rose-500 rounded-t-sm shadow-md transition-all duration-700 hover:bg-rose-400 cursor-pointer"></div>
+                            <!-- 繪圖區塊 -->
+                            <div class="relative w-full h-full mb-2 z-10 flex justify-center">
+                                <!-- 實體陽燭 (綠色本體) -->
+                                <div title="📅 ${dateStr}\n樂觀(頂): ${high.toFixed(2)}\n悲觀(底): ${low.toFixed(2)}" 
+                                     class="absolute w-1/2 max-w-[24px] bg-emerald-500 border border-emerald-300 rounded-[1px] shadow-lg transition-all duration-300 hover:bg-emerald-400 hover:scale-110 cursor-crosshair"
+                                     style="bottom: ${bottomPct}%; height: ${heightPct}%;">
+                                </div>
                             </div>
                             <!-- 底部日期 -->
                             <span class="text-[10px] text-gray-400 font-mono tracking-tighter">${dateStr}</span>
@@ -1284,18 +1299,18 @@
                     `;
                 });
 
-                // 3. 輸出完整的網格與圖表框架
+                // 3. 輸出完整的網格與 K 線框架
                 container.innerHTML = `
-                    <div class="relative w-full h-full flex items-end justify-around px-4 pb-2 pt-8">
-                        <!-- 背景輔助橫線 -->
-                        <div class="absolute inset-0 flex flex-col justify-between px-2 pb-8 pt-8 pointer-events-none opacity-30">
-                            <div class="border-b border-gray-700 w-full"></div>
-                            <div class="border-b border-gray-700 w-full"></div>
-                            <div class="border-b border-gray-700 w-full"></div>
-                            <div class="border-b border-gray-700 w-full"></div>
+                    <div class="relative w-full h-full flex items-end justify-around px-8 pb-2 pt-8">
+                        <!-- Y軸價格標籤與背景橫線 -->
+                        <div class="absolute inset-0 flex flex-col justify-between px-2 pb-8 pt-8 pointer-events-none opacity-40 z-0">
+                            <div class="border-b border-gray-700 w-full relative"><span class="absolute -top-3 left-1 text-[9px] text-gray-400">${chartMax.toFixed(2)}</span></div>
+                            <div class="border-b border-gray-700 w-full relative"><span class="absolute -top-3 left-1 text-[9px] text-gray-400">${(chartMin + range*0.66).toFixed(2)}</span></div>
+                            <div class="border-b border-gray-700 w-full relative"><span class="absolute -top-3 left-1 text-[9px] text-gray-400">${(chartMin + range*0.33).toFixed(2)}</span></div>
+                            <div class="border-b border-gray-700 w-full relative"><span class="absolute -top-3 left-1 text-[9px] text-gray-400">${chartMin.toFixed(2)}</span></div>
                         </div>
-                        <!-- 實體資料柱體 -->
-                        ${barsHtml}
+                        <!-- 實體 K 線柱群 -->
+                        ${candlesHtml}
                     </div>
                 `;
             } else {
