@@ -322,12 +322,14 @@
                         <thead class="bg-gray-100 text-gray-600 font-bold uppercase border-b border-gray-200">
                             <tr>
                                 <th class="px-4 py-3">標的代號</th>
-                                <th class="px-4 py-3">資產市場</th>
+                                <!-- 🔥 換成最新估值日期 -->
+                                <th class="px-4 py-3">最新估值日期</th>
                                 <th class="px-4 py-3">最新現價</th>
                                 <th class="px-4 py-3 text-emerald-600">最新樂觀估值</th>
                                 <th class="px-4 py-3 text-rose-600">最新悲觀估值</th>
-                                <!-- 🔥 新增估值狀態欄位 -->
                                 <th class="px-4 py-3 text-center w-28">估值狀態</th>
+                                <!-- 🔥 新增估值價差 -->
+                                <th class="px-4 py-3 text-center">估值價差</th>
                                 <th class="px-4 py-3 text-center">操作指令</th>
                             </tr>
                         </thead>
@@ -1148,7 +1150,7 @@
             let items = [...stockPlan].sort((a, b) => stockPlan.indexOf(a) - stockPlan.indexOf(b));
 
             if (items.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="px-4 py-6 text-center text-gray-400 font-medium">⚠️ 尚未設定任何股票。</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="8" class="px-4 py-6 text-center text-gray-400 font-medium">⚠️ 尚未設定任何股票。</td></tr>`;
                 return;
             }
 
@@ -1173,17 +1175,18 @@
 
                 const optStr = !isNaN(opt) ? `${priceSign}${opt.toFixed(2)}` : '---';
                 const pesStr = !isNaN(pes) ? `${priceSign}${pes.toFixed(2)}` : '---';
+                
+                // 🔥 抓取最新估值日期
+                const valDateStr = latestVal && latestVal.date ? String(latestVal.date).split('T')[0] : '---';
 
-                // 🔥 動態計算估值狀態圖示
+                // 計算估值狀態圖示
                 let statusHtml = '<span class="text-gray-300 text-[10px]">---</span>';
                 if (livePrice > 0 && !isNaN(opt) && !isNaN(pes)) {
                     if (opt <= pes) {
                         statusHtml = '<span class="text-[9px] text-rose-400 font-bold">估值倒掛</span>';
                     } else {
                         let range = opt - pes;
-                        // 計算現價相對於悲觀值的百分比位置
                         let posPct = ((livePrice - pes) / range) * 100;
-                        // 游標只能在 0% 到 100% 之間滑動
                         let clampedPct = Math.max(0, Math.min(100, posPct));
                         
                         let markerColor = '';
@@ -1202,19 +1205,16 @@
                             markerColor = 'bg-rose-600 z-10'; pulse = 'animate-pulse'; zoneText = '嚴重高估';
                         }
 
-                        // 微調游標位置，讓它置中於該百分比的線上
                         let leftCalc = `calc(${clampedPct}% - 4px)`;
 
                         statusHtml = `
                             <div class="flex flex-col items-center justify-center gap-1.5 w-full max-w-[80px] mx-auto" title="當前位置: ${posPct.toFixed(1)}%">
                                 <div class="relative w-full h-2 bg-gray-200 rounded-full flex items-center shadow-inner">
-                                    <!-- 背景分區 -->
                                     <div class="absolute inset-0 rounded-full overflow-hidden flex border border-gray-200/50">
                                         <div class="h-full w-[30%] bg-emerald-200"></div>
                                         <div class="h-full w-[40%] bg-gray-200"></div>
                                         <div class="h-full w-[30%] bg-rose-200"></div>
                                     </div>
-                                    <!-- 浮動游標 (比進度條稍微高一點，形成 3D 撥桿效果) -->
                                     <div class="absolute w-2.5 h-3.5 ${markerColor} ${pulse} rounded-[3px] shadow-sm border border-white z-10" style="left: ${leftCalc};"></div>
                                 </div>
                                 <span class="text-[9px] font-extrabold text-gray-500 tracking-wider">${zoneText}</span>
@@ -1223,15 +1223,30 @@
                     }
                 }
 
+                // 🔥 計算估值價差 = (((最新悲觀估值 - 最新現價) / 最新現價) * 100 )%
+                let spreadHtml = '<span class="text-gray-300 text-[10px]">---</span>';
+                if (livePrice > 0 && !isNaN(pes)) {
+                    let spreadPct = ((pes - livePrice) / livePrice) * 100;
+                    let sign = spreadPct > 0 ? '+' : '';
+                    // 大於等於 0 顯示綠色（潛在利潤），小於 0 顯示紅色（還在悲觀之下）
+                    let colorClass = spreadPct >= 0 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-rose-700 bg-rose-50 border-rose-200';
+                    spreadHtml = `<span class="px-2 py-1 rounded-md border text-[11px] font-extrabold shadow-sm ${colorClass}">${sign}${spreadPct.toFixed(2)}%</span>`;
+                }
+
                 tableBody.innerHTML += `
                     <tr class="bg-white border-b border-gray-100 hover:bg-gray-50 transition text-xs font-bold text-gray-800">
-                        <td class="px-4 py-3 tracking-wide">${stockCodeUpper}</td>
-                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200">${assetLabels[item.market]||item.market}</span></td>
-                        <td class="px-4 py-3 text-gray-500 font-semibold">${livePrice > 0 ? priceSign + livePrice.toFixed(2) : '---'}</td>
+                        <td class="px-4 py-3 tracking-wide flex items-center gap-2">
+                            ${stockCodeUpper}
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-gray-200 text-gray-600 border border-gray-300">${assetLabels[item.market]||item.market}</span>
+                        </td>
+                        <!-- 🔥 顯示最新估值日期 -->
+                        <td class="px-4 py-3 text-gray-500 font-semibold tracking-wide">${valDateStr}</td>
+                        <td class="px-4 py-3 text-gray-600">${livePrice > 0 ? priceSign + livePrice.toFixed(2) : '---'}</td>
                         <td class="px-4 py-3 text-emerald-600">${optStr}</td>
                         <td class="px-4 py-3 text-rose-600">${pesStr}</td>
-                        <!-- 🔥 注入狀態條 HTML -->
                         <td class="px-4 py-3 text-center align-middle">${statusHtml}</td>
+                        <!-- 🔥 顯示估值價差 -->
+                        <td class="px-4 py-3 text-center align-middle">${spreadHtml}</td>
                         <td class="px-4 py-3 text-center">
                             <button onclick="openValuationModal('${stockCodeUpper}', '${item.market}')" class="bg-gray-800 hover:bg-black text-white font-extrabold px-3 py-1 rounded-md shadow-md text-[11px] cursor-pointer transition">
                                 📊 檢視與編輯
