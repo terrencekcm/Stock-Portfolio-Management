@@ -40,6 +40,7 @@
                 <nav class="flex bg-gray-100 p-1 rounded-lg text-sm font-medium">
                     <button id="btn-dashboard-tab" onclick="switchTab('dashboard-tab')" class="px-4 py-2 rounded-md bg-white shadow-sm text-blue-600">📊 投資儀表板</button>
                     <button id="btn-trading-tab" onclick="switchTab('trading-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900">🎯 出入市計劃</button>
+                    <button id="btn-valuation-tab" onclick="switchTab('valuation-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900">🧮 估值模型</button>
                     <button id="btn-settings-tab" onclick="switchTab('settings-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 hidden">⚙️ 配置計劃設定</button>
                 </nav>
                 <div class="flex items-center gap-2">
@@ -298,7 +299,80 @@
                 </div>
             </div>
         </div>
+        <!-- 頁籤三：估值模型頁面 -->
+        <div id="tab-valuation" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <div class="border-b pb-3 mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">🧮 觀察名單與持倉股票 - 估值追蹤</h2>
+                    <p class="text-sm text-gray-500">此面板供估值分析師與 PM 紀錄標的的樂觀/悲觀估值，隨時檢視歷史走勢</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left text-xs">
+                        <thead class="bg-gray-100 text-gray-600 font-bold uppercase border-b border-gray-200">
+                            <tr>
+                                <th class="px-4 py-3">標的代號</th>
+                                <th class="px-4 py-3">資產市場</th>
+                                <th class="px-4 py-3">最新現價</th>
+                                <th class="px-4 py-3 text-emerald-600">最新樂觀估值</th>
+                                <th class="px-4 py-3 text-rose-600">最新悲觀估值</th>
+                                <th class="px-4 py-3 text-center">操作指令</th>
+                            </tr>
+                        </thead>
+                        <tbody id="valuationTableBody" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
+        <!-- 彈窗四：估值詳細資料與走勢圖 Modal -->
+        <div id="valuationModal" class="fixed inset-0 bg-gray-900/70 flex items-center justify-center z-50 p-4 hidden" onclick="closeValuationModal()">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col border border-gray-100 overflow-hidden" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-center border-b p-4 bg-gray-50">
+                    <h3 class="text-base font-black text-gray-800">📈 <span id="valModalTitle" class="text-blue-600"></span> 歷史估值走勢與紀錄</h3>
+                    <button onclick="closeValuationModal()" class="text-gray-400 hover:text-gray-700 font-bold text-xl">✕</button>
+                </div>
+                
+                <div class="p-4 overflow-y-auto space-y-4">
+                    <!-- 走勢圖 -->
+                    <div class="border border-gray-200 rounded-lg overflow-hidden relative bg-gray-950 p-1">
+                        <div class="absolute top-2 right-2 flex gap-2 text-[10px] font-bold z-10">
+                            <span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/50">樂觀估值</span>
+                            <span class="bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded border border-rose-500/50">悲觀估值</span>
+                        </div>
+                        <div id="valChartContainer" class="w-full h-64"></div>
+                    </div>
+
+                    <!-- 新增表單 (僅限 PM 和 Analyst) -->
+                    <div id="valInputFormWrap" class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 hidden">
+                        <h4 class="text-xs font-bold text-blue-800 mb-2">✍️ 紀錄最新估值</h4>
+                        <div class="grid grid-cols-3 gap-3 text-xs">
+                            <div><label class="block font-medium text-gray-600 mb-1">估值日期</label><input type="date" id="valInputDate" class="w-full rounded border-gray-300 p-2 border bg-white focus:outline-blue-500" required></div>
+                            <div><label class="block font-medium text-emerald-700 mb-1">樂觀估值 (Opt)</label><input type="number" step="any" id="valInputOpt" class="w-full rounded border-emerald-300 p-2 border bg-white text-emerald-700 focus:outline-emerald-500"></div>
+                            <div><label class="block font-medium text-rose-700 mb-1">悲觀估值 (Pes)</label><input type="number" step="any" id="valInputPes" class="w-full rounded border-rose-300 p-2 border bg-white text-rose-700 focus:outline-rose-500"></div>
+                        </div>
+                        <div class="mt-3 text-right">
+                            <button onclick="submitValuation()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow text-xs">儲存紀錄</button>
+                        </div>
+                    </div>
+
+                    <!-- 歷史清單 -->
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-600 mb-2">📋 過去 6 次歷史紀錄</h4>
+                        <table class="min-w-full text-left text-xs border border-gray-200">
+                            <thead class="bg-gray-100 text-gray-500 font-medium">
+                                <tr>
+                                    <th class="px-3 py-2 w-1/4">日期</th>
+                                    <th class="px-3 py-2 w-1/4 text-emerald-600">樂觀</th>
+                                    <th class="px-3 py-2 w-1/4 text-rose-600">悲觀</th>
+                                    <th class="px-3 py-2 w-1/4 text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="valHistoryTableBody" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- 設定頁籤 -->
         <div id="tab-settings" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
@@ -452,8 +526,9 @@
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "CASH_TOTAL": 0 }; 
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "CASH_TOTAL": false };
         let stockPlan = []; let pdfMap = {}; let earningsMap = {}; let perfConfig = {};
-        let tradingPlans = []; 
+        let tradingPlans = []; let valuations = []; // 🔥 新增 valuations 陣列 
         let activePlanTarget = { code: "", market: "" };
+        let activeValTarget = { code: "", market: "" }; // 🔥 新增 估值當前目標
 
         let latestBenchmarks = { sp500: 0, nasdaq: 0 };
         
@@ -474,16 +549,17 @@
         }
 
         function switchTab(tabId) {
-            if (tabId === 'settings-tab' && userRole !== 'PM') {
-                alert("❌ 權限被拒絕：您的角色無法進入配置計劃設定頁面！"); return;
-            }
+            if (tabId === 'settings-tab' && userRole !== 'PM') { alert("❌ 權限被拒絕"); return; }
             document.getElementById('btn-dashboard-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
             document.getElementById('btn-trading-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
+            document.getElementById('btn-valuation-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
             document.getElementById('btn-settings-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
+            
             if(userRole !== 'PM') document.getElementById('btn-settings-tab').classList.add('hidden');
 
             document.getElementById('tab-dashboard').classList.add('hidden');
             document.getElementById('tab-trading-plan').classList.add('hidden');
+            document.getElementById('tab-valuation').classList.add('hidden');
             document.getElementById('tab-settings').classList.add('hidden');
 
             if (tabId === 'dashboard-tab') {
@@ -493,6 +569,10 @@
                 document.getElementById('tab-trading-plan').classList.remove('hidden');
                 document.getElementById('btn-trading-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
                 renderTradingPlanPage();
+            } else if (tabId === 'valuation-tab') {
+                document.getElementById('tab-valuation').classList.remove('hidden');
+                document.getElementById('btn-valuation-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
+                renderValuationPage(); // 🔥 呼叫渲染函數
             } else if (tabId === 'settings-tab') {
                 document.getElementById('tab-settings').classList.remove('hidden');
                 document.getElementById('btn-settings-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
@@ -524,6 +604,7 @@
             userRole = role || "Visitor";
             const badge = document.getElementById('roleBadge');
             badge.classList.remove('hidden');
+            
             if (userRole === 'PM') {
                 badge.className = "text-xs px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 font-extrabold shadow-sm";
                 badge.innerText = "👑 PM 投資組合經理";
@@ -536,6 +617,12 @@
                 document.getElementById('btn-settings-tab').classList.add('hidden');
                 document.getElementById('visitorBlockMessage').classList.add('hidden');
                 document.getElementById('txFormFieldsWrap').classList.remove('hidden');
+            } else if (userRole === 'Analyst') { // 🔥 新增分析師 UI 邏輯
+                badge.className = "text-xs px-3 py-1.5 rounded-full bg-teal-100 text-teal-800 font-extrabold shadow-sm";
+                badge.innerText = "🔎 Analyst 估值分析師";
+                document.getElementById('btn-settings-tab').classList.add('hidden');
+                document.getElementById('visitorBlockMessage').classList.remove('hidden'); // 儀表板記帳唯讀
+                document.getElementById('txFormFieldsWrap').classList.add('hidden');
             } else {
                 badge.className = "text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-extrabold border border-gray-200 shadow-sm";
                 badge.innerText = "👁️ Visitor 訪客 (唯讀)";
@@ -565,6 +652,7 @@
                 stockPlan = data.stockPlan || [];
                 pdfMap = data.pdfMap || {}; earningsMap = data.earningsMap || {}; perfConfig = data.perfConfig || {};
                 tradingPlans = data.tradingPlans || []; 
+                valuations = data.valuations || []; // 🔥 新增接住資料
                 latestBenchmarks = data.benchmarks || { sp500: 0, nasdaq: 0 };
                 
                 alphaVantageApiKey = data.avApiKey || ""; 
@@ -1039,6 +1127,171 @@
             });
         }
 
+        function renderValuationPage() {
+            const tableBody = document.getElementById('valuationTableBody');
+            tableBody.innerHTML = '';
+
+            // 使用與設定頁面一樣的系統預設排序
+            let items = [...stockPlan].sort((a, b) => stockPlan.indexOf(a) - stockPlan.indexOf(b));
+
+            if (items.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-gray-400 font-medium">⚠️ 尚未設定任何股票。</td></tr>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const stockCodeUpper = item.code.toUpperCase().trim();
+                
+                // 計算對應的即時價格
+                let yahooSymbol = stockCodeUpper;
+                if (item.market === 'HK') {
+                    var pureCode = yahooSymbol.replace(".HK", "").trim();
+                    if (/^\d+$/.test(pureCode)) { while (pureCode.length < 4) pureCode = "0" + pureCode; yahooSymbol = pureCode + ".HK"; }
+                }
+                const livePrice = prices[yahooSymbol] || 0;
+                const priceSign = item.market === 'HK' ? 'HKD $' : 'USD $';
+
+                // 抓取最新的估值紀錄
+                const stockVals = valuations.filter(v => v.code === stockCodeUpper && v.market === item.market).sort((a, b) => new Date(b.date) - new Date(a.date));
+                const latestVal = stockVals.length > 0 ? stockVals[0] : null;
+
+                const optStr = latestVal ? `${priceSign}${Number(latestVal.optimistic).toFixed(2)}` : '---';
+                const pesStr = latestVal ? `${priceSign}${Number(latestVal.pessimistic).toFixed(2)}` : '---';
+
+                tableBody.innerHTML += `
+                    <tr class="bg-white border-b border-gray-100 hover:bg-gray-50 transition text-xs font-bold text-gray-800">
+                        <td class="px-4 py-3 tracking-wide">${stockCodeUpper}</td>
+                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200">${assetLabels[item.market]||item.market}</span></td>
+                        <td class="px-4 py-3 text-gray-500 font-semibold">${livePrice > 0 ? priceSign + livePrice.toFixed(2) : '---'}</td>
+                        <td class="px-4 py-3 text-emerald-600">${optStr}</td>
+                        <td class="px-4 py-3 text-rose-600">${pesStr}</td>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="openValuationModal('${stockCodeUpper}', '${item.market}')" class="bg-gray-800 hover:bg-black text-white font-extrabold px-3 py-1 rounded-md shadow-md text-[11px] cursor-pointer transition">
+                                📊 檢視與編輯
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function openValuationModal(code, market) {
+            activeValTarget = { code, market };
+            document.getElementById('valModalTitle').innerText = `${code} (${assetLabels[market]||market})`;
+            document.getElementById('valInputDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('valInputOpt').value = '';
+            document.getElementById('valInputPes').value = '';
+
+            // 權限控制：僅 PM 與 Analyst 可輸入
+            if (userRole === 'PM' || userRole === 'Analyst') {
+                document.getElementById('valInputFormWrap').classList.remove('hidden');
+            } else {
+                document.getElementById('valInputFormWrap').classList.add('hidden');
+            }
+
+            const modal = document.getElementById('valuationModal');
+            modal.classList.remove('hidden');
+
+            renderValuationDetail();
+        }
+
+        function closeValuationModal() {
+            document.getElementById('valuationModal').classList.add('hidden');
+            if (activeValuationChart) { activeValuationChart.remove(); activeValuationChart = null; }
+        }
+
+        function renderValuationDetail() {
+            const tableBody = document.getElementById('valHistoryTableBody');
+            tableBody.innerHTML = '';
+            
+            // 抓取並排序 (新 -> 舊)
+            let stockVals = valuations.filter(v => v.code === activeValTarget.code && v.market === activeValTarget.market)
+                                      .sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // 只取最近 6 筆顯示
+            let recentVals = stockVals.slice(0, 6);
+
+            if (recentVals.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="px-3 py-4 text-center text-gray-400">目前尚無估值紀錄。</td></tr>`;
+            } else {
+                recentVals.forEach(v => {
+                    let cleanDate = v.date ? String(v.date).split('T')[0] : '---';
+                    let deleteActionHtml = (userRole === 'PM' || userRole === 'Analyst')
+                        ? `<button onclick="deleteValuation('${v.id}')" class="text-rose-500 hover:text-rose-700 font-bold cursor-pointer hover:underline">刪除</button>`
+                        : `<span class="text-gray-300">唯讀</span>`;
+
+                    tableBody.innerHTML += `
+                        <tr class="hover:bg-gray-50 border-b border-gray-100 font-semibold">
+                            <td class="px-3 py-2 text-gray-500">${cleanDate}</td>
+                            <td class="px-3 py-2 text-emerald-600">${Number(v.optimistic).toFixed(2)}</td>
+                            <td class="px-3 py-2 text-rose-600">${Number(v.pessimistic).toFixed(2)}</td>
+                            <td class="px-3 py-2 text-center">${deleteActionHtml}</td>
+                        </tr>`;
+                });
+            }
+
+            // 重新繪製折線圖
+            const container = document.getElementById('valChartContainer');
+            if (activeValuationChart) { activeValuationChart.remove(); activeValuationChart = null; }
+
+            if (recentVals.length > 0) {
+                activeValuationChart = LightweightCharts.createChart(container, {
+                    width: container.clientWidth,
+                    height: 256,
+                    layout: { background: { type: 'solid', color: '#090d16' }, textColor: '#94a3b8' },
+                    grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
+                    rightPriceScale: { borderColor: '#334155' },
+                    timeScale: { borderColor: '#334155' }
+                });
+
+                const optSeries = activeValuationChart.addLineSeries({ color: '#34d399', lineWidth: 2, crosshairMarkerRadius: 4 });
+                const pesSeries = activeValuationChart.addLineSeries({ color: '#fb7185', lineWidth: 2, crosshairMarkerRadius: 4 });
+
+                // 圖表需要照時間 (舊 -> 新) 餵資料
+                const chartData = [...recentVals].reverse();
+                optSeries.setData(chartData.map(d => ({ time: String(d.date).split('T')[0], value: Number(d.optimistic) })));
+                pesSeries.setData(chartData.map(d => ({ time: String(d.date).split('T')[0], value: Number(d.pessimistic) })));
+                activeValuationChart.timeScale().fitContent();
+            } else {
+                container.innerHTML = `<div class="flex items-center justify-center h-full text-xs text-gray-500">暫無歷史數據可供繪製圖表</div>`;
+            }
+        }
+
+        async function submitValuation() {
+            const date = document.getElementById('valInputDate').value;
+            const opt = document.getElementById('valInputOpt').value;
+            const pes = document.getElementById('valInputPes').value;
+
+            if (!date || !opt || !pes) { alert("請填寫完整的日期與估值！"); return; }
+            updateStatus("🚀 正在儲存估值紀錄...", "loading");
+            
+            const payload = {
+                action: "ADD_VALUATION", token: userGoogleToken, id: Date.now().toString(),
+                code: activeValTarget.code, market: activeValTarget.market, date: date, opt: opt, pes: pes
+            };
+
+            try {
+                await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+                // 本地預先更新，不需重新 loadData，秒切
+                valuations.unshift(payload); 
+                document.getElementById('valInputOpt').value = ''; document.getElementById('valInputPes').value = '';
+                renderValuationDetail(); 
+                renderValuationPage();
+                updateStatus("✅ 估值儲存成功", "success");
+            } catch(e) { updateStatus("❌ 儲存失敗", "error"); }
+        }
+
+        async function deleteValuation(id) {
+            if (!confirm("⚠️ 確定刪除這筆估值紀錄嗎？")) return;
+            updateStatus("🗑️ 正在刪除估值...", "loading");
+            try {
+                await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "DELETE_VALUATION", token: userGoogleToken, id: id }) });
+                valuations = valuations.filter(v => v.id.toString() !== id.toString());
+                renderValuationDetail(); 
+                renderValuationPage();
+                updateStatus("✅ 刪除成功", "success");
+            } catch(e) { updateStatus("❌ 刪除失敗", "error"); }
+        }
+        
         function openCandlestickModal(ticker, market) {
             currentChartTicker = ticker.toUpperCase().trim();
             currentChartMarket = market;
