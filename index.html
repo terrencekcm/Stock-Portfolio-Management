@@ -31,21 +31,21 @@
 
     <!-- 主程式介面 -->
     <div id="mainApp" class="max-w-7xl mx-auto hidden">
-        <header class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
+        <header class="mb-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 bg-white p-4 rounded-xl shadow-sm">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">📊 全球資產配置與計劃管理系統</h1>
                 <p class="text-sm text-gray-500">宏觀大類資產動態平衡 & 個股與板塊計劃追蹤 (基地貨幣：USD)</p>
             </div>
-            <div class="flex items-center gap-3">
-                <nav class="flex bg-gray-100 p-1 rounded-lg text-sm font-medium">
-                    <button id="btn-dashboard-tab" onclick="switchTab('dashboard-tab')" class="px-4 py-2 rounded-md bg-white shadow-sm text-blue-600">📊 投資儀表板</button>
-                    <button id="btn-trading-tab" onclick="switchTab('trading-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900">🎯 出入市計劃</button>
-                    <button id="btn-valuation-tab" onclick="switchTab('valuation-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900">🧮 估值模型</button>
-                    <button id="btn-settings-tab" onclick="switchTab('settings-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 hidden">⚙️ 配置計劃設定</button>
+            <div class="flex flex-wrap items-center gap-3">
+                <nav class="flex flex-wrap bg-gray-100 p-1 rounded-lg text-sm font-medium gap-1">
+                    <button id="btn-dashboard-tab" onclick="switchTab('dashboard-tab')" class="px-4 py-2 rounded-md bg-white shadow-sm text-blue-600 whitespace-nowrap transition">📊 投資儀表板</button>
+                    <button id="btn-trading-tab" onclick="switchTab('trading-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap transition">🎯 出入市計劃</button>
+                    <button id="btn-valuation-tab" onclick="switchTab('valuation-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap transition">🧮 估值模型</button>
+                    <button id="btn-settings-tab" onclick="switchTab('settings-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap hidden transition">⚙️ 配置計劃設定</button>
                 </nav>
-                <div class="flex items-center gap-2">
-                    <div id="roleBadge" class="text-xs px-3 py-2 rounded-full font-bold hidden"></div>
-                    <div id="statusIndicator" class="text-xs px-3 py-2 rounded-full bg-yellow-100 text-yellow-800 font-medium">🔄 同步中...</div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <div id="roleBadge" class="text-xs px-3 py-2 rounded-full font-bold whitespace-nowrap hidden shadow-sm"></div>
+                    <div id="statusIndicator" class="text-xs px-3 py-2 rounded-full bg-yellow-100 text-yellow-800 font-medium whitespace-nowrap shadow-sm">🔄 同步中...</div>
                 </div>
             </div>
         </header>
