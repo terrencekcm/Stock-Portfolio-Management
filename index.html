@@ -676,10 +676,40 @@
                     assetHidden[key] = data.assetHidden && data.assetHidden[key] ? true : false;
                 }
                 stockPlan = data.stockPlan || [];
-                pdfMap = data.pdfMap || {}; earningsMap = data.earningsMap || {}; perfConfig = data.perfConfig || {};
+                pdfMap = data.pdfMap || {}; 
+                earningsMap = data.earningsMap || {}; 
+                perfConfig = data.perfConfig || {};
                 tradingPlans = data.tradingPlans || []; 
-                valuations = data.valuations || []; // 🔥 新增接住資料
+                valuations = data.valuations || []; 
                 latestBenchmarks = data.benchmarks || { sp500: 0, nasdaq: 0 };
+
+                // 🔥 新增：日期格式清洗器 (Date Sanitizer)
+                // 解決 Google Sheet 傳來 "2026-07-21T16:00:00.000Z" 導致 HTML input 日期欄位無法識別而變空白的問題
+                const sanitizeDate = (rawStr) => {
+                    if (typeof rawStr === 'string' && rawStr.includes('T')) {
+                        let dObj = new Date(rawStr);
+                        if (!isNaN(dObj)) {
+                            // 轉回本地時區的 YYYY-MM-DD
+                            const y = dObj.getFullYear();
+                            const m = String(dObj.getMonth() + 1).padStart(2, '0');
+                            const day = String(dObj.getDate()).padStart(2, '0');
+                            return `${y}-${m}-${day}`;
+                        }
+                    }
+                    return rawStr;
+                };
+
+                // 洗淨 earningsMap 裡的日期
+                for (const key in earningsMap) {
+                    if (earningsMap[key] && earningsMap[key].date) {
+                        earningsMap[key].date = sanitizeDate(earningsMap[key].date);
+                    }
+                }
+                
+                // 洗淨 stockPlan 裡的日期
+                stockPlan.forEach(s => {
+                    if (s.earnings_date) s.earnings_date = sanitizeDate(s.earnings_date);
+                });
                 
                 alphaVantageApiKey = data.avApiKey || ""; 
                 if (alphaVantageApiKey.includes(',')) {
