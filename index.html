@@ -287,14 +287,18 @@
                     <table class="min-w-full text-left text-xs">
                         <thead class="bg-gray-100 text-gray-600 font-bold uppercase border-b border-gray-200">
                             <tr>
-                                <th class="px-4 py-3 w-1/6">觀察標的代號</th>
-                                <th class="px-4 py-3 w-1/6">資產市場</th>
-                                <!-- 🔥 更改名稱 -->
-                                <th class="px-4 py-3 w-1/6">Net Position 分配 %</th>
-                                <!-- 🔥 新增分注計劃欄位 -->
-                                <th class="px-4 py-3 w-1/6 text-blue-700">分注計劃</th>
-                                <th class="px-4 py-3 w-1/6 text-center bg-blue-50/40 text-blue-700">🕯️ 圖表</th>
-                                <th class="px-4 py-3 w-1/6 text-center">操作指令</th>
+                                <th class="px-4 py-3">觀察標的代號</th>
+                                <!-- 🔥 移除資產市場，並更名為 Net Position 分配 % -->
+                                <th class="px-4 py-3">Net Position 分配 %</th>
+                                <!-- 🔥 新增 預算資金/股數 -->
+                                <th class="px-4 py-3 text-indigo-700">預算資金 / 股數</th>
+                                <!-- 🔥 新增 股價 -->
+                                <th class="px-4 py-3 text-gray-700">股價</th>
+                                <th class="px-4 py-3 text-blue-700">分注計劃</th>
+                                <!-- 🔥 新增 已入股數 -->
+                                <th class="px-4 py-3 text-emerald-700">已入股數</th>
+                                <th class="px-4 py-3 text-center bg-blue-50/40 text-blue-700">🕯️ 圖表</th>
+                                <th class="px-4 py-3 text-center">操作指令</th>
                             </tr>
                         </thead>
                         <tbody id="tradingPlanWatchlistTable" class="divide-y divide-gray-200"></tbody>
@@ -1096,7 +1100,7 @@
             });
 
             if (watchListItems.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-gray-400 font-medium bg-white">⚠️ 頂層設定中目前無任何觀察名單標的。請先前往設定頁添加！</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="8" class="px-4 py-6 text-center text-gray-400 font-medium bg-white">⚠️ 頂層設定中目前無任何觀察名單標的。請先前往設定頁添加！</td></tr>`;
                 return;
             }
 
@@ -1112,27 +1116,48 @@
                 }
                 const livePrice = prices[yahooSymbol] || 0;
 
+                // 取得已入股數
+                const activePos = positions[item.code];
+                const purchasedShares = activePos && activePos.shares ? activePos.shares : 0;
+
                 const chartButtonHtml = isUsMarket 
                     ? `<button onclick="openCandlestickModal('${stockCodeUpper}', 'US')" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold px-3 py-1 rounded-md shadow text-[10px] cursor-pointer transition flex items-center gap-1 mx-auto">🕯️ K線圖</button>`
                     : `<span class="text-gray-400 text-[10px] font-semibold">非美股市場</span>`;
 
-                // 🔥 2. 核心邏輯：計算分注計畫股數
+                // 🔥 2. 核心邏輯：計算預算、總股數與分注細節
+                let budgetHtml = '<span class="text-gray-400 text-[10px]">---</span>';
+                let priceHtml = '<span class="text-gray-400 text-[10px]">---</span>';
                 let trancheHtml = '<span class="text-gray-400 text-[10px]">---</span>';
+
                 if (isUsMarket) {
+                    priceHtml = `<span class="font-bold text-gray-700">$${livePrice > 0 ? livePrice.toFixed(2) : '---'}</span>`;
+
                     if (livePrice > 0 && navTotalAssetUsd > 0) {
                         const macroWeight = (assetPlan['US'] || 0) / 100;
                         const netPosWeight = (Number(item.target_weight) || 0) / 100;
+                        
                         // 計算該股票獲分配的總預算 (USD)
                         const totalAllocatedUsd = navTotalAssetUsd * macroWeight * netPosWeight;
+                        // 計算能買的總股數
+                        const totalTargetShares = totalAllocatedUsd / livePrice;
                         
-                        // 計算股數： N qty = (總預算 / 注數) / 最新股價
-                        const nQty = (totalAllocatedUsd / 3) / livePrice;
-                        const kQty = (totalAllocatedUsd / 2) / livePrice;
+                        budgetHtml = `
+                            <div class="flex flex-col text-[11px] font-mono">
+                                <span class="font-extrabold text-indigo-700">$${totalAllocatedUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+                                <span class="text-gray-500">${totalTargetShares.toFixed(1)} 股</span>
+                            </div>
+                        `;
+
+                        // 計算分注股數與對應金額
+                        const nQty = totalTargetShares / 3;
+                        const kQty = totalTargetShares / 2;
+                        const nM = totalAllocatedUsd / 3;
+                        const kM = totalAllocatedUsd / 2;
                         
                         trancheHtml = `
                             <div class="flex flex-col gap-1.5 text-[10px] font-mono">
-                                <span class="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shadow-sm w-max">分3注: ${nQty.toFixed(1)} 股</span>
-                                <span class="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 shadow-sm w-max">分2注: ${kQty.toFixed(1)} 股</span>
+                                <span class="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shadow-sm w-max">分3注: 每注 ${nQty.toFixed(1)}股, $${nM.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+                                <span class="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 shadow-sm w-max">分2注: 每注 ${kQty.toFixed(1)}股, $${kM.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
                             </div>
                         `;
                     } else {
@@ -1144,11 +1169,16 @@
 
                 tableBody.innerHTML += `
                     <tr class="bg-gray-100/80 border-t-2 border-gray-200 font-bold text-gray-800">
-                        <td class="px-4 py-3 text-sm flex items-center gap-1.5">🔍 <span class="tracking-wide">${stockCodeUpper}</span></td>
-                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200">${assetLabels[item.market]||item.market}</span></td>
+                        <td class="px-4 py-3 text-sm flex items-center gap-1.5">
+                            🔍 <span class="tracking-wide">${stockCodeUpper}</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-gray-200 text-gray-600 border border-gray-300 shadow-sm">${assetLabels[item.market]||item.market}</span>
+                        </td>
                         <td class="px-4 py-3 text-indigo-600 font-extrabold">${Number(item.target_weight).toFixed(1)}%</td>
-                        <!-- 🔥 注入分注計劃結果 -->
+                        <!-- 🔥 注入新欄位數據 -->
+                        <td class="px-4 py-3">${budgetHtml}</td>
+                        <td class="px-4 py-3">${priceHtml}</td>
                         <td class="px-4 py-3">${trancheHtml}</td>
+                        <td class="px-4 py-3 text-emerald-600 font-extrabold">${purchasedShares > 0 ? purchasedShares.toLocaleString() : '0'}</td>
                         <td class="px-4 py-3 text-center">${chartButtonHtml}</td>
                         <td class="px-4 py-3 text-center">
                             ${(userRole === 'PM' || userRole === 'Trader') 
@@ -1162,11 +1192,11 @@
                     .sort((a, b) => b.id - a.id) 
                     .slice(0, 5); 
 
-                // 注意：因為多加了一個欄位，下方的 colspan 全部要微調以對齊 6 個欄位
+                // 配合上面的 8 個欄位，下方的 colspan 也必須調整對齊
                 if (matchedPlans.length === 0) {
                     tableBody.innerHTML += `
                         <tr class="bg-white text-gray-400 italic text-xs">
-                            <td colspan="6" class="px-6 py-2.5 pl-10 border-b border-gray-100">📋 該觀察標的目前暫無錄入任何 Tradingview 技術面進出市計劃。</td>
+                            <td colspan="8" class="px-6 py-2.5 pl-10 border-b border-gray-100">📋 該觀察標的目前暫無錄入任何 Tradingview 技術面進出市計劃。</td>
                         </tr>`;
                 } else {
                     matchedPlans.forEach(plan => {
@@ -1188,13 +1218,13 @@
 
                         tableBody.innerHTML += `
                             <tr class="bg-white border-b border-gray-100 hover:bg-blue-50/30 transition text-xs">
-                                <td class="px-4 py-2 text-gray-400 pl-10 font-bold">📅 紀錄日期：${cleanDateDisplay}</td>
+                                <td class="px-4 py-2 text-gray-400 pl-10 font-bold" colspan="2">📅 紀錄日期：${cleanDateDisplay}</td>
                                 <td class="px-4 py-2 font-bold" colspan="2">
                                     <button onclick="openTvModal('${imageSrc}')" class="text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer font-bold text-left hover:underline">
                                         📊 檢視圖表 (${tvTokenMatch ? tvTokenMatch[1] : '外部快照'})
                                     </button>
                                 </td>
-                                <td class="px-4 py-2 text-gray-600 whitespace-pre-wrap break-all leading-relaxed font-medium" colspan="2">${plan.notes || '---'}</td>
+                                <td class="px-4 py-2 text-gray-600 whitespace-pre-wrap break-all leading-relaxed font-medium" colspan="3">${plan.notes || '---'}</td>
                                 <td class="px-4 py-2 text-center font-semibold">${deleteActionHtml}</td>
                             </tr>`;
                     });
