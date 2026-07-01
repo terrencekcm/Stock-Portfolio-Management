@@ -508,6 +508,8 @@
                                     <tr>
                                         <th class="px-2 py-2 w-20">標的代號</th>
                                         <th class="px-2 py-2 w-20">資產大類</th>
+                                        <!-- 🔥 新增 槓桿倍數 -->
+                                        <th class="px-2 py-2 text-indigo-700">槓桿倍數</th>
                                         <th class="px-2 py-2 w-20">大類內部%</th>
                                         <th class="px-2 py-2 text-amber-700">🏷️ 自定義板塊</th>
                                         <th class="px-2 py-2 text-purple-700">⚔️ 倉位策略</th>
@@ -846,11 +848,11 @@
             const criteria = document.getElementById('settingsSortSelect').value;
             if (!criteria) return;
 
-            // 1. 抓取畫面上當前填寫的資料 (保留未儲存的異動)
             let currentRows = [];
             document.querySelectorAll('.stock-plan-row').forEach(row => {
                 const code = row.querySelector('.sp-code').value.trim().toUpperCase();
                 const market = row.querySelector('.sp-market').value;
+                const leverage = row.querySelector('.sp-leverage') ? row.querySelector('.sp-leverage').value : 1; // 🔥 讀取倍數
                 const weight = row.querySelector('.sp-weight').value;
                 const sector = row.querySelector('.sp-sector') ? row.querySelector('.sp-sector').value.trim() : "未分類";
                 const strategySelect = row.querySelector('.sp-strategy');
@@ -859,44 +861,43 @@
                 const earnings_date = earningsInput ? earningsInput.value : "";
                 const date_type = earningsInput ? earningsInput.getAttribute('data-type') : "手動";
                 
-                currentRows.push({ code, market, target_weight: weight, sector, strategy, earnings_date, date_type });
+                currentRows.push({ code, market, leverage, target_weight: weight, sector, strategy, earnings_date, date_type });
             });
 
-            // 2. 進行排序邏輯
             currentRows.sort((a, b) => {
-                if (criteria === 'code') {
-                    return a.code.localeCompare(b.code);
-                } else if (criteria === 'sector') {
+                if (criteria === 'code') return a.code.localeCompare(b.code);
+                else if (criteria === 'sector') {
                     if (a.sector === b.sector) return a.code.localeCompare(b.code);
                     return a.sector.localeCompare(b.sector);
                 } else if (criteria === 'system') {
-                    // 先排策略: 攻擊=0, 防守=1
                     const stratA = a.strategy === '攻擊' ? 0 : 1;
                     const stratB = b.strategy === '攻擊' ? 0 : 1;
                     if (stratA !== stratB) return stratA - stratB;
-                    // 再排板塊
                     if (a.sector !== b.sector) return a.sector.localeCompare(b.sector);
-                    // 最後排代號
                     return a.code.localeCompare(b.code);
                 }
                 return 0;
             });
 
-            // 3. 重新產生設定清單的 HTML
             const tbody = document.getElementById('stockPlanSettingRows');
             tbody.innerHTML = '';
             currentRows.forEach(s => {
                 let optionsHtml = '';
-                for(const key in assetLabels) { 
-                    if (key === 'CASH_TOTAL') continue; 
-                    optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`; 
-                }
+                for(const key in assetLabels) { if (key === 'CASH_TOTAL') continue; optionsHtml += `<option value="${key}" ${s.market===key?'selected':''}>${assetLabels[key]}</option>`; }
                 const earnObj = earningsMap[s.code.toUpperCase()] || { date: s.earnings_date, type: s.date_type };
                 
                 tbody.innerHTML += `
                     <tr class="stock-plan-row">
                         <td class="px-2 py-2"><input type="text" value="${s.code}" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold text-center"></td>
                         <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
+                        <!-- 🔥 注入 槓桿倍數選單 -->
+                        <td class="px-2 py-2">
+                            <select class="sp-leverage p-1 rounded border border-gray-300 bg-white font-bold text-indigo-700 text-center w-full focus:outline-indigo-500">
+                                <option value="1" ${s.leverage==1?'selected':''}>1x (正股)</option>
+                                <option value="2" ${s.leverage==2?'selected':''}>2x (槓桿)</option>
+                                <option value="3" ${s.leverage==3?'selected':''}>3x (槓桿)</option>
+                            </select>
+                        </td>
                         <td class="px-2 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
                         <td class="px-2 py-2"><input type="text" value="${s.sector}" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
                         <td class="px-2 py-2">
@@ -907,18 +908,25 @@
                         </td>
                         <td class="px-2 py-2">
                             <input type="date" value="${earnObj.date || ''}" onchange="handleDateChange(this)" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center" data-type="${earnObj.type || '手動'}">
-                            ${earnObj.date ? `<span class="text-[10px] ${earnObj.type==='手動'?'text-amber-600':'text-emerald-600'} block mt-0.5 font-bold">${earnObj.type==='手動'?'✍️ 手動備份':'🤖 自動偵測: '+earnObj.date}</span>` : '<span class="text-[10px] text-gray-400 block mt-0.5 font-medium">⚠️ 暫無數據</span>'}
                         </td>
                         <td class="px-2 py-2 text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
                     </tr>`;
             });
-            document.getElementById('settingsSortSelect').value = ""; // 觸發完成後重置選單
+            document.getElementById('settingsSortSelect').value = "";
         }
         
+        // ==========================================
+        // 🚀 核心計算：投資儀表板與曝險分析
+        // ==========================================
         function renderComponents() {
             const { cashBalances, positions } = calculatePortfolio();
             let assetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "CASH_TOTAL": 0 };
-            let computedStocks = []; let totalStockMarketValueUsd = 0; let totalStockCostUsd = 0;
+            let effectiveAssetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "CASH_TOTAL": 0 }; // 🔥 新增「曝險價值」追蹤
+            
+            let computedStocks = []; 
+            let totalStockMarketValueUsd = 0; let totalStockCostUsd = 0;
+            let totalEffectiveStockMarketValueUsd = 0; // 🔥 全倉「曝險總值」
+            
             let usSectorsData = {};
             let attackValueUsd = 0; let defenseValueUsd = 0;
 
@@ -942,18 +950,34 @@
                 const plUsd = mktValUsd - costUsd;
                 const avgPrice = p.shares > 0 ? (p.totalCost / p.shares) : 0;
 
+                // 🔥 計算該持倉的「槓桿倍數」與「真實曝險資產值 (Effective Value)」
+                let pLev = 1;
+                if (p.market === 'US') {
+                    let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
+                    if (matchPlan && matchPlan.leverage) pLev = Number(matchPlan.leverage);
+                }
+                p.leverage = pLev;
+                p.effectiveMktValUsd = mktValUsd * pLev; // 資產值 * 倍數
+
                 let holdingDays = 0;
                 if(p.firstBuyDate !== '---') {
                     const diff = Math.floor((new Date() - new Date(p.firstBuyDate)) / (1000 * 60 * 60 * 24)); holdingDays = diff < 0 ? 0 : diff;
                 }
 
+                // 紀錄「真金白銀的錢」與「虛擬的曝險額」
                 assetRealValuesUsd[p.market] += mktValUsd;
+                effectiveAssetRealValuesUsd[p.market] += p.effectiveMktValUsd;
+
                 if (!p.isPlannedOnly && p.shares > 0) {
-                    totalStockMarketValueUsd += mktValUsd; totalStockCostUsd += costUsd;
+                    totalStockMarketValueUsd += mktValUsd; 
+                    totalStockCostUsd += costUsd;
+                    totalEffectiveStockMarketValueUsd += p.effectiveMktValUsd; // 加總至全倉曝險
+                    
                     if (p.market === 'US') {
                         let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                         let strat = (matchPlan && matchPlan.strategy) ? matchPlan.strategy.trim() : "攻擊";
-                        if (strat === '防守') defenseValueUsd += mktValUsd; else attackValueUsd += mktValUsd; 
+                        // 戰略與板塊一樣用「真實曝險 (Effective)」來計算
+                        if (strat === '防守') defenseValueUsd += p.effectiveMktValUsd; else attackValueUsd += p.effectiveMktValUsd; 
                     }
                 }
                 
@@ -963,37 +987,19 @@
                     let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                     let sec = (matchPlan && matchPlan.sector) ? matchPlan.sector.trim() : "未分類";
                     if (!usSectorsData[sec]) usSectorsData[sec] = { plannedWeight: 0, actualValueUsd: 0 };
-                    usSectorsData[sec].actualValueUsd += mktValUsd;
-                }
-
-                const stockCodeUpper = p.code.toUpperCase().trim();
-                if (earningsMap[stockCodeUpper]) {
-                    const earnObj = earningsMap[stockCodeUpper];
-                    const earnDateStr = (typeof earnObj === 'object') ? earnObj.date : earnObj;
-                    const earnType = (typeof earnObj === 'object') ? earnObj.type : '自動';
-                    if (earnDateStr) {
-                        const earnDate = new Date(earnDateStr.replace(/-/g, '/')); earnDate.setHours(0,0,0,0);
-                        const diffDays = Math.round((earnDate - todayObj) / (1000 * 60 * 60 * 24));
-                        if (diffDays >= 0 && diffDays <= 7) {
-                            hasRadarAlert = true;
-                            const badgeColor = p.isPlannedOnly ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800 border border-rose-300 animate-pulse";
-                            radarHtml += `
-                                <div class="bg-white p-3 rounded-xl border border-gray-200 flex flex-col justify-between shadow-sm">
-                                    <div class="flex justify-between items-center mb-1">
-                                        <span class="font-bold text-gray-800 text-sm">${stockCodeUpper}</span>
-                                        <span class="text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${badgeColor}">${p.isPlannedOnly ? '觀察名單' : '已買倉位'} (${earnType === "手動" ? "手動備份" : "自動偵測"})</span>
-                                    </div>
-                                    <div class="text-xs text-gray-500 font-medium">📅 財報日: <span class="text-rose-600 font-bold">${earnDateStr}</span><span class="block text-rose-700 font-bold mt-0.5">⚠️ 倒數 ${diffDays} 天發佈</span></div>
-                                </div>`;
-                        }
-                    }
+                    usSectorsData[sec].actualValueUsd += p.effectiveMktValUsd; // 板塊統計用曝險值
                 }
             }
 
             let totalCashUsd = 0;
             for (const mkt in cashBalances) { totalCashUsd += (cashBalances[mkt] * ((mkt === 'HK') ? (1 / exchangeRate) : 1)); }
+            
             assetRealValuesUsd["CASH_TOTAL"] = totalCashUsd;
-            const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd;
+            effectiveAssetRealValuesUsd["CASH_TOTAL"] = totalCashUsd; // 現金沒有槓桿
+
+            // 🔥 區分「真實淨值」與「全倉總曝險值」
+            const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd; // 用來算真實回報率的 NAV
+            const totalEffectiveAssetUsd = totalEffectiveStockMarketValueUsd + totalCashUsd; // 用來算各項權重 % 的分母
 
             const currentYear = new Date().getFullYear();
             const yearInitial = parseFloat(perfConfig[currentYear + "_initial"]) || 0;
@@ -1016,7 +1022,9 @@
             nasEl.innerText = `${nasPct >= 0 ? '+' : ''}${nasPct.toFixed(1)}%`;
             nasEl.className = `font-extrabold ${nasPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
 
-            const usAssetPlanWeight = assetPlan["US"] || 0; const plannedUsTotalUsd = totalAssetUsd * (usAssetPlanWeight / 100);
+            // 美股戰略建倉進度 (使用曝險總值計算)
+            const usAssetPlanWeight = assetPlan["US"] || 0; 
+            const plannedUsTotalUsd = totalEffectiveAssetUsd * (usAssetPlanWeight / 100);
             let attPctOfPlan = plannedUsTotalUsd > 0 ? (attackValueUsd / plannedUsTotalUsd * 100) : 0;
             let defPctOfPlan = plannedUsTotalUsd > 0 ? (defenseValueUsd / plannedUsTotalUsd * 100) : 0;
             let totalDeployedPct = attPctOfPlan + defPctOfPlan; let remainingQuotaPct = Math.max(0, 100 - totalDeployedPct);
@@ -1034,41 +1042,41 @@
                 document.getElementById('defenseBarSeg').style.width = `${defPctOfPlan}%`;
             }
 
-            const radarContainer = document.getElementById('earningsRadarContainer');
-            if (hasRadarAlert) { radarContainer.classList.remove('hidden'); document.getElementById('earningsAlertList').innerHTML = radarHtml; }
-            else { radarContainer.classList.add('hidden'); }
-
             document.getElementById('headerCashUsd').innerText = `USD $${totalCashUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            document.getElementById('headerCashHkd').innerText = `等值 HKD $${(totalCashUsd * exchangeRate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            document.getElementById('headerCashDetail').innerText = `🇺🇸 帳上美金: $${(cashBalances['US']||0).toLocaleString()} | 🇭🇰 帳上港幣: $${(cashBalances['HK']||0).toLocaleString()}`;
             document.getElementById('headerAllocationUsd').innerText = `USD $${totalStockMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
-            document.getElementById('headerAllocationHkd').innerText = `等值 HKD $${(totalStockMarketValueUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:2})}`;
-            document.getElementById('headerTotalAsset').innerText = `資產淨值 (NAV): USD $${totalAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${(totalAssetUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:0})}`;
+            document.getElementById('headerTotalAsset').innerText = `資產淨值 (NAV): USD $${totalAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})} (全倉總曝險: $${totalEffectiveAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})})`;
             
             const totalPlPercent = totalStockCostUsd > 0 ? ((totalStockMarketValueUsd - totalStockCostUsd) / totalStockCostUsd * 100) : 0;
             document.getElementById('headerTotalPl').innerText = `${totalPlPercent >= 0 ? '+' : ''}${totalPlPercent.toFixed(2)}%`;
-            document.getElementById('headerTotalPlDetail').innerText = `持倉未實現盈虧: USD $${(totalStockMarketValueUsd - totalStockCostUsd).toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${((totalStockMarketValueUsd - totalStockCostUsd)*exchangeRate).toLocaleString(undefined, {maximumFractionDigits:0})}`;
 
+            // 🔥 宏觀資產大類：權重與偏離度一律改用「曝險資產值 (effectiveAssetRealValuesUsd)」計算
             const assetPlanTable = document.getElementById('assetPlanTable'); assetPlanTable.innerHTML = '';
             for (const ac in assetLabels) {
                 if (assetHidden[ac] === true) continue;
-                const pWeight = assetPlan[ac] || 0; const rVal = assetRealValuesUsd[ac] || 0;
-                const rWeight = totalAssetUsd > 0 ? (rVal / totalAssetUsd * 100) : 0; const deviation = rWeight - pWeight;
+                const pWeight = assetPlan[ac] || 0; 
+                const rVal = assetRealValuesUsd[ac] || 0; 
+                const effVal = effectiveAssetRealValuesUsd[ac] || 0; // 曝險值
+                
+                const rWeight = totalEffectiveAssetUsd > 0 ? (effVal / totalEffectiveAssetUsd * 100) : 0; 
+                const deviation = rWeight - pWeight;
+                
+                // 視覺提示：如果有槓桿，顯示曝險金額
+                let valHtml = `USD $${rVal.toLocaleString(undefined, {maximumFractionDigits:0})}`;
+                if (effVal > rVal) valHtml += ` <span class="text-[10px] text-purple-600 block">(總曝險: $${effVal.toLocaleString(undefined, {maximumFractionDigits:0})})</span>`;
+
                 assetPlanTable.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100">
                         <td class="px-4 py-2.5 font-bold text-gray-800">${assetLabels[ac]}</td>
                         <td class="px-4 py-2.5 font-semibold text-blue-600">${pWeight.toFixed(1)}%</td>
                         <td class="px-4 py-2.5 font-semibold text-indigo-600">${rWeight.toFixed(1)}%</td>
                         <td class="px-4 py-2.5 font-bold ${deviation >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${deviation >= 0 ? '+' : ''}${deviation.toFixed(1)}%</td>
-                        <td class="px-4 py-2.5 text-gray-600 font-medium">USD $${rVal.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                        <td class="px-4 py-2.5 text-gray-600 font-medium">${valHtml}</td>
                     </tr>`;
             }
 
             const sectorTableBody = document.getElementById('sectorBreakdownTable'); sectorTableBody.innerHTML = '';
             const sectorNames = Object.keys(usSectorsData);
-            if (sectorNames.length === 0) {
-                sectorTableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-center text-gray-400">目前美股持倉或計劃中沒有任何板塊數據</td></tr>`;
-            } else {
+            if (sectorNames.length > 0) {
                 sectorNames.sort((a, b) => usSectorsData[b].plannedWeight - usSectorsData[a].plannedWeight);
                 sectorNames.forEach(sec => {
                     const data = usSectorsData[sec];
@@ -1082,68 +1090,53 @@
                 });
             }
 
-            // 🔥 移除重複宣告，修正 Syntax Error 問題
             const posTableBody = document.getElementById('positionTable'); 
             posTableBody.innerHTML = '';
 
-            // 🔥 根據目前選擇的排序方式對持倉陣列進行排序
             computedStocks.sort((a, b) => {
                 const planA = stockPlan.find(s => s.code === a.code && s.market === a.market);
                 const planB = stockPlan.find(s => s.code === b.code && s.market === b.market);
                 const sectorA = planA ? (planA.sector || "未分類").trim() : "未分類";
                 const sectorB = planB ? (planB.sector || "未分類").trim() : "未分類";
 
-                if (currentPosSort === 'shares') {
-                    return b.shares - a.shares; // 持股數量由大到小 (DESC)
-                } else if (currentPosSort === 'code') {
-                    return a.code.localeCompare(b.code); // 標的代號 (ASC)
-                } else if (currentPosSort === 'sector') {
+                if (currentPosSort === 'shares') { return b.shares - a.shares; } 
+                else if (currentPosSort === 'code') { return a.code.localeCompare(b.code); } 
+                else if (currentPosSort === 'sector') {
                     if (sectorA === sectorB) return a.code.localeCompare(b.code);
-                    return sectorA.localeCompare(sectorB); // 自定義板塊 (ASC)
+                    return sectorA.localeCompare(sectorB);
                 } else {
-                    // default: 系統預設排序 (根據設定檔保存順序)
                     const indexA = planA ? stockPlan.indexOf(planA) : 999999;
                     const indexB = planB ? stockPlan.indexOf(planB) : 999999;
                     if (indexA !== indexB) return indexA - indexB;
-                    return a.code.localeCompare(b.code); // 無設定名單者墊底並用代號排序
+                    return a.code.localeCompare(b.code);
                 }
             });
 
-            // 開始產生儀表板持倉表的 HTML
             computedStocks.forEach(p => {
                 const isHkdMarket = p.market === 'HK'; const priceSign = isHkdMarket ? 'HKD $' : 'USD $';
                 const sPlanObj = stockPlan.find(s => s.code === p.code && s.market === p.market);
                 const assetPlannedWeight = sPlanObj ? sPlanObj.target_weight : 0;
-                const plannedAssetClassTotalUsd = totalAssetUsd * ((assetPlan[p.market] || 0) / 100);
-                const assetRealWeight = plannedAssetClassTotalUsd > 0 ? (p.mktValUsd / plannedAssetClassTotalUsd * 100) : 0;
-                const totalRealWeight = totalAssetUsd > 0 ? (p.mktValUsd / totalAssetUsd * 100) : 0;
+                
+                // 🔥 個股：資產真實% 與 全倉真實%，全數改用「曝險資產值 (effectiveMktValUsd)」
+                const plannedAssetClassTotalUsd = totalEffectiveAssetUsd * ((assetPlan[p.market] || 0) / 100);
+                const assetRealWeight = plannedAssetClassTotalUsd > 0 ? (p.effectiveMktValUsd / plannedAssetClassTotalUsd * 100) : 0;
+                const totalRealWeight = totalEffectiveAssetUsd > 0 ? (p.effectiveMktValUsd / totalEffectiveAssetUsd * 100) : 0;
 
                 const stockCodeUpper = p.code.toUpperCase().trim(); const fileLink = pdfMap[stockCodeUpper];
+                let levBadgeHtml = p.leverage > 1 ? `<span class="px-1 py-0.5 rounded text-[9px] font-extrabold bg-purple-100 text-purple-700 ml-1 border border-purple-200">${p.leverage}x</span>` : '';
                 let codeCellHtml = fileLink ? `<a href="${fileLink}" target="_blank" class="text-blue-600 hover:underline font-bold cursor-pointer">📄 ${p.code}</a>` : `<span class="font-bold text-gray-800">${p.code}</span>`;
-
-                let earningsBadgeHtml = "";
-                if (earningsMap[stockCodeUpper]) {
-                    const earnObj = earningsMap[stockCodeUpper]; const earnDateStr = (typeof earnObj === 'object') ? earnObj.date : earnObj;
-                    if (earnDateStr) {
-                        const earnDate = new Date(earnDateStr.replace(/-/g, '/')); earnDate.setHours(0,0,0,0);
-                        const diffDays = Math.round((earnDate - todayObj) / (1000 * 60 * 60 * 24));
-                        if (diffDays >= 0 && diffDays <= 7) {
-                            earningsBadgeHtml = `<span class="inline-block ml-1 px-1 py-0.5 rounded text-[9px] font-extrabold bg-rose-600 text-white animate-bounce shadow-sm">⏰ 業績 ${earnDateStr.slice(5)}</span>`;
-                        }
-                    }
-                }
 
                 posTableBody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100 ${p.isPlannedOnly ? 'bg-amber-50/40 opacity-70' : ''}">
                         <td class="px-2 py-3 font-bold">
-                            <div class="flex items-center flex-wrap gap-1">${codeCellHtml}${earningsBadgeHtml}</div>
+                            <div class="flex items-center flex-wrap gap-1">${codeCellHtml}${levBadgeHtml}</div>
                             ${p.isPlannedOnly ? '<span class="text-[10px] block font-normal text-amber-600">[觀察名單]</span>' : ''}
                         </td>
                         <td class="px-2 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-700">${assetLabels[p.market]||p.market}</span></td>
                         <td class="px-2 py-3 font-semibold">${p.shares.toLocaleString()}</td>
                         <td class="px-2 py-3 text-gray-500 font-medium">${p.isPlannedOnly ? '---' : priceSign + p.avgPrice.toFixed(2)}</td>
                         <td class="px-2 py-3 font-semibold text-gray-600">${priceSign + (p.livePrice ? p.livePrice.toFixed(2) : '---')}</td>
-                        <td class="px-2 py-3 font-bold text-blue-600 bg-blue-50/10">$${p.mktValUsd.toLocaleString(undefined, {minimumFractionDigits:1, maximumFractionDigits:1})}</td>
+                        <td class="px-2 py-3 font-bold text-blue-600 bg-blue-50/10">$${p.mktValUsd.toLocaleString(undefined, {minimumFractionDigits:1, maximumFractionDigits:1})} ${p.leverage > 1 && !p.isPlannedOnly ? `<span class="text-[9px] text-purple-600 block leading-tight mt-0.5">曝險: $${p.effectiveMktValUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</span>` : ''}</td>
                         <td class="px-1 py-3 font-bold text-blue-600">${assetPlannedWeight.toFixed(1)}%</td>
                         <td class="px-1 py-3 font-bold text-indigo-600 bg-indigo-50/40">${assetRealWeight.toFixed(1)}% ${assetPlannedWeight > 0 ? `<span class="text-[10px] block font-normal text-gray-500">進度: ${(assetRealWeight / assetPlannedWeight * 100).toFixed(1)}%</span>` : ''}</td>
                         <td class="px-1 py-3 font-bold text-emerald-600 bg-emerald-50/40">${totalRealWeight.toFixed(1)}%</td>
@@ -1155,12 +1148,10 @@
         }
 
         function renderTradingPlanPage() {
-            // 🔥 解構取得資金餘額與持倉數據
             const { cashBalances, positions } = calculatePortfolio();
             const tableBody = document.getElementById('tradingPlanWatchlistTable');
             tableBody.innerHTML = '';
 
-            // 🔥 1. 即時計算當前總資產淨值 (NAV)，做為分注預算基礎
             let totalCashUsd = 0;
             for (const mkt in cashBalances) { totalCashUsd += (cashBalances[mkt] * ((mkt === 'HK') ? (1 / exchangeRate) : 1)); }
             let totalStockMarketValueUsd = 0;
@@ -1168,8 +1159,7 @@
                 const p = positions[code];
                 if (!p.isPlannedOnly && p.shares > 0) {
                     const livePrice = prices[p.yahooSymbol] || 0;
-                    const mktValUsd = (p.market === 'HK') ? ((p.shares * livePrice) / exchangeRate) : (p.shares * livePrice);
-                    totalStockMarketValueUsd += mktValUsd;
+                    totalStockMarketValueUsd += (p.market === 'HK') ? ((p.shares * livePrice) / exchangeRate) : (p.shares * livePrice);
                 }
             }
             const navTotalAssetUsd = totalStockMarketValueUsd + totalCashUsd;
@@ -1179,12 +1169,7 @@
                 return !activePos || activePos.shares <= 0 || activePos.isPlannedOnly;
             });
 
-            // 強制鎖定：讓出入市計劃表「嚴格依照」配置計劃設定儲存後的順序 (預設排序)
-            watchListItems.sort((a, b) => {
-                const indexA = stockPlan.indexOf(a);
-                const indexB = stockPlan.indexOf(b);
-                return indexA - indexB;
-            });
+            watchListItems.sort((a, b) => stockPlan.indexOf(a) - stockPlan.indexOf(b));
 
             if (watchListItems.length === 0) {
                 tableBody.innerHTML = `<tr><td colspan="8" class="px-4 py-6 text-center text-gray-400 font-medium bg-white">⚠️ 頂層設定中目前無任何觀察名單標的。請先前往設定頁添加！</td></tr>`;
@@ -1195,15 +1180,12 @@
                 const stockCodeUpper = item.code.toUpperCase().trim();
                 const isUsMarket = item.market === 'US';
                 
-                // 取得即時股價
                 let yahooSymbol = stockCodeUpper;
                 if (item.market === 'HK') {
                     var pureCode = yahooSymbol.replace(".HK", "").trim();
                     if (/^\d+$/.test(pureCode)) { while (pureCode.length < 4) pureCode = "0" + pureCode; yahooSymbol = pureCode + ".HK"; }
                 }
                 const livePrice = prices[yahooSymbol] || 0;
-
-                // 取得已入股數
                 const activePos = positions[item.code];
                 const purchasedShares = activePos && activePos.shares ? activePos.shares : 0;
 
@@ -1211,7 +1193,6 @@
                     ? `<button onclick="openCandlestickModal('${stockCodeUpper}', 'US')" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold px-3 py-1 rounded-md shadow text-[10px] cursor-pointer transition flex items-center gap-1 mx-auto">🕯️ K線圖</button>`
                     : `<span class="text-gray-400 text-[10px] font-semibold">非美股市場</span>`;
 
-                // 🔥 2. 核心邏輯：計算預算、總股數與分注細節
                 let budgetHtml = '<span class="text-gray-400 text-[10px]">---</span>';
                 let priceHtml = '<span class="text-gray-400 text-[10px]">---</span>';
                 let trancheHtml = '<span class="text-gray-400 text-[10px]">---</span>';
@@ -1222,10 +1203,10 @@
                     if (livePrice > 0 && navTotalAssetUsd > 0) {
                         const macroWeight = (assetPlan['US'] || 0) / 100;
                         const netPosWeight = (Number(item.target_weight) || 0) / 100;
-                        
-                        // 計算該股票獲分配的總預算 (USD)
-                        const totalAllocatedUsd = navTotalAssetUsd * macroWeight * netPosWeight;
-                        // 計算能買的總股數
+                        const lev = item.leverage || 1; // 🔥 取出槓桿倍數
+
+                        // 🔥 計算「實際需要準備的美元本金」 (曝險總額 / 槓桿倍數)
+                        const totalAllocatedUsd = (navTotalAssetUsd * macroWeight * netPosWeight) / lev;
                         const totalTargetShares = totalAllocatedUsd / livePrice;
                         
                         budgetHtml = `
@@ -1235,11 +1216,8 @@
                             </div>
                         `;
 
-                        // 計算分注股數與對應金額
-                        const nQty = totalTargetShares / 3;
-                        const kQty = totalTargetShares / 2;
-                        const nM = totalAllocatedUsd / 3;
-                        const kM = totalAllocatedUsd / 2;
+                        const nQty = totalTargetShares / 3; const kQty = totalTargetShares / 2;
+                        const nM = totalAllocatedUsd / 3; const kM = totalAllocatedUsd / 2;
                         
                         trancheHtml = `
                             <div class="flex flex-col gap-1.5 text-[10px] font-mono">
@@ -1254,14 +1232,16 @@
                     trancheHtml = '<span class="text-gray-400 text-[10px]">僅限美股</span>';
                 }
 
+                let levBadgeHtml = (item.leverage > 1) ? `<span class="px-1 py-0.5 rounded text-[9px] font-extrabold bg-purple-100 text-purple-700 shadow-sm border border-purple-200">${item.leverage}x</span>` : '';
+
                 tableBody.innerHTML += `
                     <tr class="bg-gray-100/80 border-t-2 border-gray-200 font-bold text-gray-800">
-                        <td class="px-4 py-3 text-sm flex items-center gap-1.5">
+                        <td class="px-4 py-3 text-sm flex items-center flex-wrap gap-1.5">
                             🔍 <span class="tracking-wide">${stockCodeUpper}</span>
                             <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-gray-200 text-gray-600 border border-gray-300 shadow-sm">${assetLabels[item.market]||item.market}</span>
+                            ${levBadgeHtml}
                         </td>
                         <td class="px-4 py-3 text-indigo-600 font-extrabold">${Number(item.target_weight).toFixed(1)}%</td>
-                        <!-- 🔥 注入新欄位數據 -->
                         <td class="px-4 py-3">${budgetHtml}</td>
                         <td class="px-4 py-3">${priceHtml}</td>
                         <td class="px-4 py-3">${trancheHtml}</td>
@@ -1279,7 +1259,6 @@
                     .sort((a, b) => b.id - a.id) 
                     .slice(0, 5); 
 
-                // 配合上面的 8 個欄位，下方的 colspan 也必須調整對齊
                 if (matchedPlans.length === 0) {
                     tableBody.innerHTML += `
                         <tr class="bg-white text-gray-400 italic text-xs">
@@ -2083,11 +2062,20 @@
                 const stockCodeUpper = s.code.toUpperCase().trim();
                 const earnObj = earningsMap[stockCodeUpper] || { date: s.earnings_date || '', type: s.date_type || '手動' };
                 const currentStrategy = s.strategy || '攻擊';
+                const currentLev = s.leverage || 1;
 
                 tbody.innerHTML += `
                     <tr class="stock-plan-row">
                         <td class="px-2 py-2"><input type="text" value="${s.code}" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold text-center"></td>
                         <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
+                        <!-- 🔥 注入 槓桿倍數選單 -->
+                        <td class="px-2 py-2">
+                            <select class="sp-leverage p-1 rounded border border-gray-300 bg-white font-bold text-indigo-700 text-center w-full focus:outline-indigo-500">
+                                <option value="1" ${currentLev==1?'selected':''}>1x (正股)</option>
+                                <option value="2" ${currentLev==2?'selected':''}>2x (槓桿)</option>
+                                <option value="3" ${currentLev==3?'selected':''}>3x (槓桿)</option>
+                            </select>
+                        </td>
                         <td class="px-2 py-2"><input type="number" step="any" value="${s.target_weight}" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
                         <td class="px-2 py-2"><input type="text" value="${s.sector || '未分類'}" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
                         <td class="px-2 py-2">
@@ -2098,7 +2086,6 @@
                         </td>
                         <td class="px-2 py-2">
                             <input type="date" value="${earnObj.date || ''}" onchange="handleDateChange(this)" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center" data-type="${earnObj.type || '手動'}">
-                            ${earnObj.date ? `<span class="text-[10px] ${earnObj.type==='手動'?'text-amber-600':'text-emerald-600'} block mt-0.5 font-bold">${earnObj.type==='手動'?'✍️ 手動備份':'🤖 自動偵測: '+earnObj.date}</span>` : '<span class="text-[10px] text-gray-400 block mt-0.5 font-medium">⚠️ 暫無數據</span>'}
                         </td>
                         <td class="px-2 py-2 text-center"><button onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium">移除</button></td>
                     </tr>`;
@@ -2119,6 +2106,13 @@
                 <tr class="stock-plan-row bg-amber-50/30">
                     <td class="px-2 py-2"><input type="text" placeholder="標補" class="sp-code w-full p-1 rounded border border-gray-300 uppercase font-bold text-center"></td>
                     <td class="px-2 py-2"><select class="sp-market p-1 rounded border border-gray-300 bg-white font-medium w-full">${optionsHtml}</select></td>
+                    <td class="px-2 py-2">
+                        <select class="sp-leverage p-1 rounded border border-gray-300 bg-white font-bold text-indigo-700 text-center w-full focus:outline-indigo-500">
+                            <option value="1" selected>1x (正股)</option>
+                            <option value="2">2x (槓桿)</option>
+                            <option value="3">3x (槓桿)</option>
+                        </select>
+                    </td>
                     <td class="px-2 py-2"><input type="number" step="any" value="0" class="sp-weight w-full p-1 rounded border border-gray-300 text-right font-semibold text-indigo-600"></td>
                     <td class="px-2 py-2"><input type="text" placeholder="板塊" class="sp-sector w-full p-1 rounded border border-gray-300 font-semibold text-amber-700"></td>
                     <td class="px-2 py-2">
@@ -2129,13 +2123,11 @@
                     </td>
                     <td class="px-2 py-2">
                         <input type="date" onchange="handleDateChange(this)" class="sp-earnings w-full p-1 rounded border border-gray-300 font-semibold text-rose-600 text-center" data-type="手動">
-                        <span class="text-[10px] text-gray-400 block mt-0.5">🔄 儲存後將自動偵測</span>
                     </td>
                     <td class="px-2 py-2 text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:underline font-medium cursor-pointer">移除</button></td>
                 </tr>`;
             tbody.insertAdjacentHTML('beforeend', newRowHtml);
         }
-
         async function saveAllSettings() {
             if (userRole !== 'PM') { alert("❌ 權限被拒絕"); return; }
             updateStatus("🚀 正在儲存參數與財報防線至雲端...", "loading");
@@ -2146,13 +2138,14 @@
             let newStockPlan = [];
             document.querySelectorAll('.stock-plan-row').forEach(row => {
                 const code = row.querySelector('.sp-code').value.trim(); const market = row.querySelector('.sp-market').value;
+                const leverage = row.querySelector('.sp-leverage') ? row.querySelector('.sp-leverage').value : 1; // 🔥 讀取倍數
                 const weight = parseFloat(row.querySelector('.sp-weight').value) || 0;
                 const sector = row.querySelector('.sp-sector') ? row.querySelector('.sp-sector').value.trim() : "未分類";
                 const earningsInput = row.querySelector('.sp-earnings'); const earnings_date = earningsInput ? earningsInput.value.trim() : "";
                 let date_type = earningsInput ? earningsInput.getAttribute('data-type') : "手動";
                 const strategySelect = row.querySelector('.sp-strategy'); const strategy = strategySelect ? strategySelect.value : "攻擊";
                 if (earnings_date && !date_type) date_type = "手動";
-                if (code) newStockPlan.push({ code, market, target_weight: weight, sector, earnings_date, date_type, strategy });
+                if (code) newStockPlan.push({ code, market, leverage, target_weight: weight, sector, earnings_date, date_type, strategy });
             });
 
             let newPerfConfig = {}; newPerfConfig["historical_start_year"] = document.getElementById('inputHistStartYear').value.trim();
