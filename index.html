@@ -199,9 +199,17 @@
                     </div>
 
                     <div class="bg-white p-6 rounded-xl shadow-md">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 border-b pb-2 border-gray-100">
-                            <h2 class="text-lg font-bold text-gray-700">💼 目前證券持倉與觀察名單 (含三層權重透視)</h2>
-                            <div class="flex items-center gap-2">
+                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-4 gap-3 border-b pb-3 border-gray-100">
+                            <div class="flex-1">
+                                <h2 class="text-lg font-bold text-gray-700">💼 證券持倉與觀察名單</h2>
+                                <p class="text-[10px] text-gray-400 mt-1.5 font-medium tracking-wide">
+                                    🧮 公式參考：
+                                    <span class="text-indigo-500 font-bold bg-indigo-50 px-1 py-0.5 rounded">資產真實%</span> = 標的曝險額 ÷ (全倉總曝險 × 大類計劃%)
+                                    <span class="mx-1 text-gray-200">|</span> 
+                                    <span class="text-emerald-500 font-bold bg-emerald-50 px-1 py-0.5 rounded">全倉真實%</span> = 標的曝險額 ÷ 全倉總曝險
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
                                 <label class="text-xs font-bold text-gray-500">排序方式:</label>
                                 <select id="positionSortSelect" onchange="applyPositionSort()" class="text-xs rounded-md border-gray-300 p-1.5 bg-gray-50 focus:outline-blue-500 shadow-sm border font-medium text-gray-700 cursor-pointer">
                                     <option value="default">🌟 系統預設排序</option>
