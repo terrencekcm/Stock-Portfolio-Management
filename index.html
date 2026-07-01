@@ -1042,12 +1042,31 @@
                 document.getElementById('defenseBarSeg').style.width = `${defPctOfPlan}%`;
             }
 
+            // 🎯 【補回：財報雷達警告牆顯示邏輯】
+            const radarContainer = document.getElementById('earningsRadarContainer');
+            if (hasRadarAlert) { 
+                radarContainer.classList.remove('hidden'); 
+                document.getElementById('earningsAlertList').innerHTML = radarHtml; 
+            } else { 
+                radarContainer.classList.add('hidden'); 
+            }
+
+            // 🎯 【補回：儀表板 4 個卡片的完整明細與 HKD 等值顯示】
             document.getElementById('headerCashUsd').innerText = `USD $${totalCashUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('headerCashHkd').innerText = `等值 HKD $${(totalCashUsd * exchangeRate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('headerCashDetail').innerText = `🇺🇸 帳上美金: $${(cashBalances['US']||0).toLocaleString()} | 🇭🇰 帳上港幣: $${(cashBalances['HK']||0).toLocaleString()}`;
+            
             document.getElementById('headerAllocationUsd').innerText = `USD $${totalStockMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
-            document.getElementById('headerTotalAsset').innerText = `資產淨值 (NAV): USD $${totalAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})} (全倉總曝險: $${totalEffectiveAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})})`;
+            document.getElementById('headerAllocationHkd').innerText = `等值 HKD $${(totalStockMarketValueUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:2})}`;
+            document.getElementById('headerTotalAsset').innerText = `資產淨值(NAV): USD $${totalAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})} (全倉總曝險: $${totalEffectiveAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})})`;
             
             const totalPlPercent = totalStockCostUsd > 0 ? ((totalStockMarketValueUsd - totalStockCostUsd) / totalStockCostUsd * 100) : 0;
             document.getElementById('headerTotalPl').innerText = `${totalPlPercent >= 0 ? '+' : ''}${totalPlPercent.toFixed(2)}%`;
+            document.getElementById('headerTotalPlDetail').innerText = `持倉未實現盈虧: USD $${(totalStockMarketValueUsd - totalStockCostUsd).toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${((totalStockMarketValueUsd - totalStockCostUsd)*exchangeRate).toLocaleString(undefined, {maximumFractionDigits:0})}`;
+
+            // 下方接續原本的大類資產表格...
+            const assetPlanTable = document.getElementById('assetPlanTable'); 
+            assetPlanTable.innerHTML = '';
 
             // 🔥 宏觀資產大類：權重與偏離度一律改用「曝險資產值 (effectiveAssetRealValuesUsd)」計算
             const assetPlanTable = document.getElementById('assetPlanTable'); assetPlanTable.innerHTML = '';
