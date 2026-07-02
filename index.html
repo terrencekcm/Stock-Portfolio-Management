@@ -1189,15 +1189,13 @@
             }
             const navTotalAssetUsd = totalStockMarketValueUsd + totalCashUsd;
 
-            let watchListItems = stockPlan.filter(s => {
-                const activePos = positions[s.code];
-                return !activePos || activePos.shares <= 0 || activePos.isPlannedOnly;
-            });
+            // 🔥 移除過濾條件，讓「已持倉」與「觀察中」的所有 17 檔股票都能夠顯示與寫計畫！
+            let watchListItems = [...stockPlan];
 
             watchListItems.sort((a, b) => stockPlan.indexOf(a) - stockPlan.indexOf(b));
 
             if (watchListItems.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="8" class="px-4 py-6 text-center text-gray-400 font-medium bg-white">⚠️ 頂層設定中目前無任何觀察名單標的。請先前往設定頁添加！</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="8" class="px-4 py-6 text-center text-gray-400 font-medium bg-white">⚠️ 頂層設定中目前無任何標的。請先前往設定頁添加！</td></tr>`;
                 return;
             }
 
@@ -1228,9 +1226,8 @@
                     if (livePrice > 0 && navTotalAssetUsd > 0) {
                         const macroWeight = (assetPlan['US'] || 0) / 100;
                         const netPosWeight = (Number(item.target_weight) || 0) / 100;
-                        const lev = item.leverage || 1; // 🔥 取出槓桿倍數
+                        const lev = item.leverage || 1; 
 
-                        // 🔥 計算「實際需要準備的美元本金」 (曝險總額 / 槓桿倍數)
                         const totalAllocatedUsd = (navTotalAssetUsd * macroWeight * netPosWeight) / lev;
                         const totalTargetShares = totalAllocatedUsd / livePrice;
                         
@@ -1258,13 +1255,21 @@
                 }
 
                 let levBadgeHtml = (item.leverage > 1) ? `<span class="px-1 py-0.5 rounded text-[9px] font-extrabold bg-purple-100 text-purple-700 shadow-sm border border-purple-200">${item.leverage}x</span>` : '';
+                
+                // 🔥 動態標籤：區分這是觀察中，還是已經買入的股票
+                let statusBadge = purchasedShares > 0 
+                    ? `<span class="text-[10px] block font-extrabold text-emerald-600 mt-0.5">[已建倉]</span>`
+                    : `<span class="text-[10px] block font-normal text-amber-600 mt-0.5">[觀察中]</span>`;
 
                 tableBody.innerHTML += `
                     <tr class="bg-gray-100/80 border-t-2 border-gray-200 font-bold text-gray-800">
-                        <td class="px-4 py-3 text-sm flex items-center flex-wrap gap-1.5">
-                            🔍 <span class="tracking-wide">${stockCodeUpper}</span>
-                            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-gray-200 text-gray-600 border border-gray-300 shadow-sm">${assetLabels[item.market]||item.market}</span>
-                            ${levBadgeHtml}
+                        <td class="px-4 py-3 text-sm flex flex-col items-start gap-1">
+                            <div class="flex items-center flex-wrap gap-1.5">
+                                🔍 <span class="tracking-wide">${stockCodeUpper}</span>
+                                <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-gray-200 text-gray-600 border border-gray-300 shadow-sm">${assetLabels[item.market]||item.market}</span>
+                                ${levBadgeHtml}
+                            </div>
+                            ${statusBadge}
                         </td>
                         <td class="px-4 py-3 text-indigo-600 font-extrabold">${Number(item.target_weight).toFixed(1)}%</td>
                         <td class="px-4 py-3">${budgetHtml}</td>
@@ -1287,7 +1292,7 @@
                 if (matchedPlans.length === 0) {
                     tableBody.innerHTML += `
                         <tr class="bg-white text-gray-400 italic text-xs">
-                            <td colspan="8" class="px-6 py-2.5 pl-10 border-b border-gray-100">📋 該觀察標的目前暫無錄入任何 Tradingview 技術面進出市計劃。</td>
+                            <td colspan="8" class="px-6 py-2.5 pl-10 border-b border-gray-100">📋 該標的目前暫無錄入任何 Tradingview 技術面進出市計劃。</td>
                         </tr>`;
                 } else {
                     matchedPlans.forEach(plan => {
