@@ -465,7 +465,7 @@
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-left text-xs">
                         <thead class="bg-gray-100 text-gray-600 font-bold uppercase">
-                            <tr><th class="px-3 py-2">策略與標的</th><th class="px-3 py-2">日期區間 (開 ➔ 平)</th><th class="px-3 py-2">開倉價</th><th class="px-3 py-2">平倉價</th><th class="px-3 py-2">淨損益 (P&L)</th><th class="px-3 py-2">持倉天數</th></tr>
+                            <tr><th class="px-3 py-2">策略與標的</th><th class="px-3 py-2">日期區間 (開 ➔ 平)</th><th class="px-3 py-2">開倉價</th><th class="px-3 py-2">平倉價</th><th class="px-3 py-2">淨損益 (P&L)</th><th class="px-3 py-2">持倉天數</th><th class="px-3 py-2 text-center">操作</th></tr>
                         </thead>
                         <tbody id="tradeLogTable" class="divide-y divide-gray-200"></tbody>
                     </table>
@@ -1438,8 +1438,11 @@
                         <td class="px-2 py-3 text-rose-600">${cleanExp}</td>
                         <td class="px-2 py-3 text-blue-600">$${Number(o.open_premium).toFixed(2)}</td>
                         <td class="px-2 py-3 text-indigo-700">$${lockVal.toLocaleString()} <span class="text-[9px] text-gray-400 block font-normal">${isLC?'風險金':'保證金'}</span></td>
-                        <td class="px-2 py-3 text-center">
-                            ${(userRole === 'PM' || userRole === 'Trader') ? `<button onclick="openCloseOptionModal('${o.id}', '${o.strategy}')" class="bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-3 py-1 rounded-md shadow text-[11px]">平倉</button>` : `<span class="text-gray-300">唯讀</span>`}
+                        <td class="px-2 py-3 text-center flex justify-center items-center gap-2 mt-1">
+                            ${(userRole === 'PM' || userRole === 'Trader') ? `
+                                <button onclick="openCloseOptionModal('${o.id}', '${o.strategy}')" class="bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-3 py-1 rounded-md shadow text-[11px]">平倉</button>
+                                <button onclick="deleteOption('${o.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-sm" title="刪除此紀錄">🗑️</button>
+                            ` : `<span class="text-gray-300">唯讀</span>`}
                         </td>
                     </tr>
                 `;
@@ -2664,6 +2667,9 @@
                         <td class="px-3 py-2 text-purple-600">$${Number(o.close_premium).toFixed(2)}</td>
                         <td class="px-3 py-2 font-black ${pnl >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${pnl >= 0 ? '+':''}$${pnl.toLocaleString()}</td>
                         <td class="px-3 py-2 text-gray-500">${days} 天</td>
+                        <td class="px-3 py-2 text-center">
+                            ${(userRole === 'PM' || userRole === 'Trader') ? `<button onclick="deleteOption('${o.id}')" class="text-rose-500 hover:text-rose-700 font-bold hover:underline text-xs">刪除</button>` : `<span class="text-gray-300 text-xs">唯讀</span>`}
+                        </td>
                     </tr>
                 `;
             });
@@ -2863,6 +2869,30 @@
                 openWeeklyStrategyHistoryModal(); // 重繪歷史清單
                 updateStatus("✅ 刪除成功", "success");
             } catch(e) { updateStatus("❌ 刪除失敗", "error"); }
+        }
+
+        async function deleteOption(id) {
+            if (userRole === 'Visitor') { alert("❌ 訪客角色無權異動數據！"); return; }
+            if (!confirm("⚠️ 確定要徹底刪除這筆期權合約紀錄嗎？這將會還原它佔用的現金與保證金！此操作不可逆！")) return;
+            
+            updateStatus("🗑️ 正在抹除期權紀錄...", "loading");
+            try {
+                await fetch(API_URL, { 
+                    method: "POST", mode: "no-cors", 
+                    body: JSON.stringify({ action: "DELETE_OPTION", token: userGoogleToken, id: id }) 
+                });
+                // 從本地陣列中移除
+                optionsTx = optionsTx.filter(o => o.id.toString() !== id.toString());
+                
+                // 重新精算所有畫面
+                renderComponents();
+                if(!document.getElementById('tab-reports').classList.contains('hidden')){
+                    renderPerformanceReport();
+                }
+                updateStatus("✅ 期權刪除成功", "success");
+            } catch (error) { 
+                updateStatus("❌ 刪除失敗", "error"); 
+            }
         }
     </script>
 </body>
