@@ -887,7 +887,11 @@
                     alert("安全錯誤: " + data.error); return;
                 }
                 
-                transactions = data.transactions || []; prices = data.prices || {}; exchangeRate = data.exchangeRate || 7.82;
+                transactions = data.transactions || []; 
+                optionsTx = data.optionsTx || []; // 🔥 關鍵修復：這裡確保將後端的期權數據接進來
+                prices = data.prices || {}; 
+                exchangeRate = data.exchangeRate || 7.82;
+
                 for (const key in assetLabels) {
                     if (data.assetPlan && data.assetPlan[key] !== undefined) assetPlan[key] = data.assetPlan[key];
                     assetHidden[key] = data.assetHidden && data.assetHidden[key] ? true : false;
@@ -898,16 +902,13 @@
                 perfConfig = data.perfConfig || {};
                 tradingPlans = data.tradingPlans || []; 
                 valuations = data.valuations || []; 
-                weeklyStrategies = data.weeklyStrategies || []; // 🔥 接收資料
+                weeklyStrategies = data.weeklyStrategies || []; 
                 latestBenchmarks = data.benchmarks || { sp500: 0, nasdaq: 0 };
 
-                // 🔥 新增：日期格式清洗器 (Date Sanitizer)
-                // 解決 Google Sheet 傳來 "2026-07-21T16:00:00.000Z" 導致 HTML input 日期欄位無法識別而變空白的問題
                 const sanitizeDate = (rawStr) => {
                     if (typeof rawStr === 'string' && rawStr.includes('T')) {
                         let dObj = new Date(rawStr);
                         if (!isNaN(dObj)) {
-                            // 轉回本地時區的 YYYY-MM-DD
                             const y = dObj.getFullYear();
                             const m = String(dObj.getMonth() + 1).padStart(2, '0');
                             const day = String(dObj.getDate()).padStart(2, '0');
@@ -917,14 +918,12 @@
                     return rawStr;
                 };
 
-                // 洗淨 earningsMap 裡的日期
                 for (const key in earningsMap) {
                     if (earningsMap[key] && earningsMap[key].date) {
                         earningsMap[key].date = sanitizeDate(earningsMap[key].date);
                     }
                 }
                 
-                // 洗淨 stockPlan 裡的日期
                 stockPlan.forEach(s => {
                     if (s.earnings_date) s.earnings_date = sanitizeDate(s.earnings_date);
                 });
@@ -946,7 +945,11 @@
                 if(!document.getElementById('tab-trading-plan').classList.contains('hidden')){
                     renderTradingPlanPage();
                 }
-                updateStatus(`✅ 雲端同步完成 (已識別 ${Object.keys(pdfMap).length} 份 PDF)`, "success");
+                // 🔥 如果停留在績效報告頁，也一併重繪
+                if(!document.getElementById('tab-reports').classList.contains('hidden')){
+                    renderPerformanceReport();
+                }
+                updateStatus(`✅ 雲端同步完成`, "success");
             } catch (err) { console.error(err); updateStatus("❌ 讀取失敗，請核對網址", "error"); }
         }
 
@@ -2551,17 +2554,20 @@
         }
 
         function renderPerformanceReport() {
-            let closedOps = optionsTx.filter(o => o.status === 'CLOSED');
-            let totalPnl = 0; let wins = 0; let premPaid = 0; let premRecv = 0;
+            // 🔥 加入防呆：強制轉字串、去空白、轉大寫，避免 Google Sheet 裡面的隱藏空白導致判定失敗
+            let closedOps = optionsTx.filter(o => o.status && String(o.status).trim().toUpperCase() === 'CLOSED');
             
+            let totalPnl = 0; let wins = 0; let premPaid = 0; let premRecv = 0;
             let lcData = { pnl: 0, wins: 0, count: 0, holdDays: [], maxProf: {val:0, desc:''}, maxLoss: {val:0, desc:''} };
             let spData = { pnl: 0, wins: 0, count: 0, zeroCount: 0, maxProf: {val:0, desc:''}, maxLoss: {val:0, desc:''} };
         
-            const tradeTable = document.getElementById('tradeLogTable'); tradeTable.innerHTML = '';
+            const tradeTable = document.getElementById('tradeLogTable'); 
+            tradeTable.innerHTML = '';
         
             closedOps.sort((a,b) => new Date(b.close_date) - new Date(a.close_date)).forEach(o => {
-                let isLC = o.strategy === 'Long Call';
-                let multi = o.qty * 100;
+                // 🔥 防呆：比對策略時也強制去除空白
+                let isLC = String(o.strategy).trim() === 'Long Call';
+                let multi = (Number(o.qty) || 1) * 100;
                 let pnl = 0;
                 let days = Math.floor((new Date(o.close_date) - new Date(o.open_date)) / (1000 * 60 * 60 * 24));
                 if(days < 0) days = 0;
@@ -2584,10 +2590,13 @@
                 }
                 totalPnl += pnl;
         
+                let cleanOpen = o.open_date ? String(o.open_date).split('T')[0] : '---';
+                let cleanClose = o.close_date ? String(o.close_date).split('T')[0] : '---';
+        
                 tradeTable.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100 font-medium">
                         <td class="px-3 py-2 text-gray-800"><span class="font-bold">${o.ticker}</span> <span class="text-[10px] text-gray-500 block">${o.strategy} (行使: $${o.strike})</span></td>
-                        <td class="px-3 py-2 text-gray-500 text-[10px]">${o.open_date.split('T')[0]} ➔ ${o.close_date.split('T')[0]}</td>
+                        <td class="px-3 py-2 text-gray-500 text-[10px]">${cleanOpen} ➔ ${cleanClose}</td>
                         <td class="px-3 py-2 text-blue-600">$${Number(o.open_premium).toFixed(2)}</td>
                         <td class="px-3 py-2 text-purple-600">$${Number(o.close_premium).toFixed(2)}</td>
                         <td class="px-3 py-2 font-black ${pnl >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${pnl >= 0 ? '+':''}$${pnl.toLocaleString()}</td>
@@ -2596,7 +2605,9 @@
                 `;
             });
         
-            if (closedOps.length === 0) tradeTable.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-gray-400">尚無平倉歷史紀錄。</td></tr>`;
+            if (closedOps.length === 0) {
+                tradeTable.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-gray-400">尚無平倉歷史紀錄。</td></tr>`;
+            }
         
             let totalCount = closedOps.length;
             document.getElementById('reportNetPl').innerText = `USD $${totalPnl.toLocaleString()}`;
