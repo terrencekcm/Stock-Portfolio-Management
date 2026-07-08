@@ -2287,21 +2287,84 @@
         }
 
         function renderHistoryRows() {
-            const historyTableBody = document.getElementById('historyTable'); historyTableBody.innerHTML = '';
+            const historyTableBody = document.getElementById('historyTable'); 
+            historyTableBody.innerHTML = '';
+            
+            let unifiedHistory = [];
+
+            // 1. 載入股票與現金流水
             transactions.forEach(t => {
                 if(!t.code) return;
-                let badge = t.type === 'BUY' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-                if(t.type === 'DEPOSIT') badge = 'bg-emerald-100 text-emerald-800';
-                if(t.type === 'WITHDRAW') badge = 'bg-orange-100 text-orange-800';
+                unifiedHistory.push({
+                    source: 'TX', id: t.id,
+                    date: t.date ? String(t.date).split('T')[0] : '---',
+                    code: t.code, market: t.market, type: t.type,
+                    price: Number(t.price), qty: Number(t.qty)
+                });
+            });
+
+            // 2. 載入期權流水 (自動拆解為「開倉」與「平倉」兩個獨立事件)
+            optionsTx.forEach(o => {
+                if(!o.ticker) return;
+                
+                // (A) 紀錄開倉事件
+                unifiedHistory.push({
+                    source: 'OPT_OPEN', id: o.id,
+                    date: o.open_date ? String(o.open_date).split('T')[0] : '---',
+                    code: o.ticker, market: 'OPTIONS', 
+                    type: `${o.strategy} (開倉)`,
+                    price: Number(o.open_premium), qty: Number(o.qty), strike: o.strike
+                });
+                
+                // (B) 紀錄平倉事件 (如果已平倉的話)
+                if(o.status && String(o.status).trim().toUpperCase() === 'CLOSED') {
+                    unifiedHistory.push({
+                        source: 'OPT_CLOSE', id: o.id + "_close", 
+                        date: o.close_date ? String(o.close_date).split('T')[0] : '---',
+                        code: o.ticker, market: 'OPTIONS', 
+                        type: `${o.strategy} (平倉)`,
+                        price: Number(o.close_premium), qty: Number(o.qty), strike: o.strike
+                    });
+                }
+            });
+
+            // 3. 全局排序：按照日期由新到舊 (Descending)
+            unifiedHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // 4. 渲染至表格
+            unifiedHistory.forEach(item => {
+                let badge = 'bg-gray-100 text-gray-800';
+                let codeDisplay = item.code;
+                
+                // 標籤顏色與顯示邏輯
+                if (item.source === 'TX') {
+                    if(item.type === 'BUY') badge = 'bg-green-100 text-green-800';
+                    if(item.type === 'SELL') badge = 'bg-red-100 text-red-800';
+                    if(item.type === 'DEPOSIT') badge = 'bg-emerald-100 text-emerald-800';
+                    if(item.type === 'WITHDRAW') badge = 'bg-orange-100 text-orange-800';
+                    if(item.code === 'CASH') codeDisplay = '💵 現金流水';
+                } else {
+                    // 期權專屬 Badge
+                    if(item.type.includes('Long Call')) badge = 'bg-blue-100 text-blue-800';
+                    if(item.type.includes('Short Put')) badge = 'bg-amber-100 text-amber-800';
+                    codeDisplay = `📜 ${item.code} ($${item.strike})`;
+                }
+
+                // 操作按鈕 (期權的刪除/管理維持在「期權持倉頁面」做，所以流水帳這裡對期權只顯示唯讀)
+                let actionHtml = `<span class="text-gray-300 select-none text-[10px]">自動紀錄</span>`;
+                if (item.source === 'TX' && (userRole === 'PM' || userRole === 'Trader')) {
+                    actionHtml = `<button onclick="deleteTx('${item.id}')" class="text-red-500 hover:text-red-700 font-bold hover:underline cursor-pointer">刪除</button>`;
+                }
+
                 historyTableBody.innerHTML += `
                     <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="px-3 py-1.5">${t.date}</td>
-                        <td class="px-3 py-1.5 font-bold">${t.code === 'CASH' ? '💵 現金流水' : t.code}</td>
-                        <td class="px-3 py-1.5 font-medium text-gray-500">${assetLabels[t.market]||t.market}</td>
-                        <td class="px-3 py-1.5"><span class="px-1.5 py-0.5 rounded font-semibold ${badge}">${t.type}</span></td>
-                        <td class="px-3 py-2">$${Number(t.price).toFixed(2)}</td>
-                        <td class="px-3 py-1.5">${Number(t.qty).toLocaleString()}</td>
-                        <td class="px-3 py-1.5">${(userRole==='PM'||userRole==='Trader')?`<button onclick="deleteTx('${t.id}')" class="text-red-500 hover:underline cursor-pointer">刪除</button>`:`<span class="text-gray-300 select-none">唯讀鎖定</span>`}</td>
+                        <td class="px-3 py-1.5">${item.date}</td>
+                        <td class="px-3 py-1.5 font-bold">${codeDisplay}</td>
+                        <td class="px-3 py-1.5 font-medium text-gray-500">${assetLabels[item.market] || item.market}</td>
+                        <td class="px-3 py-1.5"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold shadow-sm ${badge}">${item.type}</span></td>
+                        <td class="px-3 py-2">$${item.price.toFixed(2)}</td>
+                        <td class="px-3 py-1.5">${item.qty.toLocaleString()}</td>
+                        <td class="px-3 py-1.5">${actionHtml}</td>
                     </tr>`;
             });
         }
