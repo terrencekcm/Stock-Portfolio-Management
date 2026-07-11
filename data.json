@@ -1,22 +1,22 @@
 {
-    "last_updated": "2026-07-04 04:33",
+    "last_updated": "2026-07-11 04:11",
     "stock_metrics": {
-        "nvda_close": 194.83,
-        "nvda_50ma": 209.65,
+        "nvda_close": 210.96,
+        "nvda_50ma": 209.07,
         "asic_strength": "normal"
     },
     "supply_chain_news": {
         "dram": {
-            "title": "DRAM DDR3合約價與現貨價高漲 肇因台廠重心轉向DDR4 - DIGITIMES",
-            "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOSDcwUkFaUDhfa0hYOEprRjZxbnRlZmNUYWtSU0kwUTFiZ1VFTzQyNW1uNTd5ZElKRXhfSHJLNlJvZzd2aEZGYlotSGY4ZzNyc1BPNDZIZUozLWFHTmFrUkZsOGRhVlJTS0l1dTZld0wxU25iMll1czByeXhmay1zeVBheTVvMkYzQ0tFZi1B?oc=5"
+            "title": "DRAM還會漲價但趨緩！ 理由集邦全說了 - Yahoo股市",
+            "link": "https://news.google.com/rss/articles/CBMiigJBVV95cUxQVV9MODZiRzhoY01Uc3N1WEVfd3BoQ1E2eklRRXFGamJ6YjIycEh4YjBKTU5OOE9wVHVFRW9OcVFaNkw5MXhXRWZlc2oxblV3SE5ncUZYNUhSX2k4QXRNVlltVnotbE95bUFjMGxaRmZXVDQ5T2V1RTdDeks4UV81MjdMNFBLclJxWTJDUjctUURzSllKOXVyeDE0WkFjYmlKYndMeVZTbnJISFBRSFJfbHRfSDZKQi1YNGVQY1Z3TVZxdjQtZkdiMl9DWlJNMWF2Nkw0TFZkSUZZOTd0XzZUaWZxZF81cjYxelA2aGRBVUxZNUcwM3dvRkw5bGhuOHliOHNLUnQxUDVXdw?oc=5"
         },
         "cowos": {
-            "title": "台積電 CoWoS 產能滿載，新 CoPoS 封裝技術如何提高 AI 晶片產量、差異在哪？ - 動區動趨",
-            "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQNDFhclgtQVdvQlZyRTdDS25hX25RWkZFOWxvaHFmdTltdFhfbkR2eW1YQlRrOUtWalhMdTJJdFhzQUVtOGk1SDYxdmZxZUp5NWNFc3dENjd4d0ZKU2h0VnZPamhCSHNjWTZsNUJsMUVDNVNVQjg2YzhaRHlzRkE3b3l0aFZxUmpfRzZhVVRmeC1xQ0xoTnRYdDF3MEUwdkkz?oc=5"
+            "title": "SemiAnalysis：谷歌下一代TPU棄用台積電CoWoS 轉投英特爾EMIB-T封裝 - news.cnyes.com",
+            "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5td2V0cmt2WXZveEI5c2NRT1g3X3QwTnVYdlVlaGV5YURhY294MTlPekJyZ0ZPbnRiTG5yaVlsRzlaMU1uS3dRYm5ZV08tOXc?oc=5"
         },
         "equipment": {
             "title": "DDR5、HBM 升級潮來了：台灣記憶體供應鏈從跟單走向核心受惠 - CMoney",
-            "link": "https://news.google.com/rss/articles/CBMirANBVV95cUxPS3lUNENZUFlkVV9rdGpXSXZkZXh2azhHX0ZPQkpZZk5zUGJPWG9zSnk2bngtSTh0djVPQkloMVNRMkR5STJuSGhyS2VUVXVYWUdxc2x0aVZ5b0VoQy1IbHI1YmdOTC1MZnFGSmJfS1hKNEJCazJTSko1TzBMSER6NUxEQ1ptbGV4V25KenNKMksxNHJfcFJUUHJXa2p1TlZCQ0lpVXhlRGZzUjRZM0NiN2l6OTh0cnlnM2FRSVp5U2FmNXN0c2xudTNibTVZSmZrY3BGYnM0UlVONmZRbjhzb1pVRVhYMTdfcFhqRkg3c0hKS0FBTEoyLUtTZENEblJfMGdRVjBPdWY3RkpGU3piZE5QeWt0bnJGVE9heTQ2OHJodUdZZjJIbnVmdFVNNDM1dVVBWWRYdFFyX1NJSm81NUhabGhTVUhUX2ttMkhVZE03MDc2UVIyT2R5WHpCXzdHYmxvNHFObTM3UExVVHhIbmg5a09WTEdaSkhVQ2dqdWJFdmlJUFlOSXBkOVJ2ZzBkZDIyTWNoMHZrTVR6eU1FM0JYVHB2b1ZwWkE3Qg?oc=5"
+            "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE1QYk1Bd1VVdkJiMHgxbmlDX0paTm10cUgyanNUVThpbXFnYkhkd0I2dENDVXZQd0pOcHhnU2NIci1taHlxVWJWT3YxMTFZZGJSSmtKUXMxcE0tUmVTMzFPd0NCbmc3SzJlNVBka0UyNnQ3Vy1DZV9Zbg?oc=5"
         }
     }
 }
