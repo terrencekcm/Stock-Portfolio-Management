@@ -203,13 +203,24 @@
                             </div>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="min-w-full text-left text-xs">
+                            <!-- 加入 whitespace-nowrap 防止表格太擠時折行 -->
+                            <table class="min-w-full text-left text-xs whitespace-nowrap">
                                 <thead class="bg-gray-50 text-gray-500 font-medium uppercase">
                                     <tr>
-                                        <th class="px-2 py-3">代號</th><th class="px-2 py-3">市場</th><th class="px-2 py-3">持股</th>
-                                        <th class="px-2 py-3">成本</th><th class="px-2 py-3">現價</th><th class="px-2 py-3 text-blue-600">市值(USD)</th>
-                                        <th class="px-1 py-3 text-blue-600">資產計劃%</th><th class="px-1 py-3 text-indigo-600">資產真實%</th>
-                                        <th class="px-1 py-3 text-emerald-600">全倉真實%</th><th class="px-2 py-3 text-rose-600">未實現(USD)</th>
+                                        <th class="px-2 py-3">代號</th>
+                                        <th class="px-2 py-3">市場</th>
+                                        <!-- 🔥 新增：策略與板塊欄位 (放在市場的右邊) -->
+                                        <th class="px-2 py-3 text-purple-700">策略</th>
+                                        <th class="px-2 py-3 text-amber-700">自定義板塊</th>
+                                        
+                                        <th class="px-2 py-3">持股</th>
+                                        <th class="px-2 py-3">成本</th>
+                                        <th class="px-2 py-3">現價</th>
+                                        <th class="px-2 py-3 text-blue-600">市值(USD)</th>
+                                        <th class="px-1 py-3 text-blue-600">資產計劃%</th>
+                                        <th class="px-1 py-3 text-indigo-600">資產真實%</th>
+                                        <th class="px-1 py-3 text-emerald-600">全倉真實%</th>
+                                        <th class="px-2 py-3 text-rose-600">未實現(USD)</th>
                                         <th class="px-1 py-3">日數</th>
                                     </tr>
                                 </thead>
@@ -1134,14 +1145,13 @@
         // 🚀 核心計算：投資儀表板與曝險分析
         // ==========================================
         function renderComponents() {
-            // 在 renderComponents 內：
             const { cashBalances, positions, optionsLockedLC, optionsLockedSP } = calculatePortfolio();
             let assetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "OPTIONS": 0, "CASH_TOTAL": 0 };
             let effectiveAssetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "OPTIONS": 0, "CASH_TOTAL": 0 };
             
             let computedStocks = []; 
             let totalStockMarketValueUsd = 0; let totalStockCostUsd = 0;
-            let totalEffectiveStockMarketValueUsd = 0; // 🔥 全倉「曝險總值」
+            let totalEffectiveStockMarketValueUsd = 0; 
             
             let usSectorsData = {};
             let attackValueUsd = 0; let defenseValueUsd = 0;
@@ -1166,33 +1176,30 @@
                 const plUsd = mktValUsd - costUsd;
                 const avgPrice = p.shares > 0 ? (p.totalCost / p.shares) : 0;
 
-                // 🔥 計算該持倉的「槓桿倍數」與「真實曝險資產值 (Effective Value)」
                 let pLev = 1;
                 if (p.market === 'US') {
                     let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                     if (matchPlan && matchPlan.leverage) pLev = Number(matchPlan.leverage);
                 }
                 p.leverage = pLev;
-                p.effectiveMktValUsd = mktValUsd * pLev; // 資產值 * 倍數
+                p.effectiveMktValUsd = mktValUsd * pLev;
 
                 let holdingDays = 0;
                 if(p.firstBuyDate !== '---') {
                     const diff = Math.floor((new Date() - new Date(p.firstBuyDate)) / (1000 * 60 * 60 * 24)); holdingDays = diff < 0 ? 0 : diff;
                 }
 
-                // 紀錄「真金白銀的錢」與「虛擬的曝險額」
                 assetRealValuesUsd[p.market] += mktValUsd;
                 effectiveAssetRealValuesUsd[p.market] += p.effectiveMktValUsd;
 
                 if (!p.isPlannedOnly && p.shares > 0) {
                     totalStockMarketValueUsd += mktValUsd; 
                     totalStockCostUsd += costUsd;
-                    totalEffectiveStockMarketValueUsd += p.effectiveMktValUsd; // 加總至全倉曝險
+                    totalEffectiveStockMarketValueUsd += p.effectiveMktValUsd; 
                     
                     if (p.market === 'US') {
                         let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                         let strat = (matchPlan && matchPlan.strategy) ? matchPlan.strategy.trim() : "攻擊";
-                        // 戰略與板塊一樣用「真實曝險 (Effective)」來計算
                         if (strat === '防守') defenseValueUsd += p.effectiveMktValUsd; else attackValueUsd += p.effectiveMktValUsd; 
                     }
                 }
@@ -1203,7 +1210,7 @@
                     let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                     let sec = (matchPlan && matchPlan.sector) ? matchPlan.sector.trim() : "未分類";
                     if (!usSectorsData[sec]) usSectorsData[sec] = { plannedWeight: 0, actualValueUsd: 0 };
-                    usSectorsData[sec].actualValueUsd += p.effectiveMktValUsd; // 板塊統計用曝險值
+                    usSectorsData[sec].actualValueUsd += p.effectiveMktValUsd; 
                 }
             }
 
@@ -1211,15 +1218,13 @@
             for (const mkt in cashBalances) { totalCashUsd += (cashBalances[mkt] * ((mkt === 'HK') ? (1 / exchangeRate) : 1)); }
             
             assetRealValuesUsd["CASH_TOTAL"] = totalCashUsd;
-            effectiveAssetRealValuesUsd["CASH_TOTAL"] = totalCashUsd; // 現金沒有槓桿
+            effectiveAssetRealValuesUsd["CASH_TOTAL"] = totalCashUsd; 
 
-            // 🔥 寫入期權總曝險 (持倉佔用資金)
             let totalOptionsLockedUsd = optionsLockedLC + optionsLockedSP;
             assetRealValuesUsd["OPTIONS"] = totalOptionsLockedUsd;
             effectiveAssetRealValuesUsd["OPTIONS"] = totalOptionsLockedUsd;
                         
-            // 計算總資產與總曝險
-            const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd + optionsLockedLC; // NAV 計算
+            const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd + optionsLockedLC; 
             const totalEffectiveAssetUsd = totalEffectiveStockMarketValueUsd + totalCashUsd + totalOptionsLockedUsd;
 
             const currentYear = new Date().getFullYear();
@@ -1243,7 +1248,6 @@
             nasEl.innerText = `${nasPct >= 0 ? '+' : ''}${nasPct.toFixed(1)}%`;
             nasEl.className = `font-extrabold ${nasPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
 
-            // 美股戰略建倉進度 (使用曝險總值計算)
             const usAssetPlanWeight = assetPlan["US"] || 0; 
             const plannedUsTotalUsd = totalEffectiveAssetUsd * (usAssetPlanWeight / 100);
             let attPctOfPlan = plannedUsTotalUsd > 0 ? (attackValueUsd / plannedUsTotalUsd * 100) : 0;
@@ -1263,15 +1267,11 @@
                 document.getElementById('defenseBarSeg').style.width = `${defPctOfPlan}%`;
             }
 
-            // ==========================================
-            // 🔥 新增/修復：財報 7 日倒數計算邏輯
-            // ==========================================
             computedStocks.forEach(p => {
                 let eDateStr = "";
                 let isManual = false;
                 const codeUpper = p.code.toUpperCase().trim();
 
-                // 嘗試從 earningsMap 提取財報日
                 if (earningsMap[codeUpper] && earningsMap[codeUpper].date) {
                     eDateStr = earningsMap[codeUpper].date;
                     isManual = (earningsMap[codeUpper].type === "手動");
@@ -1281,11 +1281,9 @@
                     const eDate = new Date(eDateStr);
                     eDate.setHours(0, 0, 0, 0);
                     
-                    // 計算日期相差天數
                     const diffTime = eDate.getTime() - todayObj.getTime();
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                    // 如果財報落在「今天起到未來 7 天內」 (0 ~ 7)
                     if (diffDays >= 0 && diffDays <= 7) {
                         hasRadarAlert = true;
                         radarHtml += `
@@ -1298,7 +1296,7 @@
                                 </div>
                                 <div class="text-xs text-gray-500 font-medium flex justify-between items-center">
                                     <span>📅 ${eDateStr}</span>
-                                    <span class="text-[9px] text-gray-400 bg-gray-50 px-1 py-0.5 rounded border border-gray-100">${isManual ? '✍️ 手動' : '🔄 AlphaVantage'}</span>
+                                    <span class="text-[9px] text-gray-400 bg-gray-50 px-1 py-0.5 rounded border border-gray-100">${isManual ? '✍️ 手動' : '🔄 API同步'}</span>
                                 </div>
                             </div>
                         `;
@@ -1306,7 +1304,6 @@
                 }
             });
 
-            // 🎯 【財報雷達警告牆顯示邏輯】
             const radarContainer = document.getElementById('earningsRadarContainer');
             if (hasRadarAlert) { 
                 radarContainer.classList.remove('hidden'); 
@@ -1315,7 +1312,6 @@
                 radarContainer.classList.add('hidden'); 
             }
 
-            // 🎯 【儀表板 4 個卡片的完整明細與 HKD 等值顯示】
             document.getElementById('headerCashUsd').innerText = `USD $${totalCashUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashHkd').innerText = `等值 HKD $${(totalCashUsd * exchangeRate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashDetail').innerText = `🇺🇸 帳上美金: $${(cashBalances['US']||0).toLocaleString()} | 🇭🇰 帳上港幣: $${(cashBalances['HK']||0).toLocaleString()}`;
@@ -1328,11 +1324,9 @@
             document.getElementById('headerTotalPl').innerText = `${totalPlPercent >= 0 ? '+' : ''}${totalPlPercent.toFixed(2)}%`;
             document.getElementById('headerTotalPlDetail').innerText = `持倉未實現盈虧: USD $${(totalStockMarketValueUsd - totalStockCostUsd).toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${((totalStockMarketValueUsd - totalStockCostUsd)*exchangeRate).toLocaleString(undefined, {maximumFractionDigits:0})}`;
 
-            // 🔥 宏觀資產大類：權重與偏離度一律改用「曝險資產值 (effectiveAssetRealValuesUsd)」計算
             const assetPlanTable = document.getElementById('assetPlanTable'); 
             assetPlanTable.innerHTML = '';
             
-            // 在渲染 assetPlanTable (宏觀偏離度) 的 for 迴圈中：
             for (const ac in assetLabels) {
                 if (assetHidden[ac] === true) continue;
                 const pWeight = assetPlan[ac] || 0; 
@@ -1344,7 +1338,6 @@
                 let valHtml = `USD $${rVal.toLocaleString(undefined, {maximumFractionDigits:0})}`;
                 if (effVal > rVal && ac !== 'OPTIONS') valHtml += ` <span class="text-[10px] text-purple-600 block">(總曝險: $${effVal.toLocaleString(undefined, {maximumFractionDigits:0})})</span>`;
                 
-                // 🔥 如果是 OPTIONS，顯示特定註解
                 if (ac === 'OPTIONS' && effVal > 0) {
                     valHtml += ` <div class="text-[10px] text-purple-600 font-bold mt-0.5 tracking-tighter block leading-tight">LC風險金: $${optionsLockedLC.toLocaleString()} | SP保證金: $${optionsLockedSP.toLocaleString()}</div>`;
                 }
@@ -1359,7 +1352,7 @@
                     </tr>`;
             }
             
-            renderOptionsTable(); // 🔥 呼叫渲染期權持倉
+            renderOptionsTable(); 
 
             const sectorTableBody = document.getElementById('sectorBreakdownTable'); sectorTableBody.innerHTML = '';
             const sectorNames = Object.keys(usSectorsData);
@@ -1404,7 +1397,13 @@
                 const sPlanObj = stockPlan.find(s => s.code === p.code && s.market === p.market);
                 const assetPlannedWeight = sPlanObj ? sPlanObj.target_weight : 0;
                 
-                // 🔥 個股：資產真實% 與 全倉真實%，全數改用「曝險資產值 (effectiveMktValUsd)」
+                // 🔥 提取出 策略 與 板塊資訊
+                const pSector = sPlanObj && sPlanObj.sector ? sPlanObj.sector.trim() : "未分類";
+                const pStrategy = sPlanObj && sPlanObj.strategy ? sPlanObj.strategy.trim() : "攻擊";
+                let strategyIcon = pStrategy === '防守' ? '🛡️' : '⚔️';
+                let strategyHtml = `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap ${pStrategy === '防守' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-rose-100 text-rose-700 border border-rose-200'}">${strategyIcon} ${pStrategy}</span>`;
+                let sectorHtml = `<span class="text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 whitespace-nowrap tracking-wide">${pSector}</span>`;
+
                 const plannedAssetClassTotalUsd = totalEffectiveAssetUsd * ((assetPlan[p.market] || 0) / 100);
                 const assetRealWeight = plannedAssetClassTotalUsd > 0 ? (p.effectiveMktValUsd / plannedAssetClassTotalUsd * 100) : 0;
                 const totalRealWeight = totalEffectiveAssetUsd > 0 ? (p.effectiveMktValUsd / totalEffectiveAssetUsd * 100) : 0;
@@ -1417,9 +1416,13 @@
                     <tr class="hover:bg-gray-50 border-b border-gray-100 ${p.isPlannedOnly ? 'bg-amber-50/40 opacity-70' : ''}">
                         <td class="px-2 py-3 font-bold">
                             <div class="flex items-center flex-wrap gap-1">${codeCellHtml}${levBadgeHtml}</div>
-                            ${p.isPlannedOnly ? '<span class="text-[10px] block font-normal text-amber-600">[觀察名單]</span>' : ''}
+                            ${p.isPlannedOnly ? '<span class="text-[10px] block font-normal text-amber-600 mt-0.5">[觀察名單]</span>' : ''}
                         </td>
-                        <td class="px-2 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-700">${assetLabels[p.market]||p.market}</span></td>
+                        <td class="px-2 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-200 text-gray-700 whitespace-nowrap">${assetLabels[p.market]||p.market}</span></td>
+                        
+                        <td class="px-2 py-3">${strategyHtml}</td>
+                        <td class="px-2 py-3">${sectorHtml}</td>
+                        
                         <td class="px-2 py-3 font-semibold">${p.shares.toLocaleString()}</td>
                         <td class="px-2 py-3 text-gray-500 font-medium">${p.isPlannedOnly ? '---' : priceSign + p.avgPrice.toFixed(2)}</td>
                         <td class="px-2 py-3 font-semibold text-gray-600">${priceSign + (p.livePrice ? p.livePrice.toFixed(2) : '---')}</td>
