@@ -234,7 +234,8 @@
                 </div>
 
                 <!-- 右側持倉 -->
-                <div class="lg:col-span-2 space-y-4">
+                <!-- 戰略第二層：建倉進度、持倉明細與歷史流水 (改為全寬排版) -->
+                <div class="space-y-6 mt-6">
                     <!-- 美股建倉戰略 Status Bar -->
                     <div id="usStrategyBarContainer" class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 space-y-1.5">
                         <div class="flex justify-between items-center text-[11px] font-bold text-gray-600">
@@ -247,14 +248,20 @@
                             <div id="defenseBarSeg" class="bg-blue-500 transition-all duration-700" style="width: 0%"></div>
                         </div>
                     </div>
-
+    
+                    <!-- 證券與期權持倉 -->
                     <div class="bg-white p-6 rounded-xl shadow-md">
-                        <!-- 切換按鈕 -->
-                        <div class="flex gap-2 border-b border-gray-200 mb-4 pb-2">
-                            <button id="btn-view-stocks" onclick="togglePosView('STOCKS')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-blue-600 text-blue-600 transition">💼 證券持倉</button>
-                            <button id="btn-view-options" onclick="togglePosView('OPTIONS')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-purple-600 transition">📜 期權持倉 (US)</button>
+                        <!-- 🔥 頁籤與「新增按鈕」同行，按鈕靠右對齊 (Align Right) -->
+                        <div class="flex flex-wrap justify-between items-center border-b border-gray-200 mb-4 pb-2 gap-3">
+                            <div class="flex gap-2">
+                                <button id="btn-view-stocks" onclick="togglePosView('STOCKS')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-blue-600 text-blue-600 transition">💼 證券持倉</button>
+                                <button id="btn-view-options" onclick="togglePosView('OPTIONS')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-purple-600 transition">📜 期權持倉 (US)</button>
+                            </div>
+                            <button id="btn-add-tx" onclick="openTxModal()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded shadow-md transition flex items-center gap-1 cursor-pointer">
+                                ➕ 新增資產交易 / 流水
+                            </button>
                         </div>
-                    
+    
                         <!-- 證券持倉 View -->
                         <div id="view-stocks">
                             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-4 gap-3 border-b pb-3 border-gray-100">
@@ -291,8 +298,8 @@
                                 </table>
                             </div>
                         </div>
-                    
-                        <!-- 🔥 期權持倉 View -->
+    
+                        <!-- 期權持倉 View -->
                         <div id="view-options" class="hidden">
                             <div class="overflow-x-auto">
                                 <table class="min-w-full text-left text-xs">
@@ -309,8 +316,7 @@
                             </div>
                         </div>
                     </div>
-
-                    
+    
                     <!-- 流水帳 -->
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明細流水帳</h2>
@@ -654,7 +660,89 @@
             </div>
         </div>
     </div>
-
+    <!-- 彈窗零：新增資產交易/流水 Modal -->
+    <div id="txInputModal" class="fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50 p-4 hidden">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full space-y-4 border border-gray-100 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="text-base font-black text-gray-800">✍️ 新增資產交易 / 流水</h3>
+                <button onclick="closeTxModal()" class="text-gray-400 hover:text-gray-600 font-bold text-xl cursor-pointer">✕</button>
+            </div>
+            
+            <div id="visitorBlockMessage" class="hidden p-4 bg-gray-50 rounded-xl border border-dashed border-gray-300 text-center text-gray-400 text-xs font-semibold leading-relaxed">
+                🔒 您當前的登入身分權限受限，唯讀模式下無權進行記帳。
+            </div>
+            
+            <div id="txFormFieldsWrap">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">資產類別</label>
+                    <select id="txCategory" onchange="toggleFormFields()" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 text-sm focus:outline-blue-500 font-bold text-gray-800">
+                        <option value="STOCK">📈 證券交易 (股票/債券/金)</option>
+                        <option value="CASH">💵 現金存取 (美金/港幣本金)</option>
+                        <option value="OPTIONS" class="text-purple-700">📜 期權交易 (US Options)</option>
+                    </select>
+                </div>
+                <form id="txForm" class="space-y-4 text-sm">
+                    <div id="basicMarketFields">
+                        <label class="block text-sm font-medium text-gray-700">資產大類 / 市場</label>
+                        <select id="txMarket" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
+                            <option value="US">🇺🇸 美股 (US)</option>
+                            <option value="HK">🇭🇰 港股 (HK)</option>
+                            <option value="BOND_L">長債 (BOND_L)</option>
+                            <option value="BOND_S">⏱️ 短債 (BOND_S)</option>
+                            <option value="GOLD">🪙 金 (GOLD)</option>
+                        </select>
+                    </div>
+                    
+                    <div id="stockFields" class="space-y-4">
+                        <div><label class="block text-sm font-medium text-gray-700">標的代號 (Code)</label><input type="text" id="stockCode" placeholder="例如: AVGO, 0700, TLT" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">交易動作</label>
+                            <select id="stockType" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
+                                <option value="BUY">🟢 買入 (BUY)</option>
+                                <option value="SELL">🔴 賣出 (SELL)</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="block text-sm font-medium text-gray-700">交易價格 (市場本幣)</label><input type="number" id="txPrice" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
+                            <div><label class="block text-sm font-medium text-gray-700">交易數量</label><input type="number" id="txQty" step="any" placeholder="0" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="cashFields" class="space-y-4 hidden">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">流水動作</label>
+                            <select id="cashType" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500">
+                                <option value="DEPOSIT">💰 存入現金 (Deposit)</option>
+                                <option value="WITHDRAW">💸 提取現金 (Withdraw)</option>
+                            </select>
+                        </div>
+                        <div><label class="block text-sm font-medium text-gray-700">流動金額 (市場本幣)</label><input type="number" id="cashAmount" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
+                    </div>
+            
+                    <div id="optionsFields" class="space-y-4 hidden border border-purple-200 bg-purple-50/30 p-3 rounded-lg">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="block text-xs font-bold text-purple-800">正股代號 (Ticker)</label><input type="text" id="optTicker" placeholder="NVDA" class="mt-1 block w-full rounded border-purple-200 p-2 uppercase font-bold focus:outline-purple-500"></div>
+                            <div>
+                                <label class="block text-xs font-bold text-purple-800">策略 (Strategy)</label>
+                                <select id="optStrategy" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500 font-bold">
+                                    <option value="Long Call">📈 Long Call</option>
+                                    <option value="Short Put">📉 Short Put</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-xs font-bold text-purple-800">行使價 (Strike)</label><input type="number" id="optStrike" step="any" placeholder="125" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500"></div>
+                            <div><label class="block text-xs font-bold text-purple-800">到期日 (Expiry)</label><input type="date" id="optExpiry" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500"></div>
+                            <div><label class="block text-xs font-bold text-purple-800">合約張數</label><input type="number" id="optQty" step="1" placeholder="1" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500"></div>
+                            <div><label class="block text-xs font-bold text-purple-800">開倉單價</label><input type="number" id="optPremium" step="any" placeholder="5.00" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500 text-blue-600 font-bold"></div>
+                        </div>
+                        <p class="text-[10px] text-purple-600 font-medium tracking-wide">💡 系統預設 1 張合約 = 100 股。</p>
+                    </div>
+            
+                    <div><label class="block text-sm font-medium text-gray-700">交易日期</label><input type="date" id="txDate" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500" required></div>
+                    <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 font-medium disabled:bg-gray-400 cursor-pointer transition">儲存變更</button>
+                </form>
+            </div>
+        </div>
+    </div>
     <!-- 彈窗一：新增計畫填報 Modal -->
     <div id="planInputModal" class="fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50 p-4 hidden">
         <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full space-y-4 border border-gray-100">
@@ -845,6 +933,7 @@
             userRole = role || "Visitor";
             const badge = document.getElementById('roleBadge');
             badge.classList.remove('hidden');
+            const btnAddTx = document.getElementById('btn-add-tx'); // 🔥 抓取右側新增按鈕
             
             if (userRole === 'PM') {
                 badge.className = "text-xs px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 font-extrabold shadow-sm";
@@ -853,6 +942,7 @@
                 document.getElementById('visitorBlockMessage').classList.add('hidden');
                 document.getElementById('txFormFieldsWrap').classList.remove('hidden');
                 document.getElementById('btn-add-weekly-strategy').classList.remove('hidden');
+                if (btnAddTx) btnAddTx.classList.remove('hidden');
             } else if (userRole === 'Trader') {
                 badge.className = "text-xs px-3 py-1.5 rounded-full bg-blue-100 text-blue-800 font-extrabold shadow-sm";
                 badge.innerText = "⚡ Trader 交易員";
@@ -860,19 +950,31 @@
                 document.getElementById('visitorBlockMessage').classList.add('hidden');
                 document.getElementById('txFormFieldsWrap').classList.remove('hidden');
                 document.getElementById('btn-add-weekly-strategy').classList.remove('hidden');
-            } else if (userRole === 'Analyst') { // 🔥 新增分析師 UI 邏輯
+                if (btnAddTx) btnAddTx.classList.remove('hidden');
+            } else if (userRole === 'Analyst') {
                 badge.className = "text-xs px-3 py-1.5 rounded-full bg-teal-100 text-teal-800 font-extrabold shadow-sm";
                 badge.innerText = "🔎 Analyst 估值分析師";
                 document.getElementById('btn-settings-tab').classList.add('hidden');
-                document.getElementById('visitorBlockMessage').classList.remove('hidden'); // 儀表板記帳唯讀
+                document.getElementById('visitorBlockMessage').classList.remove('hidden'); 
                 document.getElementById('txFormFieldsWrap').classList.add('hidden');
+                if (btnAddTx) btnAddTx.classList.add('hidden'); // 🔥 隱藏新增按鈕
             } else {
                 badge.className = "text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-extrabold border border-gray-200 shadow-sm";
                 badge.innerText = "👁️ Visitor 訪客 (唯讀)";
                 document.getElementById('btn-settings-tab').classList.add('hidden');
                 document.getElementById('visitorBlockMessage').classList.remove('hidden');
                 document.getElementById('txFormFieldsWrap').classList.add('hidden');
+                if (btnAddTx) btnAddTx.classList.add('hidden'); // 🔥 隱藏新增按鈕
             }
+        }
+
+        // 🔥 新增：交易彈窗開關函數
+        function openTxModal() {
+            document.getElementById('txInputModal').classList.remove('hidden');
+        }
+        
+        function closeTxModal() {
+            document.getElementById('txInputModal').classList.add('hidden');
         }
 
         async function loadData() {
@@ -2589,6 +2691,7 @@
                     updateStatus("✅ 期權開倉成功！", "success");
                     document.getElementById('txForm').reset(); 
                     document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
+                    closeTxModal(); // 🔥 寫入成功後關閉彈窗
                 } catch(e) { 
                     updateStatus("❌ 寫入失敗", "error"); 
                 } finally { 
@@ -2620,6 +2723,7 @@
                 document.getElementById('txPrice').value = ''; 
                 document.getElementById('txQty').value = ''; 
                 document.getElementById('cashAmount').value = '';
+                closeTxModal(); // 🔥 寫入成功後關閉彈窗
             } catch (error) { 
                 updateStatus("❌ 寫入失敗", "error"); 
             } finally { 
