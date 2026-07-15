@@ -1,7 +1,7 @@
 // js/render.js
 import { state } from './store.js';
 import { calculatePortfolio } from './calc.js';
-
+ 
 export function updateStatus(text, type) {
     const el = document.getElementById('statusIndicator');
     el.innerText = text;
