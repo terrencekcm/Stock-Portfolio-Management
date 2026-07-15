@@ -11,12 +11,19 @@ document.getElementById('txDate').value = new Date().toISOString().split('T')[0]
 // ==========================================
 // 1. Google 登入驗證
 // ==========================================
-window.handleCredentialResponse = async function(response) {
+// 真正處理登入並切換畫面的邏輯
+window.processGoogleLogin = async function(response) {
     state.userGoogleToken = response.credential; 
     document.getElementById('loginWall').classList.add('hidden');
     document.getElementById('mainApp').classList.remove('hidden');
     await loadData();
 };
+
+// 如果使用者手速很快，在 main.js 載入前就按了登入，這裡會抓出暫存的 Token 進行登入
+if (window._pendingGoogleToken) {
+    window.processGoogleLogin(window._pendingGoogleToken);
+    delete window._pendingGoogleToken;
+}
 
 // ==========================================
 // 2. 核心主線加載邏輯
