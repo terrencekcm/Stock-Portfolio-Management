@@ -1,7 +1,7 @@
 // js/api.js
 import { state } from './store.js';
 
-export async function fetchInitData() {
+export async function fetchInitData() { 
     const fetchUrl = state.API_URL + "?token=" + encodeURIComponent(state.userGoogleToken);
     const response = await fetch(fetchUrl);
     const data = await response.json();
