@@ -1,7 +1,7 @@
 // js/main.js
 import { state } from './store.js';
 import { fetchInitData, executeGasAction } from './api.js';
-import * as Render from './render.js';
+import * as Render from './render.js'; 
 import * as Calc from './calc.js';
 import * as Charts from './charts.js';
 
