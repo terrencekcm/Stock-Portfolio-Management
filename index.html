@@ -8,12 +8,20 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-    <!-- 🔥 加入這段：用來攔截 Google 提早發送的 Token，防止網頁重新整理彈回 -->
+     <!-- 🔥 1. 第一步：先定義好全域接收站，防止 Google 找不到函數而重新整理 -->
     <script>
         window.handleCredentialResponse = function(response) {
             window._pendingGoogleToken = response;
+            // 如果 main.js 已經準備好了，就直接觸發
+            if (window.processGoogleLogin) {
+                window.processGoogleLogin(response);
+            }
         };
     </script>
+    
+    <!-- 🔥 2. 第二步：載入 Google 官方套件 (加入 data-use_fedcm_for_prompt 消除紅字警告) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <!-- 🎯 強制鎖定穩定版 4.2.3 繪圖引擎 -->
     <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
     <script type="module" src="./js/main.js"></script>
