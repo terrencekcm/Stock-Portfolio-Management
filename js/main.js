@@ -71,24 +71,25 @@ async function loadData() {
 }
 
 // ==========================================
-// 3. 全域 UI 綁定 (讓 HTML onClick 抓得到)
+// 3. 全域 UI 綁定
 // ==========================================
 window.switchTab = function(tabId) {
     if (tabId === 'settings-tab' && state.userRole !== 'PM') { alert("❌ 權限被拒絕"); return; }
     
     ['dashboard-tab', 'trading-tab', 'valuation-tab', 'reports-tab', 'settings-tab'].forEach(id => {
-        document.getElementById(`tab-${id.replace('-tab', '')}`).classList.add('hidden');
-        document.getElementById(`btn-${id}`).className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
+        const tabEl = document.getElementById(`tab-${id.replace('-tab', '')}`);
+        const btnEl = document.getElementById(`btn-${id}`);
+        if(tabEl) tabEl.classList.add('hidden');
+        if(btnEl) btnEl.className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap transition";
     });
 
-    document.getElementById(`tab-${tabId.replace('-tab', '')}`).classList.remove('hidden');
-    document.getElementById(`btn-${tabId}`).className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
+    const activeTab = document.getElementById(`tab-${tabId.replace('-tab', '')}`);
+    const activeBtn = document.getElementById(`btn-${tabId}`);
+    if(activeTab) activeTab.classList.remove('hidden');
+    if(activeBtn) activeBtn.className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600 whitespace-nowrap transition";
 
     if (tabId === 'dashboard-tab') Render.renderDashboard();
-    // if (tabId === 'trading-tab') Render.renderTradingPlanPage();
-    // if (tabId === 'valuation-tab') Render.renderValuationPage();
-    // if (tabId === 'reports-tab') Render.renderPerformanceReport();
-    // if (tabId === 'settings-tab') Render.renderSettingsPage();
+    if (tabId === 'settings-tab') Render.renderSettingsPage();
 };
 
 window.openTxModal = () => document.getElementById('txInputModal').classList.remove('hidden');
@@ -132,7 +133,7 @@ window.changeTimeframe = function(tf) {
 };
 
 // ==========================================
-// 4. 表單發送與刪除動作 (銜接 API 與 Store)
+// 4. 表單發送與刪除動作
 // ==========================================
 window.deleteTx = async function(id) {
     if (state.userRole === 'Visitor') { alert("❌ 無權異動數據！"); return; }
@@ -180,7 +181,7 @@ document.getElementById('txForm').addEventListener('submit', async function(e) {
             } else { 
                 tx.code = 'CASH'; tx.type = document.getElementById('cashType').value; tx.price = '1'; tx.qty = document.getElementById('cashAmount').value; 
             }
-            await executeGasAction("ADD_TX", tx); // 假設後端接收 ADD_TX 動作
+            await executeGasAction("ADD_TX", tx); 
             state.transactions.unshift(tx);
         }
         
@@ -194,3 +195,107 @@ document.getElementById('txForm').addEventListener('submit', async function(e) {
         submitBtn.disabled = false; 
     }
 });
+
+// ==========================================
+// 5. 設定頁面與排序控制邏輯
+// ==========================================
+window.applyPositionSort = function() {
+    const sortSelect = document.getElementById('positionSortSelect');
+    if (sortSelect) {
+        state.currentPosSort = sortSelect.value;
+        Render.renderDashboard();
+    }
+};
+
+window.addStockPlanRow = function() {
+    const stockBody = document.getElementById('stockPlanSettingRows');
+    if (stockBody) stockBody.insertAdjacentHTML('afterbegin', Render.createStockPlanRowHTML({}));
+};
+
+window.addPerfYearRow = function() {
+    const perfContainer = document.getElementById('perfYearRowsContainer');
+    if (perfContainer) {
+        perfContainer.insertAdjacentHTML('afterbegin', `
+            <div class="perf-year-row flex gap-2 items-center mb-2">
+                <input type="number" class="py-year w-24 p-1.5 border rounded text-xs text-center font-bold" placeholder="年份">
+                <input type="number" step="any" class="py-cap w-full p-1.5 border rounded text-xs font-bold text-emerald-600" placeholder="起步本金 (USD)">
+                <button type="button" onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700 font-bold p-1">✕</button>
+            </div>
+        `);
+    }
+};
+
+window.saveAllSettings = async function() {
+    if (state.userRole !== 'PM') { alert("❌ 無權異動設定！"); return; }
+    
+    const saveBtn = document.querySelector("button[onclick='saveAllSettings()']");
+    if(saveBtn) saveBtn.disabled = true;
+    Render.updateStatus("💾 儲存設定至雲端...", "loading");
+
+    try {
+        const newAssetPlan = {}; 
+        const newAssetHidden = {};
+        
+        document.querySelectorAll('.asset-weight-input').forEach(el => {
+            newAssetPlan[el.dataset.key] = Number(el.value) || 0;
+        });
+        document.querySelectorAll('.asset-hide-checkbox').forEach(el => {
+            newAssetHidden[el.dataset.key] = el.checked;
+        });
+
+        const newStockPlan = [];
+        document.querySelectorAll('.stock-plan-row').forEach(row => {
+            const code = row.querySelector('.sp-code').value.trim().toUpperCase();
+            if (code) {
+                // 🔥 這裡有抓取 .sp-industry-etf
+                newStockPlan.push({
+                    code: code,
+                    market: row.querySelector('.sp-market').value,
+                    leverage: Number(row.querySelector('.sp-leverage').value) || 1,
+                    target_weight: Number(row.querySelector('.sp-weight').value) || 0,
+                    sector: row.querySelector('.sp-sector').value.trim(),
+                    industry_etf: row.querySelector('.sp-industry-etf') ? row.querySelector('.sp-industry-etf').value.trim().toUpperCase() : '',
+                    strategy: row.querySelector('.sp-strategy').value,
+                    date_type: row.querySelector('.sp-datetype').value,
+                    earnings_date: row.querySelector('.sp-earnings').value
+                });
+            }
+        });
+
+        const newPerfConfig = {};
+        const startYearEl = document.getElementById('inputHistStartYear');
+        if (startYearEl) {
+            const startYear = startYearEl.value.trim();
+            if (startYear) newPerfConfig['histStartYear'] = startYear;
+        }
+        
+        document.querySelectorAll('.perf-year-row').forEach(row => {
+            const year = row.querySelector('.py-year').value.trim();
+            const cap = row.querySelector('.py-cap').value.trim();
+            if (year && cap) {
+                newPerfConfig[`year_${year}`] = Number(cap);
+            }
+        });
+
+        await executeGasAction("SAVE_SETTINGS", {
+            assetPlan: newAssetPlan,
+            assetHidden: newAssetHidden,
+            stockPlan: newStockPlan,
+            perfConfig: newPerfConfig
+        });
+        
+        state.assetPlan = newAssetPlan; 
+        state.assetHidden = newAssetHidden; 
+        state.stockPlan = newStockPlan; 
+        state.perfConfig = newPerfConfig;
+        
+        Render.updateStatus("✅ 設定儲存成功！", "success");
+        Render.renderSettingsPage(); 
+        
+    } catch (error) {
+        console.error(error);
+        Render.updateStatus("❌ 儲存失敗", "error");
+    } finally {
+        if(saveBtn) saveBtn.disabled = false;
+    }
+};
