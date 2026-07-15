@@ -18,6 +18,12 @@ window.handleCredentialResponse = async function(response) {
     await loadData();
 };
 
+// 🔥 檢查是否有被提早攔截到的 Token，如果有就立即觸發登入
+if (window._pendingGoogleToken) {
+    window.handleCredentialResponse(window._pendingGoogleToken);
+    delete window._pendingGoogleToken;
+}
+
 // ==========================================
 // 2. 核心主線加載邏輯
 // ==========================================
