@@ -5,7 +5,7 @@ import * as Render from './render.js';
 import * as Calc from './calc.js';
 import * as Charts from './charts.js';
 
-// 初始化日期
+// 初始化日期 
 document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
 
 // ==========================================
