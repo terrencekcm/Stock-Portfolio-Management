@@ -1,5 +1,5 @@
 // js/calc.js
-import { state } from './store.js';
+import { state } from './store.js'; 
 
 export function calculatePortfolio() {
     let cashBalances = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0 };
