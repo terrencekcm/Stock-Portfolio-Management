@@ -517,7 +517,6 @@
         </div>
         
         <!-- 設定頁籤 -->
-        <!-- 設定頁籤 (UI 排版已優化為垂直滿版) -->
         <div id="tab-settings" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -527,74 +526,65 @@
                     </div>
                     <button onclick="saveAllSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded-lg shadow transition cursor-pointer">💾 儲存設定至雲端</button>
                 </div>
-                
-                <!-- 垂直堆疊排版開始 -->
-                <div class="space-y-8">
-                    
-                    <!-- Block 1: 宏觀資產大類 (改為滿版，內部使用 grid-cols-2 到 grid-cols-4 並排) -->
-                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
-                        <h3 class="font-bold text-gray-700 mb-4 text-sm flex justify-between items-center border-b pb-2 border-gray-200">
-                            <span>🌍 1. 宏觀資產大類計劃比重</span>
-                            <span id="assetTotalCheck" class="text-xs text-blue-600 font-bold px-3 py-1 bg-blue-100 rounded-full">總計: 0%</span>
-                        </h3>
-                        <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-4 text-sm" id="assetSettingInputs">
-                            <!-- JS 動態渲染資產項目 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1 space-y-6">
+                        <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                            <h3 class="font-bold text-gray-700 mb-3 text-sm flex justify-between">
+                                <span>🌍 1. 宏觀資產大類計劃比重</span>
+                                <span id="assetTotalCheck" class="text-xs text-blue-600">總計: 0%</span>
+                            </h3>
+                            <div class="space-y-3 text-sm" id="assetSettingInputs"></div>
+                        </div>
+                        <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 space-y-4">
+                            <h3 class="font-bold text-gray-700 text-sm"><span>📊 3. 全倉績效業績基準設定 (USD)</span></h3>
+                            <div class="text-xs space-y-3">
+                                <div>
+                                    <label class="block font-bold text-gray-600 mb-1">歷來持倉計算起始年份</label>
+                                    <input type="number" id="inputHistStartYear" class="w-full rounded border border-gray-300 p-2 font-extrabold text-blue-600 text-center bg-white focus:outline-blue-500">
+                                </div>
+                                <div class="border-t pt-3 border-gray-200">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="block font-bold text-gray-600">歷年全倉資本歷史對照表</label>
+                                        <button type="button" onclick="addPerfYearRow()" class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded hover:bg-blue-700 font-semibold cursor-pointer">+ 新增年度</button>
+                                    </div>
+                                    <div class="max-h-44 overflow-y-auto space-y-2" id="perfYearRowsContainer"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    <!-- Block 2: 個股內部計劃佔比 (改為滿版，表格擁有充足空間) -->
-                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
-                        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-4 gap-2 border-b pb-2 border-gray-200">
-                            <h3 class="font-bold text-gray-700 text-sm">🎯 2. 個股內部計劃設定</h3>
+                    <div class="md:col-span-2 bg-gray-50 p-5 rounded-xl border border-gray-200">
+                        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-3 gap-2">
+                            <h3 class="font-bold text-gray-700 text-sm">🎯 2. 個股內部計劃佔比 ＆ 戰術風控排期</h3>
                             <div class="flex flex-wrap items-center gap-2">
-                                <select id="settingsSortSelect" onchange="applySettingsSort()" class="text-xs bg-white border border-gray-300 text-gray-600 rounded p-1.5 shadow-sm cursor-pointer focus:outline-blue-500">
+                                <select id="settingsSortSelect" onchange="applySettingsSort()" class="text-xs bg-white border border-gray-300 text-gray-600 rounded p-1 shadow-sm cursor-pointer focus:outline-blue-500">
                                     <option value="">-- 快速整理清單 --</option>
                                     <option value="system">🌟 系統優選排序 (策略 ➔ 板塊 ➔ 代號)</option>
                                     <option value="code">🔤 標的代號 (A ➔ Z)</option>
                                     <option value="sector">🏷️ 自定義板塊 (A ➔ Z)</option>
                                 </select>
-                                <button type="button" onclick="addStockPlanRow()" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 shadow-sm cursor-pointer">+ 新增計劃標的</button>
+                                <button type="button" onclick="addStockPlanRow()" class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 shadow-sm cursor-pointer">+ 新增計劃標的</button>
                             </div>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="min-w-full text-left text-xs whitespace-nowrap">
+                            <!-- 下方維持原 table 不動 -->
+                            <table class="min-w-full text-left text-xs">
                                 <thead class="bg-gray-200 text-gray-600 font-semibold uppercase">
                                     <tr>
                                         <th class="px-2 py-2 w-20">標的代號</th>
                                         <th class="px-2 py-2 w-20">資產大類</th>
+                                        <!-- 🔥 新增 槓桿倍數 -->
                                         <th class="px-2 py-2 text-indigo-700">槓桿倍數</th>
                                         <th class="px-2 py-2 w-20">大類內部%</th>
                                         <th class="px-2 py-2 text-amber-700">🏷️ 自定義板塊</th>
-                                        <!-- 🔥 新增欄位：行業ETF -->
-                                        <th class="px-2 py-2 text-sky-700">🏢 行業ETF</th>
                                         <th class="px-2 py-2 text-purple-700">⚔️ 倉位策略</th>
                                         <th class="px-2 py-2 text-rose-700">⏰ 財報手動備份</th>
-                                        <th class="px-2 py-2 w-12 text-center">操作</th>
+                                        <th class="px-2 py-2 w-12">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="stockPlanSettingRows" class="divide-y divide-gray-300"></tbody>
                             </table>
                         </div>
                     </div>
-
-                    <!-- Block 3: 全倉績效基準 (改為滿版) -->
-                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
-                        <h3 class="font-bold text-gray-700 text-sm mb-4 border-b pb-2 border-gray-200"><span>📊 3. 全倉績效業績基準設定 (USD)</span></h3>
-                        <div class="text-xs grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div>
-                                <label class="block font-bold text-gray-600 mb-2">歷來持倉計算起始年份</label>
-                                <input type="number" id="inputHistStartYear" placeholder="例如: 2024" class="w-full rounded border border-gray-300 p-2 font-extrabold text-blue-600 bg-white focus:outline-blue-500 max-w-[200px]">
-                            </div>
-                            <div>
-                                <div class="flex justify-between items-center mb-2">
-                                    <label class="block font-bold text-gray-600">歷年全倉資本歷史對照表</label>
-                                    <button type="button" onclick="addPerfYearRow()" class="text-[10px] bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 font-semibold cursor-pointer">+ 新增年度資本</button>
-                                </div>
-                                <div class="max-h-44 overflow-y-auto space-y-2 pr-2" id="perfYearRowsContainer"></div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>
