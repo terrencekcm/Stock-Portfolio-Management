@@ -2,7 +2,7 @@
 import { state } from './store.js';
 import { calculatePortfolio } from './calc.js';
 
-export function updateStatus(text, type) {
+export function updateStatus(text, type) { 
     const el = document.getElementById('statusIndicator');
     el.innerText = text;
     el.className = `text-xs px-3 py-2 rounded-full font-medium shadow-sm ${
