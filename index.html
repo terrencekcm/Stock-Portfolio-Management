@@ -1,29 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8"> 
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>全球資產配置與計劃管理系統 (USD Base)</title>
-    
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
-    <!-- 🔥 1. 第一步：先定義好全域接收站，防止 Google 找不到函數而重新整理 -->
-    <script>
-        window.handleCredentialResponse = function(response) {
-            window._pendingGoogleToken = response;
-            // 如果 main.js 已經準備好了，就直接觸發
-            if (window.processGoogleLogin) {
-                window.processGoogleLogin(response);
-            }
-        };
-    </script>
-    
-    <!-- 🔥 2. 第二步：載入 Google 官方套件 (加入 data-use_fedcm_for_prompt 消除紅字警告) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
     <!-- 🎯 強制鎖定穩定版 4.2.3 繪圖引擎 -->
     <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
-    <script type="module" src="./js/main.js"></script>
 </head>
 <body class="bg-gray-100 font-sans p-6">
  
@@ -588,14 +572,13 @@
                                     <tr>
                                         <th class="px-2 py-2 w-20">標的代號</th>
                                         <th class="px-2 py-2 w-20">資產大類</th>
+                                        <!-- 🔥 新增 槓桿倍數 -->
                                         <th class="px-2 py-2 text-indigo-700">槓桿倍數</th>
                                         <th class="px-2 py-2 w-20">大類內部%</th>
                                         <th class="px-2 py-2 text-amber-700">🏷️ 自定義板塊</th>
-                                        <!-- 🔥 就是漏了這行，導致欄位錯位！ -->
-                                        <th class="px-2 py-2 text-sky-700">🏢 行業ETF</th>
                                         <th class="px-2 py-2 text-purple-700">⚔️ 倉位策略</th>
-                                        <th class="px-2 py-2 text-rose-700">⏰ 財報備份</th>
-                                        <th class="px-2 py-2 w-12 text-center">操作</th>
+                                        <th class="px-2 py-2 text-rose-700">⏰ 財報手動備份</th>
+                                        <th class="px-2 py-2 w-12">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="stockPlanSettingRows" class="divide-y divide-gray-300"></tbody>
@@ -757,6 +740,6 @@
         </div>
     </div>
 
-    
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>
