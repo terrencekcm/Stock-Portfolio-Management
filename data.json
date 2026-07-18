@@ -1,22 +1,22 @@
 {
-    "last_updated": "2026-07-11 04:11",
+    "last_updated": "2026-07-18 03:52",
     "stock_metrics": {
-        "nvda_close": 210.96,
-        "nvda_50ma": 209.07,
+        "nvda_close": 202.81,
+        "nvda_50ma": 209.81,
         "asic_strength": "normal"
     },
     "supply_chain_news": {
         "dram": {
-            "title": "DRAM還會漲價但趨緩！ 理由集邦全說了 - Yahoo股市",
-            "link": "https://news.google.com/rss/articles/CBMiigJBVV95cUxQVV9MODZiRzhoY01Uc3N1WEVfd3BoQ1E2eklRRXFGamJ6YjIycEh4YjBKTU5OOE9wVHVFRW9OcVFaNkw5MXhXRWZlc2oxblV3SE5ncUZYNUhSX2k4QXRNVlltVnotbE95bUFjMGxaRmZXVDQ5T2V1RTdDeks4UV81MjdMNFBLclJxWTJDUjctUURzSllKOXVyeDE0WkFjYmlKYndMeVZTbnJISFBRSFJfbHRfSDZKQi1YNGVQY1Z3TVZxdjQtZkdiMl9DWlJNMWF2Nkw0TFZkSUZZOTd0XzZUaWZxZF81cjYxelA2aGRBVUxZNUcwM3dvRkw5bGhuOHliOHNLUnQxUDVXdw?oc=5"
+            "title": "【07/15 產業即時新聞】電子上游-記憶體製造強勢表態，DRAM現貨價漲勢催化買盤，南亞科領軍大漲 - CMoney投資網誌",
+            "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPR1FydWdISUJSYnRwak16Q2JRU1JqenN6Sld6TlpfUVU2NFhCQzQxbmxNci0zRWJvVmJCSC1iajVBcHVXcHZqWEU1bnVNQUNfbmVCVXcyNjF1N0MwNGNhSzRzbEJ5YkJ2Ui0yUEVGLThGZlhkcEpFYmZmWnJvdnpXel85Y1E4VDFvZE45ZDB3?oc=5"
         },
         "cowos": {
-            "title": "SemiAnalysis：谷歌下一代TPU棄用台積電CoWoS 轉投英特爾EMIB-T封裝 - news.cnyes.com",
-            "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5td2V0cmt2WXZveEI5c2NRT1g3X3QwTnVYdlVlaGV5YURhY294MTlPekJyZ0ZPbnRiTG5yaVlsRzlaMU1uS3dRYm5ZV08tOXc?oc=5"
+            "title": "花旗大幅調升台積電目標價逾30%！法說會前你需要知道的一些關鍵訊息 - TradingKey",
+            "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQV0lOZjdlNVBHUVljdnNHelRSWncxeTYxaG9XQ19ZdWhRUk9SX2pOVnJsbDFEWDlnT2RveFhGR2k3WWt4dmp4Wmh0a2R2VV9oNE5YM3V5aDVUbE9VZjlrazNEajFZaDhwMWNLeHN2c0FsM19NSV9zVkdQS2pCU1I3bXFHX0pLbXl2SUtwY3M1Ukt5Zk12cmVyTjFWXzF2SS1DblJteg?oc=5"
         },
         "equipment": {
-            "title": "DDR5、HBM 升級潮來了：台灣記憶體供應鏈從跟單走向核心受惠 - CMoney",
-            "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE1QYk1Bd1VVdkJiMHgxbmlDX0paTm10cUgyanNUVThpbXFnYkhkd0I2dENDVXZQd0pOcHhnU2NIci1taHlxVWJWT3YxMTFZZGJSSmtKUXMxcE0tUmVTMzFPd0NCbmc3SzJlNVBka0UyNnQ3Vy1DZV9Zbg?oc=5"
+            "title": "AI晶片狂潮引爆全球半導體軍備競賽：ASML、Intel、SK Hynix領銜記憶體大缺貨前夜 - CMoney投資網誌",
+            "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNcVVDdW9JT2prRGx6cm1YNWFYLXZZMk1zT2VtZEJ5NDNwUzRzcVJXRDlUQmthbzFhN0toYkRkU2JNY3E2cGxsWVEzSTluSEgzd2RZTnpvR0ZsYUVISHpQdzdHS1dJYnpDQkJzZGl3dHpXcHdhOTQ2OWhKa053TDVKRi03Z1VYdTItMjBFWVlB?oc=5"
         }
     }
 }
