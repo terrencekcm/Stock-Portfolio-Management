@@ -37,18 +37,28 @@
                 <p class="text-sm text-gray-500">宏觀大類資產動態平衡 & 個股與板塊計劃追蹤 (基地貨幣：USD)</p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
-                <nav class="flex flex-wrap bg-gray-100 p-1 rounded-lg text-sm font-medium gap-1">
-                    <button id="btn-dashboard-tab" onclick="switchTab('dashboard-tab')" class="px-4 py-2 rounded-md bg-white shadow-sm text-blue-600 whitespace-nowrap transition">📊 投資儀表板</button>
-                    
-                    <!-- 🔥 新增：板塊輪動彈窗按鈕 -->
-                    <button type="button" onclick="openSectorRotationModal()" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap transition flex items-center gap-1 cursor-pointer">
-                        🎡 板塊輪動
-                    </button>
-                    
-                    <button id="btn-trading-tab" onclick="switchTab('trading-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap transition">🎯 出入市計劃</button>
-                    <button id="btn-valuation-tab" onclick="switchTab('valuation-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap transition">🧮 估值模型</button>
-                    <button id="btn-reports-tab" onclick="switchTab('reports-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap transition">📈 績效報告</button>
-                    <button id="btn-settings-tab" onclick="switchTab('settings-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap hidden transition">⚙️ 配置計劃設定</button>
+                <nav class="flex flex-wrap gap-2">
+                    <!-- 1. 執行組別 -->
+                    <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-lg shadow-inner border border-gray-200">
+                        <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest px-2 select-none">執行</span>
+                        <button id="btn-dashboard-tab" onclick="switchTab('dashboard-tab')" class="px-3 py-1.5 rounded-md bg-white shadow-sm text-blue-600 text-sm font-bold whitespace-nowrap transition">📊 投資儀表板</button>
+                        <button id="btn-transactions-tab" onclick="switchTab('transactions-tab')" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 text-sm font-medium whitespace-nowrap transition cursor-pointer">📓 流水賬/交易紀錄</button>
+                        <button id="btn-reports-tab" onclick="switchTab('reports-tab')" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 text-sm font-medium whitespace-nowrap transition">📈 績效報告</button>
+                    </div>
+
+                    <!-- 2. 計劃組別 -->
+                    <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-lg shadow-inner border border-gray-200">
+                        <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest px-2 select-none">計劃</span>
+                        <button id="btn-trading-tab" onclick="switchTab('trading-tab')" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 text-sm font-medium whitespace-nowrap transition">🎯 出入市計劃</button>
+                        <button id="btn-settings-tab" onclick="switchTab('settings-tab')" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 text-sm font-medium whitespace-nowrap hidden transition">⚙️ 配置計劃設定</button>
+                    </div>
+
+                    <!-- 3. 分析組別 -->
+                    <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-lg shadow-inner border border-gray-200">
+                        <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest px-2 select-none">分析</span>
+                        <button type="button" onclick="openSectorRotationModal()" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 text-sm font-medium whitespace-nowrap transition flex items-center gap-1 cursor-pointer">🎡 板塊輪動</button>
+                        <button id="btn-valuation-tab" onclick="switchTab('valuation-tab')" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 text-sm font-medium whitespace-nowrap transition">🧮 估值模型</button>
+                    </div>
                 </nav>
                 <div class="flex flex-wrap items-center gap-2">
                     <div id="roleBadge" class="text-xs px-3 py-2 rounded-full font-bold whitespace-nowrap hidden shadow-sm"></div>
@@ -251,14 +261,19 @@
                             </table>
                         </div>
                     </div>
-                </div>
+                </div>              
+            </div>
+        </div>
 
+        <!-- 頁籤五：流水賬/交易紀錄 -->
+        <div id="tab-transactions" class="space-y-6 hidden">
+            <div class="grid grid-cols-1 gap-6">
                 <!-- 流水帳 -->
                 <div class="bg-white p-6 rounded-xl shadow-md">
                     <h2 class="text-lg font-bold mb-4 text-gray-700">📜 歷史收支明細流水帳</h2>
-                    <div class="overflow-x-auto max-h-48 overflow-y-auto">
+                    <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
                         <table class="min-w-full text-left text-xs text-gray-600">
-                            <thead class="bg-gray-50 sticky top-0 font-medium">
+                            <thead class="bg-gray-50 sticky top-0 font-medium shadow-sm z-10">
                                 <tr>
                                     <th class="px-3 py-2">日期</th>
                                     <th class="px-3 py-2">標的</th>
@@ -269,13 +284,34 @@
                                     <th class="px-3 py-2">操作</th>
                                 </tr>
                             </thead>
-                            <tbody id="historyTable" class="divide-y divide-gray-200"></tbody>
+                            <tbody id="historyTable" class="divide-y divide-gray-200 bg-white"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 歷史交易清單 (已平倉) -->
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h3 class="text-lg font-black text-gray-800 mb-4">📜 期權歷史交易清單 (已平倉)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-left text-xs">
+                            <thead class="bg-gray-100 text-gray-600 font-bold uppercase">
+                                <tr>
+                                    <th class="px-3 py-2">策略與標的</th>
+                                    <th class="px-3 py-2">日期區間 (開 ➔ 平)</th>
+                                    <th class="px-3 py-2">開倉價</th>
+                                    <th class="px-3 py-2">平倉價</th>
+                                    <th class="px-3 py-2">淨損益 (P&L)</th>
+                                    <th class="px-3 py-2">持倉天數</th>
+                                    <th class="px-3 py-2 text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tradeLogTable" class="divide-y divide-gray-200 bg-white"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
-
+        
         <!-- 頁籤二：出入市計劃專屬工作視窗 -->
         <div id="tab-trading-plan" class="space-y-6 hidden">
             <!-- 🔥 新增：本星期建倉策略與執行計劃 -->
@@ -397,19 +433,6 @@
                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
                     <h3 class="text-lg font-black text-gray-800 mb-4">📉 Short Put 表現</h3>
                     <div class="space-y-3 text-sm font-medium text-gray-600" id="reportShortPutBody"></div>
-                </div>
-            </div>
-        
-            <!-- Trade Log -->
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <h3 class="text-lg font-black text-gray-800 mb-4">📜 歷史交易清單 (已平倉)</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-left text-xs">
-                        <thead class="bg-gray-100 text-gray-600 font-bold uppercase">
-                            <tr><th class="px-3 py-2">策略與標的</th><th class="px-3 py-2">日期區間 (開 ➔ 平)</th><th class="px-3 py-2">開倉價</th><th class="px-3 py-2">平倉價</th><th class="px-3 py-2">淨損益 (P&L)</th><th class="px-3 py-2">持倉天數</th><th class="px-3 py-2 text-center">操作</th></tr>
-                        </thead>
-                        <tbody id="tradeLogTable" class="divide-y divide-gray-200"></tbody>
-                    </table>
                 </div>
             </div>
         </div>
@@ -802,37 +825,46 @@
 
         function switchTab(tabId) {
             if (tabId === 'settings-tab' && userRole !== 'PM') { alert("❌ 權限被拒絕"); return; }
-            document.getElementById('btn-dashboard-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
-            document.getElementById('btn-trading-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
-            document.getElementById('btn-valuation-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
-            document.getElementById('btn-reports-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900"; // 🔥 報告
-            document.getElementById('btn-settings-tab').className = "px-4 py-2 rounded-md text-gray-600 hover:text-gray-900";
+            
+            // 所有支援的按鈕 ID 陣列 (不包含板塊輪動，因其為彈窗)
+            const allTabs = ['dashboard-tab', 'transactions-tab', 'reports-tab', 'trading-tab', 'settings-tab', 'valuation-tab'];
+            
+            // 1. 初始化所有按鈕的樣式 (灰底)
+            allTabs.forEach(id => {
+                const btn = document.getElementById('btn-' + id);
+                if (btn) btn.className = "px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 text-sm font-medium whitespace-nowrap transition";
+            });
+
+            // 2. 將選中的按鈕套用高亮樣式 (白底藍字)
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) activeBtn.className = "px-3 py-1.5 rounded-md bg-white shadow-sm text-blue-600 text-sm font-bold whitespace-nowrap transition";
         
+            // 3. 隱藏所有頁籤內容
             document.getElementById('tab-dashboard').classList.add('hidden');
+            document.getElementById('tab-transactions').classList.add('hidden');
+            document.getElementById('tab-reports').classList.add('hidden');
             document.getElementById('tab-trading-plan').classList.add('hidden');
-            document.getElementById('tab-valuation').classList.add('hidden');
-            document.getElementById('tab-reports').classList.add('hidden'); // 🔥 報告
             document.getElementById('tab-settings').classList.add('hidden');
+            document.getElementById('tab-valuation').classList.add('hidden');
         
+            // 4. 顯示對應的頁籤內容並執行對應的渲染函數
             if (tabId === 'dashboard-tab') {
                 document.getElementById('tab-dashboard').classList.remove('hidden');
-                document.getElementById('btn-dashboard-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
-            } else if (tabId === 'trading-tab') {
-                document.getElementById('tab-trading-plan').classList.remove('hidden');
-                document.getElementById('btn-trading-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
-                renderTradingPlanPage();
-            } else if (tabId === 'valuation-tab') {
-                document.getElementById('tab-valuation').classList.remove('hidden');
-                document.getElementById('btn-valuation-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
-                renderValuationPage(); 
+            } else if (tabId === 'transactions-tab') {
+                document.getElementById('tab-transactions').classList.remove('hidden');
+                // 流水帳已經在 renderComponents 時被 renderHistoryRows() 更新，這裡可直接顯示
             } else if (tabId === 'reports-tab') {
                 document.getElementById('tab-reports').classList.remove('hidden');
-                document.getElementById('btn-reports-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
-                renderPerformanceReport(); // 🔥 呼叫報告渲染
+                renderPerformanceReport(); 
+            } else if (tabId === 'trading-tab') {
+                document.getElementById('tab-trading-plan').classList.remove('hidden');
+                renderTradingPlanPage();
             } else if (tabId === 'settings-tab') {
                 document.getElementById('tab-settings').classList.remove('hidden');
-                document.getElementById('btn-settings-tab').className = "px-4 py-2 rounded-md bg-white shadow-sm text-blue-600";
                 renderSettingsPage();
+            } else if (tabId === 'valuation-tab') {
+                document.getElementById('tab-valuation').classList.remove('hidden');
+                renderValuationPage(); 
             }
         }
         
