@@ -852,7 +852,8 @@
                 document.getElementById('tab-dashboard').classList.remove('hidden');
             } else if (tabId === 'transactions-tab') {
                 document.getElementById('tab-transactions').classList.remove('hidden');
-                // 流水帳已經在 renderComponents 時被 renderHistoryRows() 更新，這裡可直接顯示
+                // 🔥 修復關鍵：切換到流水帳頁籤時，必須呼叫此函數來繪製期權已平倉清單！
+                renderPerformanceReport(); 
             } else if (tabId === 'reports-tab') {
                 document.getElementById('tab-reports').classList.remove('hidden');
                 renderPerformanceReport(); 
@@ -1031,8 +1032,8 @@
                 if(!document.getElementById('tab-trading-plan').classList.contains('hidden')){
                     renderTradingPlanPage();
                 }
-                // 🔥 如果停留在績效報告頁，也一併重繪
-                if(!document.getElementById('tab-reports').classList.contains('hidden')){
+                // 🔥 修復：如果背景同步時，使用者正停留在績效報告或流水帳頁面，也一併重繪
+                if(!document.getElementById('tab-reports').classList.contains('hidden') || !document.getElementById('tab-transactions').classList.contains('hidden')){
                     renderPerformanceReport();
                 }
                 updateStatus(`✅ 雲端同步完成`, "success");
@@ -2966,15 +2967,17 @@
                 
                 // 重新精算所有畫面
                 renderComponents();
-                if(!document.getElementById('tab-reports').classList.contains('hidden')){
+                
+                // 🔥 修復：如果在報告頁或流水帳頁，需同步重繪以消除被刪除的資料
+                if(!document.getElementById('tab-reports').classList.contains('hidden') || !document.getElementById('tab-transactions').classList.contains('hidden')){
                     renderPerformanceReport();
                 }
+                
                 updateStatus("✅ 期權刪除成功", "success");
             } catch (error) { 
                 updateStatus("❌ 刪除失敗", "error"); 
             }
         }
-
         // ==========================================
         // 🚀 板塊輪動 Iframe 彈窗控制邏輯
         // ==========================================
