@@ -39,6 +39,12 @@
             <div class="flex flex-wrap items-center gap-3">
                 <nav class="flex flex-wrap bg-gray-100 p-1 rounded-lg text-sm font-medium gap-1">
                     <button id="btn-dashboard-tab" onclick="switchTab('dashboard-tab')" class="px-4 py-2 rounded-md bg-white shadow-sm text-blue-600 whitespace-nowrap transition">📊 投資儀表板</button>
+                    
+                    <!-- 🔥 新增：板塊輪動彈窗按鈕 -->
+                    <button type="button" onclick="openSectorRotationModal()" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap transition flex items-center gap-1 cursor-pointer">
+                        🎡 板塊輪動
+                    </button>
+                    
                     <button id="btn-trading-tab" onclick="switchTab('trading-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap transition">🎯 出入市計劃</button>
                     <button id="btn-valuation-tab" onclick="switchTab('valuation-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap transition">🧮 估值模型</button>
                     <button id="btn-reports-tab" onclick="switchTab('reports-tab')" class="px-4 py-2 rounded-md text-gray-600 hover:text-gray-900 whitespace-nowrap transition">📈 績效報告</button>
@@ -515,7 +521,23 @@
                 <div class="overflow-y-auto space-y-4 pr-1" id="wsHistoryContainer"></div>
             </div>
         </div>
-        
+        <!-- 彈窗七：板塊輪動 Iframe Modal -->
+        <div id="sectorRotationModal" class="fixed inset-0 bg-gray-900/85 flex items-center justify-center z-[60] p-2 sm:p-4 hidden" onclick="closeSectorRotationModal()">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-7xl h-[95vh] flex flex-col overflow-hidden relative" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-center bg-gray-50 border-b border-gray-200 p-3">
+                    <h3 class="text-base font-black text-gray-800">🎡 美股板塊輪動分析 (Sector Rotation)</h3>
+                    <button onclick="closeSectorRotationModal()" class="text-gray-400 hover:text-gray-700 font-bold text-xl cursor-pointer w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 transition">✕</button>
+                </div>
+                <div class="flex-1 w-full relative bg-gray-900">
+                    <!-- Loading 指示器 -->
+                    <div id="sectorIframeLoader" class="absolute inset-0 flex items-center justify-center text-emerald-400 font-bold text-sm bg-gray-900">
+                        <span class="animate-pulse">🔄 正在載入板塊輪動圖表與數據，請稍候...</span>
+                    </div>
+                    <!-- iframe 載入完畢後自動隱藏 Loader -->
+                    <iframe id="sectorIframe" src="" class="w-full h-full border-0 relative z-10 hidden" onload="document.getElementById('sectorIframeLoader').classList.add('hidden'); this.classList.remove('hidden');"></iframe>
+                </div>
+            </div>
+        </div>
         <!-- 設定頁籤 -->
         <div id="tab-settings" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
@@ -738,8 +760,7 @@
             <!-- Lightweight Charts 實體畫布掛載容器 -->
             <div id="chartContainer" class="w-full h-96 bg-gray-950 rounded-xl border border-gray-800 overflow-hidden shadow-inner"></div>
         </div>
-    </div>
-
+    </div>    
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzsDE79EEEn1EpdYYTg44A8HeXzIEXs1hpV4JSjQUXeWo8uzeucaKndIm-RWce_l3Gy/exec";
 
@@ -2920,6 +2941,34 @@
             } catch (error) { 
                 updateStatus("❌ 刪除失敗", "error"); 
             }
+        }
+
+        // ==========================================
+        // 🚀 板塊輪動 Iframe 彈窗控制邏輯
+        // ==========================================
+        function openSectorRotationModal() {
+            const modal = document.getElementById('sectorRotationModal');
+            const iframe = document.getElementById('sectorIframe');
+            const loader = document.getElementById('sectorIframeLoader');
+            
+            // 由於在同一個 GitHub Pages 域名底下，使用相對路徑即可
+            const targetUrl = "sector.html";
+            
+            // 邏輯判斷：如果 iframe 還沒載入過網址，才進行載入
+            // 這樣使用者關閉彈窗後再打開，不用重新載入一次，體驗更流暢
+            if (!iframe.src || iframe.src === "" || iframe.src === window.location.href) {
+                loader.classList.remove('hidden');
+                iframe.classList.add('hidden');
+                iframe.src = targetUrl; 
+            }
+            
+            // 顯示彈窗
+            modal.classList.remove('hidden');
+        }
+
+        function closeSectorRotationModal() {
+            // 隱藏彈窗 (不清除 src 以保留狀態，下次打開秒開)
+            document.getElementById('sectorRotationModal').classList.add('hidden');
         }
     </script>
 </body>
