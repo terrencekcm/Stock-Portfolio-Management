@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>完整板塊輪動 & 機構建倉儀表板 (2026/7/17)</title>
+<style>
+  * { box-sizing: border-box; }
+  body { 
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+    padding: 20px; 
+    background: #0f172a; 
+    color: #e2e8f0; 
+    margin: 0;
+    line-height: 1.6;
+  }
+  .dashboard-container { max-width: 1400px; margin: 0 auto; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  .card { 
+    background: #1e293b; 
+    border-radius: 12px; 
+    padding: 16px; 
+    border: 1px solid #334155; 
+    overflow-x: auto;
+  }
+  .card-full { grid-column: 1 / -1; }
+  .title { 
+    font-size: 14px; 
+    font-weight: 600; 
+    color: #94a3b8; 
+    margin-bottom: 12px; 
+    text-transform: uppercase; 
+    letter-spacing: 0.05em; 
+  }
+  .big-num { font-size: 28px; font-weight: 700; }
+  .up { color: #4ade80; }
+  .down { color: #f87171; }
+  .neutral { color: #fbbf24; }
+  .badge { 
+    display: inline-block; 
+    padding: 2px 8px; 
+    border-radius: 4px; 
+    font-size: 11px; 
+    font-weight: 600; 
+  }
+  .badge-green { background: #14532d; color: #4ade80; }
+  .badge-red { background: #450a0a; color: #f87171; }
+  .badge-yellow { background: #422006; color: #fbbf24; }
+  .badge-blue { background: #0c4a6e; color: #38bdf8; }
+  .badge-purple { background: #3b0764; color: #c084fc; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 800px; }
+  th { 
+    text-align: left; 
+    padding: 8px 6px; 
+    color: #94a3b8; 
+    border-bottom: 1px solid #334155; 
+    font-weight: 500; 
+    white-space: nowrap;
+  }
+  td { padding: 8px 6px; border-bottom: 1px solid #1e293b; white-space: nowrap; }
+  tr:hover td { background: #334155; }
+  .bar-bg { 
+    background: #334155; 
+    height: 6px; 
+    border-radius: 3px; 
+    width: 50px; 
+    display: inline-block; 
+    vertical-align: middle; 
+    margin-left: 4px; 
+  }
+  .bar-fill { height: 6px; border-radius: 3px; }
+  .signal-dot { 
+    width: 8px; 
+    height: 8px; 
+    border-radius: 50%; 
+    display: inline-block; 
+    margin-right: 4px; 
+  }
+  .sector-header { background: #1e3a5f !important; }
+  .sector-header td { font-weight: 700; color: #38bdf8; }
+  .conflict-row { background: #2a1810 !important; }
+  .dump-row { background: #331c1c !important; }
+  .build-row { background: #1a2e1a !important; }
+  .footer { 
+    margin-top: 16px; 
+    font-size: 11px; 
+    color: #64748b; 
+    text-align: center; 
+    padding: 16px;
+  }
+  h2 { margin: 0 0 16px 0; font-size: 20px; }
+  .allocation-box {
+    background: #1a2e1a; 
+    padding: 12px; 
+    border-radius: 8px;
+  }
+  .allocation-box.aggressive {
+    background: #2e1a1a;
+  }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="dashboard-container">
+  <h2>📊 完整板塊輪動 & 機構建倉儀表板 (2026/7/17)</h2>
+
+  <div class="grid">
+    <!-- 大盤概況 -->
+    <div class="card">
+      <div class="title">大盤宏觀背景</div>
+      <div style="display:flex; gap:16px; align-items:center; flex-wrap: wrap;">
+        <div>
+          <div style="font-size:12px;color:#94a3b8;">S&P 500 近3月</div>
+          <div class="big-num down">-11.41%</div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:#94a3b8;">S&P 500 近1月</div>
+          <div class="big-num up">+0.67%</div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:#94a3b8;">S&P 500 W-1</div>
+          <div class="big-num down">-1.70%</div>
+        </div>
+      </div>
+      <div style="margin-top:10px; font-size:12px; color:#94a3b8;">
+        中期下跌後短期調整 | 連續兩週下跌 | 避險輪動進行中
+      </div>
+    </div>
+
+    <!-- 輪動主軸 -->
+    <div class="card">
+      <div class="title">輪動主軸</div>
+      <div style="display:flex; flex-direction:column; gap:8px; font-size:13px;">
+        <div><span class="badge badge-red">OUT</span> 成長股 → <span class="badge badge-green">IN</span> 價值股</div>
+        <div><span class="badge badge-red">OUT</span> 週期股 → <span class="badge badge-green">IN</span> 防禦股</div>
+        <div><span class="badge badge-red">OUT</span> 硬件 → <span class="badge badge-green">IN</span> 軟件/AI</div>
+        <div><span class="badge badge-red">OUT</span> 新能源 → <span class="badge badge-green">IN</span> 傳統能源</div>
+      </div>
+    </div>
+
+    <!-- ====== 全部11個板塊 ====== -->
+    <div class="card card-full">
+      <div class="title">全部11個板塊 — 相對強弱 vs SPX + 量能驗證</div>
+      <table>
+        <tr>
+          <th>板塊</th><th>ETF</th><th>相關個股</th><th>W-3</th><th>W-2</th><th>W-1</th><th>1月</th><th>3月</th><th>W-3量能</th><th>W-2量能</th><th>W-1量能</th><th>機構信號</th>
+        </tr>
+        <tr class="build-row">
+          <td><b>能源</b></td><td>XLE</td><td>—</td>
+          <td class="down">-1.18%</td><td class="up">+3.17%</td><td class="up" style="font-weight:700;">+6.36%</td>
+          <td class="down">-4.42%</td><td class="down">-24.50%</td>
+          <td>77%</td><td>85%</td><td>101%</td>
+          <td><span class="badge badge-green">建倉</span></td>
+        </tr>
+        <tr class="build-row">
+          <td><b>房地產</b></td><td>XLRE</td><td>—</td>
+          <td class="down">-1.04%</td><td class="down">-0.13%</td><td class="up" style="font-weight:700;">+3.79%</td>
+          <td class="up">+1.39%</td><td class="down">-6.09%</td>
+          <td>136%</td><td>81%</td><td>78%</td>
+          <td><span class="badge badge-yellow">觀察</span></td>
+        </tr>
+        <tr class="build-row">
+          <td><b>民生必需品</b></td><td>XLP</td><td>KO / MCD</td>
+          <td class="up">+0.22%</td><td class="down">-0.46%</td><td class="up" style="font-weight:700;">+2.86%</td>
+          <td class="up">+1.50%</td><td class="down">-11.76%</td>
+          <td>104%</td><td>90%</td><td>137%</td>
+          <td><span class="badge badge-green">建倉</span></td>
+        </tr>
+        <tr class="build-row">
+          <td><b>金融</b></td><td>XLF</td><td>—</td>
+          <td class="up">+3.01%</td><td class="down">-1.25%</td><td class="up" style="font-weight:700;">+2.57%</td>
+          <td class="up">+5.29%</td><td class="down">-5.43%</td>
+          <td>105%</td><td>81%</td><td>123%</td>
+          <td><span class="badge badge-green">建倉</span></td>
+        </tr>
+        <tr>
+          <td><b>醫療保健</b></td><td>XLV</td><td>ISRG</td>
+          <td class="up">+1.35%</td><td class="down">-1.17%</td><td class="up">+1.73%</td>
+          <td class="up">+7.53%</td><td class="down">-5.76%</td>
+          <td>113%</td><td>98%</td><td>84%</td>
+          <td><span class="badge badge-yellow">觀察</span></td>
+        </tr>
+        <tr>
+          <td><b>通訊服務</b></td><td>XLC</td><td>—</td>
+          <td class="up">+1.08%</td><td class="up">+0.81%</td><td class="up">+0.67%</td>
+          <td class="down">-6.20%</td><td class="down">-15.84%</td>
+          <td>130%</td><td>98%</td><td>108%</td>
+          <td><span class="badge badge-yellow">觀望</span></td>
+        </tr>
+        <tr>
+          <td><b>公用事業</b></td><td>XLU</td><td>BE</td>
+          <td class="down">-1.07%</td><td class="down">-0.24%</td><td class="up">+1.03%</td>
+          <td class="up">+3.40%</td><td class="down">-13.96%</td>
+          <td>108%</td><td>82%</td><td>110%</td>
+          <td><span class="badge badge-yellow">觀望</span></td>
+        </tr>
+        <tr>
+          <td><b>基礎材料</b></td><td>XLB</td><td>—</td>
+          <td class="up">+2.14%</td><td class="down">-2.57%</td><td class="up">+0.85%</td>
+          <td class="up">+0.67%</td><td class="down">-11.41%</td>
+          <td>97%</td><td>103%</td><td>79%</td>
+          <td><span class="badge badge-yellow">觀望</span></td>
+        </tr>
+        <tr>
+          <td><b>工業</b></td><td>XLI</td><td>VRT / BE</td>
+          <td class="up">+0.12%</td><td class="down">-2.44%</td><td class="up">+0.17%</td>
+          <td class="up">+8.38%</td><td class="down">-0.26%</td>
+          <td>88%</td><td>81%</td><td>114%</td>
+          <td><span class="badge badge-yellow">觀望</span></td>
+        </tr>
+        <tr>
+          <td><b>非必需消費</b></td><td>XLY</td><td>GRMN / KO / MCD</td>
+          <td class="down">-0.51%</td><td class="down">-1.14%</td><td class="up">+0.01%</td>
+          <td class="down">-1.71%</td><td class="down">-6.28%</td>
+          <td>112%</td><td>120%</td><td>120%</td>
+          <td><span class="badge badge-yellow">疑似建倉</span></td>
+        </tr>
+        <tr class="dump-row">
+          <td><b>科技</b></td><td>XLK</td><td>AAPL/MSFT/PLTR/AVGO/MU/NVDA/TSM/RMBS/PANW</td>
+          <td class="down">-3.09%</td><td class="up">+0.71%</td><td class="down" style="font-weight:700;">-4.00%</td>
+          <td class="up">+1.04%</td><td class="up">+24.84%</td>
+          <td>80%</td><td>64%</td><td>115%</td>
+          <td><span class="badge badge-red">拋售</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ====== 全部17個行業 ====== -->
+    <div class="card card-full">
+      <div class="title">全部17個行業 — 相對強弱 vs SPX + 量能驗證 + 板塊一致性</div>
+      <table>
+        <tr>
+          <th>行業</th><th>ETF</th><th>所屬板塊</th><th>相關個股</th><th>W-3</th><th>W-2</th><th>W-1</th><th>1月</th><th>3月</th><th>W-1量能</th><th>vs板塊</th><th>機構信號</th>
+        </tr>
+
+        <!-- 能源板塊下的行業 -->
+        <tr class="sector-header">
+          <td colspan="12">▼ 能源板塊 (XLE W-1: +6.36%)</td>
+        </tr>
+        <tr class="build-row">
+          <td><b>石油開採 XOP</b></td><td>XOP</td><td>能源</td><td>—</td>
+          <td class="down">-0.97%</td><td class="up">+2.49%</td><td class="up" style="font-weight:700;">+9.01%</td>
+          <td class="down">-4.71%</td><td class="down">-26.12%</td>
+          <td>107%</td><td><span class="badge badge-green">+2.65%</span></td>
+          <td><span class="badge badge-green">建倉確認</span></td>
+        </tr>
+        <tr class="conflict-row">
+          <td><b>乾淨能源 ICLN</b></td><td>ICLN</td><td>能源</td><td>BE</td>
+          <td class="down">-1.56%</td><td class="down">-4.79%</td><td class="down">-3.07%</td>
+          <td class="down">-11.94%</td><td class="down">-2.44%</td>
+          <td>91%</td><td><span class="badge badge-red">-9.43%</span></td>
+          <td><span class="badge badge-yellow">觀望</span></td>
+        </tr>
+
+        <!-- 金融板塊下的行業 -->
+        <tr class="sector-header">
+          <td colspan="12">▼ 金融板塊 (XLF W-1: +2.57%)</td>
+        </tr>
+        <tr class="build-row">
+          <td><b>區域銀行 KRE</b></td><td>KRE</td><td>金融</td><td>—</td>
+          <td class="down">-0.15%</td><td class="down">-1.20%</td><td class="up" style="font-weight:700;">+3.83%</td>
+          <td class="up">+8.93%</td><td class="up">+0.05%</td>
+          <td>112%</td><td><span class="badge badge-green">+1.26%</span></td>
+          <td><span class="badge badge-green">建倉確認</span></td>
+        </tr>
+
+        <!-- 必需品板塊下的行業 -->
+        <tr class="sector-header">
+          <td colspan="12">▼ 民生必需品板塊 (XLP W-1: +2.86%)</td>
+        </tr>
+        <tr class="build-row">
+          <td><b>必需品 XLP</b></td><td>XLP</td><td>必需品</td><td>KO / MCD</td>
+          <td class="up">+0.22%</td><td class="down">-0.46%</td><td class="up" style="font-weight:700;">+2.86%</td>
+          <td class="up">+1.50%</td><td class="down">-11.76%</td>
+          <td>137%</td><td><span class="badge badge-green">一致</span></td>
+          <td><span class="badge badge-green">建倉確認</span></td>
+        </tr>
+
+        <!-- 醫療板塊下的行業 -->
+        <tr class="sector-header">
+          <td colspan="12">▼ 醫療保健板塊 (XLV W-1: +1.73%)</td>
+        </tr>
+        <tr>
+          <td><b>醫療機器人 IHI</b></td><td>IHI</td><td>醫療</td><td>ISRG</td>
+          <td class="up">+1.87%</td><td class="down">-1.96%</td><td class="down">-0.07%</td>
+          <td class="up">+2.23%</td><td class="down">-19.34%</td>
+          <td>151%</td><td><span class="badge badge-red">-1.80%</span></td>
+          <td><span class="badge badge-blue">潛伏建倉</span></td>
+        </tr>
+        <tr>
+          <td><b>生物科技 XBI</b></td><td>XBI</td><td>醫療</td><td>NBIX</td>
+          <td class="up">+0.84%</td><td class="down">-1.59%</td><td class="down">-1.48%</td>
+          <td class="up">+17.28%</td><td class="up">+7.90%</td>
+          <td>117%</td><td><span class="badge badge-red">-3.21%</span></td>
+          <td><span class="badge badge-yellow">疑似拋售</span></td>
+        </tr>
+
+        <!-- 工業板塊下的行業 -->
+        <tr class="sector-header">
+          <td colspan="12">▼ 工業板塊 (XLI W-1: +0.17%)</td>
+        </tr>
+        <tr>
+          <td><b>美國基建 PAVE</b></td><td>PAVE</td><td>工業</td><td>VRT</td>
+          <td class="down">-1.77%</td><td class="down">-2.07%</td><td class="up">+0.90%</td>
+          <td class="up">+5.67%</td><td class="up">+2.71%</td>
+          <td>24%</td><td><span class="badge badge-green">+0.73%</span></td>
+          <td><span class="badge badge-yellow">无量上漲</span></td>
+        </tr>
+        <tr>
+          <td><b>國防航天 ITA</b></td><td>ITA</td><td>工業</td><td>—</td>
+          <td class="up">+3.26%</td><td class="down">-5.14%</td><td class="down">-1.97%</td>
+          <td class="up">+4.30%</td><td class="down">-3.49%</td>
+          <td>110%</td><td><span class="badge badge-red">-2.14%</span></td>
+          <td><span class="badge badge-yellow">疑似拋售</span></td>
+        </tr>
+        <tr>
+          <td><b>智能電網 GRID</b></td><td>GRID</td><td>工業</td><td>VRT</td>
+          <td class="down">-2.72%</td><td class="down">-1.86%</td><td class="down">-2.27%</td>
+          <td class="up">+0.61%</td><td class="up">+2.08%</td>
+          <td>83%</td><td><span class="badge badge-red">-2.44%</span></td>
+          <td><span class="badge badge-yellow">觀望</span></td>
+        </tr>
+
+        <!-- 非必需消費板塊下的行業 -->
+        <tr class="sector-header">
+          <td colspan="12">▼ 非必需消費板塊 (XLY W-1: +0.01%)</td>
+        </tr>
+        <tr>
+          <td><b>非必需消費 XLY</b></td><td>XLY</td><td>非必需消費</td><td>GRMN</td>
+          <td class="down">-0.51%</td><td class="down">-1.14%</td><td class="up">+0.01%</td>
+          <td class="down">-1.71%</td><td class="down">-6.28%</td>
+          <td>120%</td><td><span class="badge badge-green">一致</span></td>
+          <td><span class="badge badge-yellow">疑似建倉</span></td>
+        </tr>
+
+        <!-- 科技板塊下的行業 (重災區) -->
+        <tr class="sector-header">
+          <td colspan="12">▼ 科技板塊 (XLK W-1: -4.00%) ⚠️ 內部分化極嚴重</td>
+        </tr>
+        <tr class="dump-row">
+          <td><b>半導體 SMH</b></td><td>SMH</td><td>科技</td><td>AVGO/MU/NVDA/TSM</td>
+          <td class="down">-6.76%</td><td class="up">+0.62%</td><td class="down" style="font-weight:700;">-7.49%</td>
+          <td class="up">+10.93%</td><td class="up">+48.98%</td>
+          <td>181%</td><td><span class="badge badge-red">-3.49%</span></td>
+          <td><span class="badge badge-red">拋售確認</span></td>
+        </tr>
+        <tr class="dump-row">
+          <td><b>半導體 XSD</b></td><td>XSD</td><td>科技</td><td>RMBS</td>
+          <td class="down">-6.68%</td><td class="down">-1.85%</td><td class="down" style="font-weight:700;">-9.83%</td>
+          <td class="up">+3.06%</td><td class="up">+66.55%</td>
+          <td>90%</td><td><span class="badge badge-red">-5.83%</span></td>
+          <td><span class="badge badge-yellow">觀望</span></td>
+        </tr>
+        <tr>
+          <td><b>科技ETF IYW</b></td><td>IYW</td><td>科技</td><td>AAPL</td>
+          <td class="down">-1.61%</td><td class="up">+0.60%</td><td class="down">-2.83%</td>
+          <td class="up">+1.02%</td><td class="up">+21.08%</td>
+          <td>140%</td><td><span class="badge badge-green">+1.17%</span></td>
+          <td><span class="badge badge-red">拋售確認</span></td>
+        </tr>
+        <tr>
+          <td><b>物聯網 SNSR</b></td><td>SNSR</td><td>科技</td><td>GRMN</td>
+          <td class="down">-1.28%</td><td class="down">-1.44%</td><td class="down">-4.06%</td>
+          <td class="down">-1.21%</td><td class="up">+16.76%</td>
+          <td>43%</td><td><span class="badge badge-red">-0.06%</span></td>
+          <td><span class="badge badge-yellow">觀望</span></td>
+        </tr>
+        <tr>
+          <td><b>互聯網巨頭 FDN</b></td><td>FDN</td><td>科技/通訊</td><td>GOOG</td>
+          <td class="up">+0.58%</td><td class="up">+1.63%</td><td class="down">-0.80%</td>
+          <td class="down">-5.37%</td><td class="down">-1.49%</td>
+          <td>95%</td><td><span class="badge badge-green">+3.20%</span></td>
+          <td><span class="badge badge-yellow">觀望</span></td>
+        </tr>
+        <tr>
+          <td><b>系統軟件 IGV</b></td><td>IGV</td><td>科技</td><td>MSFT / PLTR</td>
+          <td class="up">+3.57%</td><td class="down">-2.98%</td><td class="up" style="font-weight:700;">+2.00%</td>
+          <td class="down">-9.72%</td><td class="down">-1.44%</td>
+          <td>67%</td><td><span class="badge badge-green">+6.00%</span></td>
+          <td><span class="badge badge-yellow">无量上漲</span></td>
+        </tr>
+        <tr>
+          <td><b>網絡安全 CIBR</b></td><td>CIBR</td><td>科技</td><td>PANW</td>
+          <td class="up">+1.93%</td><td class="down">-1.59%</td><td class="up" style="font-weight:700;">+2.10%</td>
+          <td class="up">+2.22%</td><td class="up">+24.84%</td>
+          <td>84%</td><td><span class="badge badge-green">+6.10%</span></td>
+          <td><span class="badge badge-yellow">疑似建倉</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 衝突矩陣 -->
+    <div class="card card-full">
+      <div class="title">⚠️ 板塊 vs 行業 輪動結構衝突矩陣</div>
+      <table>
+        <tr><th>板塊</th><th>板塊W-1</th><th>下屬行業</th><th>行業W-1</th><th>差距</th><th>衝突程度</th><th>解讀</th></tr>
+        <tr class="dump-row">
+          <td rowspan="6"><b>科技 XLK</b><br/><span style="color:#f87171;">-4.00%</span></td>
+          <td rowspan="6">-4.00%</td>
+          <td>半導體 SMH</td><td class="down">-7.49%</td><td class="down">-3.49%</td><td><span class="badge badge-red">★★★★★</span></td><td>硬件崩盤</td>
+        </tr>
+        <tr class="dump-row">
+          <td>半導體 XSD</td><td class="down">-9.83%</td><td class="down">-5.83%</td><td><span class="badge badge-red">★★★★★</span></td><td>晶片股潰敗</td>
+        </tr>
+        <tr>
+          <td>科技ETF IYW</td><td class="down">-2.83%</td><td class="up">+1.17%</td><td><span class="badge badge-yellow">★★☆☆☆</span></td><td>略強於板塊</td>
+        </tr>
+        <tr>
+          <td>互聯網 FDN</td><td class="down">-0.80%</td><td class="up">+3.20%</td><td><span class="badge badge-yellow">★★☆☆☆</span></td><td>相對抗跌</td>
+        </tr>
+        <tr>
+          <td>系統軟件 IGV</td><td class="up">+2.00%</td><td class="up">+6.00%</td><td><span class="badge badge-green">★★★★★</span></td><td>逆板塊強勢</td>
+        </tr>
+        <tr>
+          <td>網絡安全 CIBR</td><td class="up">+2.10%</td><td class="up">+6.10%</td><td><span class="badge badge-green">★★★★★</span></td><td>逆板塊強勢</td>
+        </tr>
+        <tr class="conflict-row">
+          <td rowspan="2"><b>能源 XLE</b><br/><span class="up">+6.36%</span></td>
+          <td rowspan="2">+6.36%</td>
+          <td>石油開採 XOP</td><td class="up">+9.01%</td><td class="up">+2.65%</td><td><span class="badge badge-green">★☆☆☆☆</span></td><td>方向一致</td>
+        </tr>
+        <tr class="conflict-row">
+          <td>乾淨能源 ICLN</td><td class="down">-3.07%</td><td class="down">-9.43%</td><td><span class="badge badge-red">★★★★☆</span></td><td>傳統vs新能源對立</td>
+        </tr>
+        <tr>
+          <td rowspan="2"><b>醫療 XLV</b><br/><span class="up">+1.73%</span></td>
+          <td rowspan="2">+1.73%</td>
+          <td>醫療機器人 IHI</td><td class="down">-0.07%</td><td class="down">-1.80%</td><td><span class="badge badge-yellow">★★☆☆☆</span></td><td>潛伏建倉形態</td>
+        </tr>
+        <tr>
+          <td>生物科技 XBI</td><td class="down">-1.48%</td><td class="down">-3.21%</td><td><span class="badge badge-yellow">★★☆☆☆</span></td><td>中期強勢短期回調</td>
+        </tr>
+        <tr>
+          <td rowspan="3"><b>工業 XLI</b><br/><span class="up">+0.17%</span></td>
+          <td rowspan="3">+0.17%</td>
+          <td>美國基建 PAVE</td><td class="up">+0.90%</td><td class="up">+0.73%</td><td><span class="badge badge-green">★☆☆☆☆</span></td><td>方向一致</td>
+        </tr>
+        <tr>
+          <td>國防航天 ITA</td><td class="down">-1.97%</td><td class="down">-2.14%</td><td><span class="badge badge-yellow">★★☆☆☆</span></td><td>弱於板塊</td>
+        </tr>
+        <tr>
+          <td>智能電網 GRID</td><td class="down">-2.27%</td><td class="down">-2.44%</td><td><span class="badge badge-yellow">★★☆☆☆</span></td><td>弱於板塊</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 個股部署 -->
+    <div class="card card-full">
+      <div class="title">📋 全部個股部署建議 (根據板塊+行業+量能三重驗證)</div>
+      <table>
+        <tr><th>個股/ETF</th><th>所屬ETF</th><th>板塊</th><th>操作</th><th>核心邏輯</th><th>風險</th></tr>
+        <tr class="build-row"><td><b>XOP</b></td><td>—</td><td>能源</td><td><span class="badge badge-green">買入</span></td><td>W-1 +9.01% + 量能趨勢性放大，機構建倉確認</td><td class="up">中</td></tr>
+        <tr class="build-row"><td><b>KRE</b></td><td>—</td><td>金融</td><td><span class="badge badge-green">買入</span></td><td>金融輪動領先，W-1量能112%確認買盤</td><td class="up">中</td></tr>
+        <tr class="build-row"><td><b>KO / MCD</b></td><td>XLP</td><td>必需品</td><td><span class="badge badge-green">買入</span></td><td>XLP機構建倉確認(量能137%)，經典防禦藍籌</td><td class="up">低</td></tr>
+        <tr class="build-row"><td><b>CIBR</b></td><td>—</td><td>科技</td><td><span class="badge badge-green">買入</span></td><td>科技板塊唯一強勢細分，逆板塊+6.10%，AI安全剛性</td><td class="neutral">中高</td></tr>
+        <tr><td><b>IHI</b></td><td>—</td><td>醫療</td><td><span class="badge badge-yellow">分批買</span></td><td>放量橫盤(量能151%)，經典底部建倉形態</td><td class="up">中</td></tr>
+        <tr><td><b>ISRG</b></td><td>IHI</td><td>醫療</td><td><span class="badge badge-yellow">觀察後買</span></td><td>手術機器人龍頭，等待IHI板塊確認</td><td class="up">中</td></tr>
+        <tr><td><b>XBI / NBIX</b></td><td>—</td><td>醫療</td><td><span class="badge badge-yellow">回調買</span></td><td>1月+17.28%中期強勢，短期回調提供買點</td><td class="up">中</td></tr>
+        <tr><td><b>IGV</b></td><td>—</td><td>科技</td><td><span class="badge badge-yellow">等待</span></td><td>逆板塊強勢但无量(67%)，需量能>100%確認</td><td class="neutral">中高</td></tr>
+        <tr><td><b>MSFT</b></td><td>IGV</td><td>科技</td><td><span class="badge badge-yellow">等待</span></td><td>AI龍頭，科技板塊整體調整中，等待企穩</td><td class="neutral">中</td></tr>
+        <tr><td><b>PLTR</b></td><td>IGV</td><td>科技</td><td><span class="badge badge-yellow">等待</span></td><td>高波動AI軟件，需確認機構回歸量能</td><td class="down">高</td></tr>
+        <tr><td><b>XLRE</b></td><td>—</td><td>房地產</td><td><span class="badge badge-yellow">觀察</span></td><td>W-1 +3.79%強勢，但量能偏低(78%)需確認</td><td class="up">中</td></tr>
+        <tr><td><b>XLV</b></td><td>—</td><td>醫療</td><td><span class="badge badge-yellow">觀察</span></td><td>1月+7.53%觸底反彈，但下屬行業偏弱</td><td class="up">中</td></tr>
+        <tr><td><b>XLU / BE</b></td><td>—</td><td>公用事業</td><td><span class="badge badge-yellow">觀察</span></td><td>降息預期受益，但3月-13.96%趨勢仍弱</td><td class="up">低</td></tr>
+        <tr><td><b>XLI / VRT</b></td><td>—</td><td>工業</td><td><span class="badge badge-yellow">觀察</span></td><td>1月+8.38%觸底反彈，但下屬行業分化</td><td class="up">中</td></tr>
+        <tr><td><b>GRMN</b></td><td>XLY/SNSR</td><td>非必需/物聯網</td><td><span class="badge badge-yellow">觀望</span></td><td>橫跨兩個弱勢板塊，無明確方向</td><td class="neutral">中</td></tr>
+        <tr><td><b>PAVE</b></td><td>—</td><td>工業</td><td><span class="badge badge-yellow">觀望</span></td><td>W-2異常量能182%後驟降至24%，不具持續性</td><td class="neutral">中</td></tr>
+        <tr class="dump-row"><td><b>SMH</b></td><td>—</td><td>科技</td><td><span class="badge badge-red">迴避</span></td><td>放量暴跌-7.49%，量能181%，拋售確認</td><td class="down">高</td></tr>
+        <tr class="dump-row"><td><b>NVDA</b></td><td>SMH</td><td>半導體</td><td><span class="badge badge-red">迴避</span></td><td>晶片龍頭，跟隨板塊調整，獲利了結壓力大</td><td class="down">高</td></tr>
+        <tr class="dump-row"><td><b>TSM</b></td><td>SMH</td><td>半導體</td><td><span class="badge badge-red">迴避</span></td><td>晶圓代工，板塊拋售波及</td><td class="down">高</td></tr>
+        <tr class="dump-row"><td><b>AVGO</b></td><td>SMH</td><td>半導體</td><td><span class="badge badge-red">迴避</span></td><td>芯片設計，同板塊風險</td><td class="down">高</td></tr>
+        <tr class="dump-row"><td><b>MU</b></td><td>SMH</td><td>半導體</td><td><span class="badge badge-red">迴避</span></td><td>存儲芯片，週期性下行</td><td class="down">高</td></tr>
+        <tr class="dump-row"><td><b>RMBS</b></td><td>XSD</td><td>半導體</td><td><span class="badge badge-red">迴避</span></td><td>小盤芯片，流動性風險+板塊拋售</td><td class="down">極高</td></tr>
+        <tr class="dump-row"><td><b>XSD</b></td><td>—</td><td>科技</td><td><span class="badge badge-red">迴避</span></td><td>W-1 -9.83%比SMH更弱</td><td class="down">高</td></tr>
+        <tr class="dump-row"><td><b>ICLN</b></td><td>—</td><td>能源</td><td><span class="badge badge-red">迴避</span></td><td>與傳統能源對立(-9.43%)，政策不確定</td><td class="down">高</td></tr>
+        <tr class="dump-row"><td><b>FDN / GOOG</b></td><td>—</td><td>科技/通訊</td><td><span class="badge badge-red">迴避</span></td><td>1月-5.37%，趨勢轉弱</td><td class="down">中高</td></tr>
+        <tr class="dump-row"><td><b>IYW</b></td><td>—</td><td>科技</td><td><span class="badge badge-red">迴避</span></td><td>機構拋售確認，放量下跌(140%)</td><td class="down">高</td></tr>
+        <tr><td><b>AAPL</b></td><td>IYW</td><td>科技</td><td><span class="badge badge-yellow">觀察</span></td><td>個股質地好但板塊調整中，等待企穩</td><td class="neutral">中</td></tr>
+        <tr><td><b>PANW</b></td><td>CIBR</td><td>網絡安全</td><td><span class="badge badge-green">買入</span></td><td>CIBR強勢，網絡安全龍頭受益</td><td class="up">中</td></tr>
+      </table>
+    </div>
+
+    <!-- 倉位建議 -->
+    <div class="card card-full">
+      <div class="title">📊 倉位配置建議 (基於全部板塊與行業分析)</div>
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; font-size:12px;">
+        <div class="allocation-box">
+          <div style="font-weight:700; color:#4ade80; margin-bottom:8px;">保守型</div>
+          <div>現金 40%</div>
+          <div>必需品(XLP/KO/MCD) 20%</div>
+          <div>醫療(XLV/IHI/ISRG) 15%</div>
+          <div>石油開採(XOP) 10%</div>
+          <div>區域銀行(KRE) 10%</div>
+          <div>網絡安全(CIBR/PANW) 5%</div>
+        </div>
+        <div class="allocation-box">
+          <div style="font-weight:700; color:#4ade80; margin-bottom:8px;">穩健型</div>
+          <div>現金 25%</div>
+          <div>石油開採(XOP) 15%</div>
+          <div>必需品(XLP) 15%</div>
+          <div>區域銀行(KRE) 10%</div>
+          <div>醫療(XLV/IHI) 10%</div>
+          <div>網絡安全(CIBR) 10%</div>
+          <div>系統軟件(IGV/MSFT) 10%</div>
+          <div>生物科技(XBI/NBIX) 5%</div>
+        </div>
+        <div class="allocation-box aggressive">
+          <div style="font-weight:700; color:#f87171; margin-bottom:8px;">激進型</div>
+          <div>現金 15%</div>
+          <div>石油開採(XOP) 20%</div>
+          <div>系統軟件(IGV/MSFT/PLTR) 15%</div>
+          <div>網絡安全(CIBR/PANW) 10%</div>
+          <div>區域銀行(KRE) 10%</div>
+          <div>必需品(XLP/KO/MCD) 10%</div>
+          <div>醫療(XLV/IHI/ISRG) 10%</div>
+          <div>生物科技(XBI/NBIX) 10%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    完整數據 | 11個板塊 + 17個行業 + 所有個股 | Volume Ratio = 週日均成交量 / 過去45天基準 | 相對強弱 = ETF/SPX | 數據截至 2026/7/17
+  </div>
+</div>
+
+</body>
+</html>
