@@ -253,7 +253,11 @@
                                     <tr>
                                         <th class="px-2 py-3">開倉日</th><th class="px-2 py-3">標的</th><th class="px-2 py-3">策略</th>
                                         <th class="px-2 py-3 text-center">張數</th><th class="px-2 py-3">行使價</th><th class="px-2 py-3 text-rose-600">到期日</th>
-                                        <th class="px-2 py-3 text-blue-600">開倉期權金</th><th class="px-2 py-3 text-indigo-600">佔用資金/保證金</th>
+                                        <th class="px-2 py-3 text-blue-600">開倉單價</th>
+                                        <!-- 🔥 新增兩列：最新單價與浮動損益 -->
+                                        <th class="px-2 py-3 text-emerald-600">最新單價</th>
+                                        <th class="px-2 py-3">浮動損益</th>
+                                        <th class="px-2 py-3 text-indigo-600">佔用保證金</th>
                                         <th class="px-2 py-3 text-center">操作</th>
                                     </tr>
                                 </thead>
@@ -1524,7 +1528,7 @@
             let activeOpts = optionsTx.filter(o => o.status === 'OPEN').sort((a,b) => new Date(b.open_date) - new Date(a.open_date));
             
             if (activeOpts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="px-4 py-6 text-center text-gray-400 font-medium bg-white">目前無未平倉合約。</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="11" class="px-4 py-6 text-center text-gray-400 font-medium bg-white">目前無未平倉合約。</td></tr>`;
                 return;
             }
             
@@ -1535,6 +1539,20 @@
                 let cleanOpen = o.open_date ? String(o.open_date).split('T')[0] : '';
                 let cleanExp = o.expiry_date ? String(o.expiry_date).split('T')[0] : '';
                 
+                // 🔥 新增：浮動賺蝕計算邏輯
+                let currPrem = o.current_premium !== undefined && o.current_premium !== "" ? Number(o.current_premium) : Number(o.open_premium);
+                let pnl = 0;
+                if (isLC) pnl = (currPrem - o.open_premium) * o.qty * 100;      // Long Call: 漲了賺錢
+                else pnl = (o.open_premium - currPrem) * o.qty * 100;           // Short Put: 跌了虧錢 (買回成本變高)
+                
+                let pnlSign = pnl > 0 ? '+' : '';
+                let pnlColor = pnl >= 0 ? 'text-emerald-600' : 'text-rose-600';
+                
+                // 鉛筆編輯按鈕
+                let updateBtn = (userRole === 'PM' || userRole === 'Trader') 
+                    ? `<button onclick="promptUpdateOptionPremium('${o.id}', '${currPrem}')" class="ml-1 text-gray-400 hover:text-blue-600 font-bold" title="手動更新現價">✏️</button>` 
+                    : '';
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-purple-50/20 border-b border-gray-100 font-bold bg-white">
                         <td class="px-2 py-3 text-gray-500">${cleanOpen}</td>
@@ -1544,6 +1562,11 @@
                         <td class="px-2 py-3 text-gray-800">$${Number(o.strike).toFixed(2)}</td>
                         <td class="px-2 py-3 text-rose-600">${cleanExp}</td>
                         <td class="px-2 py-3 text-blue-600">$${Number(o.open_premium).toFixed(2)}</td>
+                        
+                        <!-- 🔥 新增：最新期權金與浮動損益 -->
+                        <td class="px-2 py-3 text-emerald-600 flex items-center gap-1">$${currPrem.toFixed(2)} ${updateBtn}</td>
+                        <td class="px-2 py-3 font-black bg-gray-50 ${pnlColor}">${pnlSign}$${pnl.toLocaleString()}</td>
+                        
                         <td class="px-2 py-3 text-indigo-700">$${lockVal.toLocaleString()} <span class="text-[9px] text-gray-400 block font-normal">${isLC?'風險金':'保證金'}</span></td>
                         <td class="px-2 py-3 text-center flex justify-center items-center gap-2 mt-1">
                             ${(userRole === 'PM' || userRole === 'Trader') ? `
@@ -1555,6 +1578,41 @@
                 `;
             });
         }
+
+        // ==========================================
+        // 🚀 手動更新期權浮動現價
+        // ==========================================
+        async function promptUpdateOptionPremium(id, currentPrem) {
+            if (userRole === 'Visitor' || userRole === 'Analyst') return;
+            
+            // 跳出輸入框，讓使用者輸入最新期權金
+            let newPrem = prompt("✏️ 請輸入該期權目前的最新市價 (Premium):", currentPrem);
+            
+            if (newPrem === null || newPrem.trim() === "") return;
+            if (isNaN(newPrem)) { alert("❌ 請輸入有效的數字！"); return; }
+            
+            updateStatus("🚀 正在更新期權現價與浮動損益...", "loading");
+            
+            try {
+                // 送出給後端儲存
+                await fetch(API_URL, { 
+                    method: "POST", mode: "no-cors", 
+                    body: JSON.stringify({ action: "UPDATE_OPTION_PREMIUM", token: userGoogleToken, id: id, currentPremium: newPrem }) 
+                });
+                
+                // 本地資料同步更新
+                const idx = optionsTx.findIndex(o => o.id.toString() === id.toString());
+                if(idx > -1) { optionsTx[idx].current_premium = newPrem; }
+                
+                // 重新精算並重繪畫面
+                renderComponents(); 
+                updateStatus("✅ 期權現價與浮動損益更新成功！", "success");
+                
+            } catch(e) { 
+                updateStatus("❌ 更新失敗", "error"); 
+            }
+        }
+        
         function renderTradingPlanPage() {
             const { cashBalances, positions } = calculatePortfolio();
             const tableBody = document.getElementById('tradingPlanWatchlistTable');
