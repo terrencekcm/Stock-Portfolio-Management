@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alphabet (GOOGL) Q2 2026 業績報告</title>
+    <style>
+        :root {
+            --google-blue: #4285F4;
+            --google-red: #EA4335;
+            --google-yellow: #FBBC05;
+            --google-green: #34A853;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #202124;
+            --text-muted: #5f6368;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--google-blue), #1a73e8);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        header p {
+            margin: 10px 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        .card h2 {
+            color: var(--google-blue);
+            font-size: 1.4em;
+            margin-top: 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f3f4;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px dashed #e8eaed;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-title {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .metric-value {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .pos { color: var(--google-green); }
+        .neg { color: var(--google-red); }
+        .neu { color: var(--google-yellow); }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        .badge-pos { background-color: #e6f4ea; color: #137333; }
+        .badge-neg { background-color: #fce8e6; color: #c5221f; }
+
+        .news-item {
+            margin-bottom: 15px;
+        }
+        .news-item h4 {
+            margin: 0 0 5px 0;
+            color: var(--text-main);
+        }
+        .news-item p {
+            margin: 0;
+            font-size: 0.95em;
+            color: var(--text-muted);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Alphabet (GOOGL) Q2 2026 業績報告</h1>
+        <p>營收利潤雙勝預期，但 AI 資本支出暴增引發市場擔憂</p>
+    </header>
+
+    <div class="grid">
+        <!-- 1. 核心業績表現 -->
+        <div class="card">
+            <h2>📊 核心業績表現</h2>
+            <div class="metric">
+                <span class="metric-title">總營收 (Revenue)</span>
+                <span class="metric-value">1,198億美元</span>
+            </div>
+            <div class="metric">
+                <span class="metric-title">按年 (YoY) / 按季 (QoQ)</span>
+                <span class="metric-value pos">+24% <span class="badge badge-pos">YoY</span> / +9% <span class="badge badge-pos">QoQ</span></span>
+            </div>
+            <div class="metric">
+                <span class="metric-title">每股盈餘 (EPS)</span>
+                <span class="metric-value">9.11美元 <span class="badge badge-pos">+294% YoY</span></span>
+            </div>
+            <div class="metric">
+                <span class="metric-title">核心 EPS (剔除一次性收益)</span>
+                <span class="metric-value">2.85美元</span>
+            </div>
+            <div class="metric">
+                <span class="metric-title">營運利潤率</span>
+                <span class="metric-value pos">34% <span class="badge badge-pos">+2% YoY</span></span>
+            </div>
+        </div>
+
+        <!-- 2. 各業務表現分類 -->
+        <div class="card">
+            <h2>🗂️ 各業務表現分類</h2>
+            <div class="metric">
+                <span class="metric-title">Google 服務總收入</span>
+                <span class="metric-value">945億美元 <span class="badge badge-pos">+15% YoY</span></span>
+            </div>
+            <div class="metric">
+                <span class="metric-title">↳ 搜尋及其他</span>
+                <span class="metric-value">633億美元 <span class="badge badge-pos">+17% YoY</span></span>
+            </div>
+            <div class="metric">
+                <span class="metric-title">↳ YouTube 廣告</span>
+                <span class="metric-value">111億美元 <span class="badge badge-pos">+13% YoY</span></span>
+            </div>
+            <div class="metric">
+                <span class="metric-title">Google Cloud 雲業務</span>
+                <span class="metric-value pos">248億美元 <span class="badge badge-pos">+82% YoY</span></span>
+            </div>
+            <div class="metric">
+                <span class="metric-title">雲業務營運利潤率</span>
+                <span class="metric-value pos">35.6%</span>
+            </div>
+        </div>
+
+        <!-- 3. 資本支出與自由現金流 -->
+        <div class="card">
+            <h2>🏗️ 資本支出與現金流 (最大爭議)</h2>
+            <div class="metric">
+                <span class="metric-title">資本支出 (CapEx)</span>
+                <span class="metric-value neg">449億美元</span>
+            </div>
+            <div class="metric">
+                <span class="metric-title">CapEx 佔營收比例</span>
+                <span class="metric-value neg">37.5%</span>
+            </div>
+            <div class="metric">
+                <span class="metric-title">歷史對比</span>
+                <span class="metric-value">單季超越過去5年全年平均</span>
+            </div>
+            <div class="metric">
+                <span class="metric-title">自由現金流 (FCF)</span>
+                <span class="metric-value neg">-59億美元 <span class="badge badge-neg">數十年首度轉負</span></span>
+            </div>
+            <div class="metric">
+                <span class="metric-title">FCF 利潤率</span>
+                <span class="metric-value neg">跌至負數區間</span>
+            </div>
+        </div>
+
+        <!-- 4. 未來指引與市場反應 -->
+        <div class="card">
+            <h2>🔮 未來指引 & 📉 市場反應</h2>
+            <div class="news-item">
+                <h4>2026 全年 CapEx 指引上調</h4>
+                <p>從 1,800-1,900億美元上調至 <strong class="neg">1,950億 - 2,050億美元</strong>。</p>
+            </div>
+            <div class="news-item">
+                <h4>2027 年支出預警</h4>
+                <p>管理層預計 2027 年資本支出將「顯著增加」，短期內自由現金流持續承壓。</p>
+            </div>
+            <div class="news-item">
+                <h4>市場反應 (盤後股價)</h4>
+                <p>股價下跌 <strong class="neg">3.5% - 4.24%</strong>。華爾街焦點從業績增長轉向「AI 資本支出焦慮」，質疑龐大投資的 ROI 轉化時間。</p>
+            </div>
+        </div>
+
+        <!-- 5. 公司消息與管理層意見 -->
+        <div class="card full-width">
+            <h2>🗣️ 公司消息與管理層意見分析</h2>
+            <div class="grid">
+                <div class="news-item">
+                    <h4>1. 歐盟 41億歐元 Android 反壟斷罰款</h4>
+                    <p><strong>影響：</strong> 八年官司落幕，市場視為「利空出盡」。財務打擊為一次性，但確立了歐盟對科技巨頭強硬監管的判例。</p>
+                </div>
+                <div class="news-item">
+                    <h4>2. 歐盟《數碼市場法》(DMA) 2027年生效</h4>
+                    <p><strong>影響：</strong> 需開放 11 項 Android 功能給競爭對手（如 ChatGPT, Claude）。這將直接威脅 Google 在行動端的預設搜尋霸權，是動搖護城河的長期隱患。</p>
+                </div>
+                <div class="news-item">
+                    <h4>3. Gemini 3.5 Pro 延遲與 AI 競賽</h4>
+                    <p><strong>市場擔憂：</strong> 傳因程式碼編寫能力未達標而延遲，加劇市場對「高額 CapEx 卻無法在模型能力上絕對領先」的擔憂。</p>
+                    <p><strong>管理層反擊：</strong> CEO 強調近 90% 財富 100 強企業使用 Gemini Enterprise；Gemini App 月活躍用戶達 9.5 億；並推出高性價比的 Gemini 3.5 Flash Cyber。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>資料來源：Alphabet (GOOGL) Q2 2026 財報會議及市場公開資訊 | 內部財務分析報告</p>
+    </footer>
+</div>
+
+</body>
+</html>
