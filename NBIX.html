@@ -11,10 +11,12 @@
             --accent-blue: #3498db;
             --accent-green: #27ae60;
             --accent-orange: #e67e22;
-            --bg-color: #f8f9fa;
+            --accent-red: #c0392b;
+            --bg-color: #f4f7f6;
             --card-bg: #ffffff;
             --text-main: #333333;
             --text-muted: #666666;
+            --border-color: #e1e8ed;
         }
 
         body {
@@ -27,51 +29,54 @@
         }
 
         .analysis-container {
-            max-width: 900px;
+            max-width: 950px;
             margin: 0 auto;
         }
 
         .header-section {
             text-align: center;
             margin-bottom: 30px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .header-section h1 {
             color: var(--primary-color);
-            margin-bottom: 10px;
+            margin: 0 0 10px 0;
+            font-size: 1.8em;
         }
 
         .status-badges {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
         }
 
         .badge {
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.9em;
+            font-size: 0.95em;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .badge-cost { background-color: #e8f4fd; color: var(--accent-blue); }
-        .badge-price { background-color: #e9f7ef; color: var(--accent-green); }
-        .badge-event { background-color: #fef5e7; color: var(--accent-orange); }
+        .badge-cost { background-color: #e8f4fd; color: var(--accent-blue); border: 1px solid #b6dffd;}
+        .badge-price { background-color: #e9f7ef; color: var(--accent-green); border: 1px solid #b8e6c9;}
+        .badge-event { background-color: #fef5e7; color: var(--accent-orange); border: 1px solid #fde1b5;}
 
         .card {
             background: var(--card-bg);
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 5px solid var(--accent-blue);
-            transition: transform 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+            border-left: 6px solid var(--accent-blue);
         }
 
         .card.warning { border-left-color: var(--accent-orange); }
@@ -81,11 +86,9 @@
             margin-top: 0;
             color: var(--primary-color);
             font-size: 1.4em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
         }
 
         .card ul {
@@ -97,20 +100,65 @@
             margin-bottom: 12px;
         }
 
-        .card li:last-child {
+        .highlight { font-weight: 700; color: var(--accent-blue); }
+        .text-green { font-weight: 700; color: var(--accent-green); }
+        .text-orange { font-weight: 700; color: var(--accent-orange); }
+        .text-red { font-weight: 700; color: var(--accent-red); }
+        
+        /* 詳細資訊區塊樣式 */
+        .detail-box {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-box h3 {
+            margin-top: 0;
+            font-size: 1.1em;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .insider-profile {
+            border-left: 3px solid #bdc3c7;
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .insider-profile:last-child {
             margin-bottom: 0;
         }
 
-        .highlight { font-weight: bold; color: var(--accent-blue); }
-        .text-green { font-weight: bold; color: var(--accent-green); }
-        .text-orange { font-weight: bold; color: var(--accent-orange); }
-        
+        .insider-name {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.05em;
+        }
+
         .strategy-box {
             background-color: #f8fff9;
             border: 1px solid #c3e6cb;
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
             margin-top: 15px;
+        }
+
+        .strategy-box.aggressive {
+            background-color: #fff8f8;
+            border-color: #ffcdd2;
+        }
+
+        .data-tag {
+            display: inline-block;
+            background: #eee;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #555;
+            margin-right: 5px;
         }
     </style>
 </head>
@@ -118,79 +166,112 @@
 
 <div class="analysis-container">
     <div class="header-section">
-        <h1>NBIX (Neurocrine Biosciences) 個股分析與部署</h1>
-        <p style="color: var(--text-muted);">基於板塊輪動、宏觀面與內部人士交易之綜合評估</p>
+        <h1>NBIX (Neurocrine Biosciences) 深度投資分析與部署</h1>
+        <p style="color: var(--text-muted); margin-bottom: 0;">整合宏觀板塊輪動、基本面催化劑與內部人士交易數據</p>
         <div class="status-badges">
-            <span class="badge badge-cost">🎯 建倉成本: $169.00</span>
+            <span class="badge badge-cost">🎯 您的建倉成本: $169.00</span>
             <span class="badge badge-price">📈 當前區間: $173 - $179</span>
-            <span class="badge badge-event">📅 財報日: 2026年7月29日</span>
+            <span class="badge badge-event">📅 財報發布日: 2026年7月29日</span>
         </div>
     </div>
 
-    <!-- 板塊輪動與宏觀面分析 -->
+    <!-- 1. 板塊輪動與宏觀面分析 -->
     <div class="card">
-        <h2>🌍 板塊輪動與宏觀面分析</h2>
+        <h2>🌍 1. 板塊輪動與宏觀面分析 (Sector Rotation & Macro)</h2>
         <ul>
-            <li><strong>資金避險與板塊輪動：</strong> 科技股（AI板塊）經歷估值重估與回調，全球資金在7月份大幅增加對醫療保健（XLV）及生技板塊（XBI）的配置。</li>
-            <li><strong>「防禦+成長」雙重屬性：</strong> 市場將醫療生技視為資金避風港。配合 FDA 近期對新藥審批態度靈活及 M&A 活躍，帶動生技板塊看漲情緒。</li>
-            <li><strong>結論：</strong> 宏觀風向 <span class="text-green">極度有利於 NBIX</span>，資金正從科技股流出，尋找具備實質盈利支撐的生技股。</li>
+            <li><strong>資金避險與板塊輪動 (XLV & XBI 強勢)：</strong> 根據 2026 年 7 月最新市場數據，由於科技股（尤其是 AI 相關板塊）經歷了估值重估與回調，全球基金經理人在 7 月份 <span class="text-green">大幅增加了對醫療保健板塊 (XLV) 的配置</span>，增幅居所有板塊之首。</li>
+            <li><strong>生技股的「防禦+成長」雙重屬性：</strong> 生技板塊（如 XBI、IBB）在近期表現出強勁的相對優勢。市場將醫療生技視為資金避風港，同時 FDA 近期對新藥審批展現出更靈活的態度，加上併購 (M&A) 活躍，帶動了整個生技板塊的看漲情緒。</li>
+            <li><strong>結論：</strong> 宏觀與板塊輪動的風向 <span class="text-green">非常有利於 NBIX</span>。資金正從科技股流出，尋找具備實質盈利支撐的醫療生技股。</li>
         </ul>
     </div>
 
-    <!-- NBIX 個股基本面 -->
+    <!-- 2. NBIX 個股基本面 -->
     <div class="card">
-        <h2>📊 NBIX 個股基本面</h2>
+        <h2>📊 2. NBIX 個股基本面 (Fundamentals)</h2>
         <ul>
-            <li><strong>業績強勁：</strong> Q1 淨產品銷售額超 8 億美元，主力藥物 INGREZZA 銷售動能強勁。</li>
-            <li><strong>新藥催化劑：</strong> 針對先天性腎上腺增生症（CAH）的新藥 <strong>CRENESSITY</strong> 臨床數據優異，預期成為推動增長的「第二支柱」。</li>
-            <li><strong>估值具吸引力：</strong> 遠期本益比（Forward P/E）約 24.7 倍，遠低於過去 5 年歷史中位數（約 42 倍），機構公允價值目標約在 <span class="highlight">$190 - $195</span>。</li>
+            <li><strong>業績強勁與新藥催化劑：</strong> NBIX 在 2026 年 Q1 交出了極佳的成績單（淨產品銷售額 <span class="highlight">超 8 億美元</span>，主要由主力藥物 INGREZZA 帶動）。此外，近期針對先天性腎上腺增生症 (CAH) 的新藥 <strong>CRENESSITY</strong> 臨床數據優異，市場預期這將成為推動公司增長的「第二支柱」。</li>
+            <li><strong>估值具吸引力：</strong> 目前 NBIX 的遠期本益比 (Forward P/E) 約為 <span class="highlight">24.7 倍</span>，顯著低於其過去 5 年的歷史中位數（約 42 倍）。多數機構（如 GuruFocus）計算其內在公允價值約在 <span class="text-green">$190 上下</span>，目前股價仍算被低估。</li>
+            <li><strong>⚠️ 近期財報日：</strong> NBIX 預計將於 <span class="text-orange">2026年7月29日</span> 發布最新財報。財報前後通常伴隨巨大波動。</li>
         </ul>
     </div>
 
-    <!-- 隱憂（內部人士拋售）分析 -->
+    <!-- 3. 隱憂（內部人士拋售）分析 -->
     <div class="card warning">
-        <h2>⚠️ 隱憂（內部人士拋售）分析</h2>
-        <ul>
-            <li><strong>拋售區間與阻力位：</strong> 7月份多位 C-level 高管在 <span class="text-orange">$178 - $180</span> 區間執行拋售，客觀上形成技術性賣壓與心理阻力位。</li>
-            <li><strong>拋售性質（Rebalancing vs Bearish）：</strong> 
+        <h2>⚠️ 3. 隱憂（內部人士拋售）深度分析</h2>
+        <p>過去 3 個月內，公司內部人士累計拋售了約 6,220 萬美元的股票，且無買入紀錄。但深入 SEC Form 4 文件分析後，可確認 <strong>這波拋售絕大多數屬於「常規的財務調配與薪酬變現」，而非看淡公司前景。</strong></p>
+        
+        <div class="detail-box">
+            <h3>近期核心高管拋售紀錄與真相還原</h3>
+            
+            <div class="insider-profile">
+                <div class="insider-name">首席法務官 Darin Lippoldt (7月高位拋售)</div>
                 <ul>
-                    <li>絕大多數拋售屬於 <strong>Rule 10b5-1 預設交易計畫</strong>，為高管行使期權（Options Exercise）後的常規薪酬變現與資產配置。</li>
-                    <li>核心高管拋售後 <strong>仍保留 60% - 90% 的底倉</strong>，利益依然與公司高度綁定，並非看淡公司業務前景。</li>
+                    <li><span class="data-tag">7月9日</span> 以均價 <strong>$179.60</strong> 拋售 10,000 股（套現約 179 萬美元）。</li>
+                    <li><span class="data-tag">6月30日</span> 以均價 <strong>$170.15</strong> 拋售 10,000 股（套現約 170 萬美元）。</li>
+                    <li><strong>拋售真相 (行使期權)：</strong> 7/9 的拋售實際上是行使了認購期權 (Options Exercise)，他以 <strong>$81.49</strong> 的極低價行權後立即以市價賣出。</li>
+                    <li><strong>持股影響：</strong> 拋售後他依然持有 <span class="text-green">超過 111,000 股</span> 的正股，賣出部分佔其總持股比例 <strong>不到 10%</strong>。</li>
                 </ul>
-            </li>
-            <li><strong>成本優勢：</strong> 您的建倉成本 <span class="highlight">$169</span> 位於管理層拋售均價（$170+）下方，具備極佳的安全邊際。</li>
-        </ul>
-    </div>
+            </div>
 
-    <!-- 股價走勢與技術面 -->
-    <div class="card">
-        <h2>📈 股價走勢與技術面</h2>
+            <div class="insider-profile">
+                <div class="insider-name">首席監管官 Ingrid Delaet (7月高位拋售)</div>
+                <ul>
+                    <li><span class="data-tag">7月9日</span> 以均價 <strong>$178.72</strong> 拋售 8,433 股（套現約 150 萬美元）。</li>
+                    <li><strong>拋售真相 (行使期權)：</strong> 同樣配合期權行使，以 <strong>$103.52</strong> 的價格行權並賣出。拋售後個人名下仍直接持有 16,225 股（價值近 300 萬美元）。</li>
+                </ul>
+            </div>
+
+            <div class="insider-profile">
+                <div class="insider-name">董事 / 前 CEO Kevin Charles Gorman (5月大額拋售)</div>
+                <ul>
+                    <li><span class="data-tag">5月21日</span> 以均價 <strong>$154.33</strong> 大舉拋售 245,088 股（巨額套現 3,780 萬美元）。</li>
+                    <li><strong>拋售真相 (退休/資產配置)：</strong> 他賣出了約 32% 的持股，但拋售後依然持有高達 <span class="text-green">511,293 股</span>（保留了 68%）。對於準備交棒的創辦人級別高管，拿出 1/3 資產進行多樣化投資 (Diversification) 屬合理規劃，其剩餘持股價值仍高達 8,600 萬美元。</li>
+                </ul>
+            </div>
+            
+            <div class="insider-profile">
+                <div class="insider-name">首席科學官 Jude Onyia (5月拋售)</div>
+                <ul>
+                    <li><span class="data-tag">5月27日</span> 以均價 <strong>$155.53</strong> 拋售 11,000 股（套現約 171 萬美元）。</li>
+                </ul>
+            </div>
+        </div>
+
         <ul>
-            <li><strong>當前狀態：</strong> 股價於 $173 - $179 區間震盪，處於浮盈狀態。</li>
-            <li><strong>上方阻力：</strong> 近期 52 週高點 <span class="text-orange">$181.18</span> 為強阻力位（與高管拋售區間重合）。</li>
-            <li><strong>下方支撐：</strong> <span class="text-green">$168 - $170</span> 區間（您的成本區）為強勁支撐。</li>
+            <li><strong>總結 (Rebalancing, 不是看淡業務)：</strong> 所有交易皆透過 <strong>Rule 10b5-1 預設交易計畫</strong> 執行（幾個月前就設定好的自動賣出指令），並非高管看到 7 月財報數據不好才「臨時跳船」。</li>
+            <li>目前 NBIX 內部人士總計仍持有公司約 <span class="highlight">4.6%</span> 的股份，利益綁定比例依然健康。</li>
         </ul>
     </div>
 
-    <!-- 具體部署建議 -->
+    <!-- 4. 股價走勢與技術面 -->
+    <div class="card">
+        <h2>📈 4. 股價走勢與技術面 (Price Action & Cost Advantage)</h2>
+        <ul>
+            <li><strong>高管的「心理阻力位」在 $178 - $180：</strong> 從 7 月份的數據可見，當股價逼近 179—180 時，首席法務官和監管官都選擇了執行賣出計畫。客觀上，這確實在 $180 關口形成了實質的賣壓與阻力。</li>
+            <li><strong>您的成本價 $169 具備極大優勢：</strong> 高管 Darin Lippoldt 在 6 月底的拋售價是 $170.15。您的建倉成本 <span class="text-green">$169 剛好在這個拋售點的下方</span>，這意味著您買在了一個相對有支撐的起漲區間，沒有在高位 ($179) 接盤管理層的貨。</li>
+        </ul>
+    </div>
+
+    <!-- 5. 具體部署建議 -->
     <div class="card strategy">
-        <h2>💡 具體部署建議 (財報前策略)</h2>
-        <p>目前在 $169 的位置進可攻、退可守。鑑於 7月29日 財報的不確定性與高管拋售形成的阻力，建議採取以下策略：</p>
+        <h2>💡 5. 具體部署建議 (Actionable Strategy)</h2>
+        <p>您目前在 $169 的位置非常好，處於進可攻、退可守的狀態。既然高管拋售主要是為了「期權變現」和「資產配置」，代表公司基本面並未出現內部危機。但鑑於 <strong>7月29日財報的不確定性</strong> 以及 <strong>$178-$180 的高管拋售阻力區</strong>，建議採取以下策略：</p>
         
         <div class="strategy-box">
-            <strong>🛡️ 穩健型操作（推薦）：鎖定利潤，規避財報風險</strong>
+            <strong>🛡️ 方案 A：穩健型部署（推薦：鎖定利潤，規避財報風險）</strong>
             <ul>
-                <li><strong>逢高減倉：</strong> 於財報前（7/28前），若股價接近 <span class="text-green">$175 - $179</span> 區間，先行獲利了結 1/3 至 1/2 倉位。</li>
-                <li><strong>保本止損：</strong> 將剩餘底倉的止損位（Trailing Stop）上調至成本價 <span class="highlight">$169</span> 或 $170，確保此筆交易零虧損。</li>
-                <li><strong>向上看齊：</strong> 若財報超預期並突破 $181.50，剩餘倉位可看向機構目標價 $190+。</li>
+                <li><strong>財報前減倉 (7月28日前)：</strong> 考慮在 <span class="text-green">$175 - $179</span> 區間先行獲利了結 1/3 到 1/2 的倉位。因為這正是管理層認為「估值已經很充裕」並願意套現的位置，提前將部分利潤放進口袋最為安穩。</li>
+                <li><strong>設置保本止損 (Trailing Stop)：</strong> 將剩餘倉位的止損位上調至您的成本價 <span class="highlight">$169</span> 或微高於成本（如 $170）。確保這筆交易絕對不會虧損。</li>
+                <li><strong>向上看齊目標價：</strong> 如果財報超預期並突破 $181.18 的前高，剩餘倉位可以看向機構給出的公允價值目標 <strong>$190 - $195</strong>。</li>
             </ul>
         </div>
 
-        <div class="strategy-box" style="background-color: #fff8f8; border-color: #ffcdd2; margin-top: 10px;">
-            <strong>⚔️ 積極型操作：博弈新藥預期與板塊動能</strong>
+        <div class="strategy-box aggressive">
+            <strong>⚔️ 方案 B：積極型部署（博弈新藥預期與板塊動能）</strong>
             <ul>
-                <li><strong>持倉觀望：</strong> 若極度看好 CRENESSITY 前景，可選擇不賣正股，全倉博弈。</li>
-                <li><strong>防守底線：</strong> 嚴格將止損設在 <span class="text-orange">$165</span>（跌破近期整理平台即離場）。</li>
+                <li><strong>持倉觀望，利用期權對沖：</strong> 如果您非常看好 CRENESSITY 獲批後的長期爆發力，並想全倉吃滿這波醫療板塊輪動的紅利，可以選擇不賣正股。</li>
+                <li><strong>防守底線：</strong> 嚴格將止損設在 <span class="text-red">$165</span>（跌破近期整理平台）。一旦跌破 $165，可能意味著板塊資金輪動結束或財報暴雷，趨勢轉弱。</li>
+                <li><strong>加倉條件：</strong> 若股價在財報後帶量強勢突破 $181.50，說明市場完全消化了內部人士拋售的利空，此時可考慮右側順勢加倉，目標直指 $200 大關。</li>
             </ul>
         </div>
     </div>
