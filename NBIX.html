@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBIX (Neurocrine Biosciences) 投資分析與部署</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-blue: #3498db;
+            --accent-green: #27ae60;
+            --accent-orange: #e67e22;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .analysis-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header-section h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .status-badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .badge-cost { background-color: #e8f4fd; color: var(--accent-blue); }
+        .badge-price { background-color: #e9f7ef; color: var(--accent-green); }
+        .badge-event { background-color: #fef5e7; color: var(--accent-orange); }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--accent-blue);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .card.warning { border-left-color: var(--accent-orange); }
+        .card.strategy { border-left-color: var(--accent-green); }
+
+        .card h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .card ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+
+        .card li {
+            margin-bottom: 12px;
+        }
+
+        .card li:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight { font-weight: bold; color: var(--accent-blue); }
+        .text-green { font-weight: bold; color: var(--accent-green); }
+        .text-orange { font-weight: bold; color: var(--accent-orange); }
+        
+        .strategy-box {
+            background-color: #f8fff9;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="analysis-container">
+    <div class="header-section">
+        <h1>NBIX (Neurocrine Biosciences) 個股分析與部署</h1>
+        <p style="color: var(--text-muted);">基於板塊輪動、宏觀面與內部人士交易之綜合評估</p>
+        <div class="status-badges">
+            <span class="badge badge-cost">🎯 建倉成本: $169.00</span>
+            <span class="badge badge-price">📈 當前區間: $173 - $179</span>
+            <span class="badge badge-event">📅 財報日: 2026年7月29日</span>
+        </div>
+    </div>
+
+    <!-- 板塊輪動與宏觀面分析 -->
+    <div class="card">
+        <h2>🌍 板塊輪動與宏觀面分析</h2>
+        <ul>
+            <li><strong>資金避險與板塊輪動：</strong> 科技股（AI板塊）經歷估值重估與回調，全球資金在7月份大幅增加對醫療保健（XLV）及生技板塊（XBI）的配置。</li>
+            <li><strong>「防禦+成長」雙重屬性：</strong> 市場將醫療生技視為資金避風港。配合 FDA 近期對新藥審批態度靈活及 M&A 活躍，帶動生技板塊看漲情緒。</li>
+            <li><strong>結論：</strong> 宏觀風向 <span class="text-green">極度有利於 NBIX</span>，資金正從科技股流出，尋找具備實質盈利支撐的生技股。</li>
+        </ul>
+    </div>
+
+    <!-- NBIX 個股基本面 -->
+    <div class="card">
+        <h2>📊 NBIX 個股基本面</h2>
+        <ul>
+            <li><strong>業績強勁：</strong> Q1 淨產品銷售額超 8 億美元，主力藥物 INGREZZA 銷售動能強勁。</li>
+            <li><strong>新藥催化劑：</strong> 針對先天性腎上腺增生症（CAH）的新藥 <strong>CRENESSITY</strong> 臨床數據優異，預期成為推動增長的「第二支柱」。</li>
+            <li><strong>估值具吸引力：</strong> 遠期本益比（Forward P/E）約 24.7 倍，遠低於過去 5 年歷史中位數（約 42 倍），機構公允價值目標約在 <span class="highlight">$190 - $195</span>。</li>
+        </ul>
+    </div>
+
+    <!-- 隱憂（內部人士拋售）分析 -->
+    <div class="card warning">
+        <h2>⚠️ 隱憂（內部人士拋售）分析</h2>
+        <ul>
+            <li><strong>拋售區間與阻力位：</strong> 7月份多位 C-level 高管在 <span class="text-orange">$178 - $180</span> 區間執行拋售，客觀上形成技術性賣壓與心理阻力位。</li>
+            <li><strong>拋售性質（Rebalancing vs Bearish）：</strong> 
+                <ul>
+                    <li>絕大多數拋售屬於 <strong>Rule 10b5-1 預設交易計畫</strong>，為高管行使期權（Options Exercise）後的常規薪酬變現與資產配置。</li>
+                    <li>核心高管拋售後 <strong>仍保留 60% - 90% 的底倉</strong>，利益依然與公司高度綁定，並非看淡公司業務前景。</li>
+                </ul>
+            </li>
+            <li><strong>成本優勢：</strong> 您的建倉成本 <span class="highlight">$169</span> 位於管理層拋售均價（$170+）下方，具備極佳的安全邊際。</li>
+        </ul>
+    </div>
+
+    <!-- 股價走勢與技術面 -->
+    <div class="card">
+        <h2>📈 股價走勢與技術面</h2>
+        <ul>
+            <li><strong>當前狀態：</strong> 股價於 $173 - $179 區間震盪，處於浮盈狀態。</li>
+            <li><strong>上方阻力：</strong> 近期 52 週高點 <span class="text-orange">$181.18</span> 為強阻力位（與高管拋售區間重合）。</li>
+            <li><strong>下方支撐：</strong> <span class="text-green">$168 - $170</span> 區間（您的成本區）為強勁支撐。</li>
+        </ul>
+    </div>
+
+    <!-- 具體部署建議 -->
+    <div class="card strategy">
+        <h2>💡 具體部署建議 (財報前策略)</h2>
+        <p>目前在 $169 的位置進可攻、退可守。鑑於 7月29日 財報的不確定性與高管拋售形成的阻力，建議採取以下策略：</p>
+        
+        <div class="strategy-box">
+            <strong>🛡️ 穩健型操作（推薦）：鎖定利潤，規避財報風險</strong>
+            <ul>
+                <li><strong>逢高減倉：</strong> 於財報前（7/28前），若股價接近 <span class="text-green">$175 - $179</span> 區間，先行獲利了結 1/3 至 1/2 倉位。</li>
+                <li><strong>保本止損：</strong> 將剩餘底倉的止損位（Trailing Stop）上調至成本價 <span class="highlight">$169</span> 或 $170，確保此筆交易零虧損。</li>
+                <li><strong>向上看齊：</strong> 若財報超預期並突破 $181.50，剩餘倉位可看向機構目標價 $190+。</li>
+            </ul>
+        </div>
+
+        <div class="strategy-box" style="background-color: #fff8f8; border-color: #ffcdd2; margin-top: 10px;">
+            <strong>⚔️ 積極型操作：博弈新藥預期與板塊動能</strong>
+            <ul>
+                <li><strong>持倉觀望：</strong> 若極度看好 CRENESSITY 前景，可選擇不賣正股，全倉博弈。</li>
+                <li><strong>防守底線：</strong> 嚴格將止損設在 <span class="text-orange">$165</span>（跌破近期整理平台即離場）。</li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
