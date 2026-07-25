@@ -57,19 +57,23 @@
                     <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-lg shadow-inner border border-gray-200">
                         <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest px-2 select-none">分析</span>
                         
-                        <!-- 🔥 替換為下拉式選單 (Dropdown) -->
+                        <!-- 🔥 修正斷層問題的下拉式選單 (Dropdown) -->
                         <div class="relative group">
                             <button type="button" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 text-sm font-medium whitespace-nowrap transition flex items-center gap-1 cursor-pointer">
                                 🎡 板塊輪動 ▾
                             </button>
-                            <!-- 下拉選單內容 (Hover 時顯示) -->
-                            <div class="absolute left-0 mt-1 w-36 bg-white border border-gray-200 rounded-md shadow-xl hidden group-hover:flex flex-col z-50 overflow-hidden">
-                                <button onclick="openSectorRotationModal('sector.html')" class="px-4 py-2 text-left text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition border-b border-gray-100">
-                                    📍 本週分析
-                                </button>
-                                <button onclick="openSectorRotationModal('sector_260712.html')" class="px-4 py-2 text-left text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
-                                    📅 260712 週分析
-                                </button>
+                            
+                            <!-- 🔥 隱形橋樑層：top-full 確保緊貼按鈕底部，pt-1 創造視覺空隙但保留滑鼠感應區 -->
+                            <div class="absolute left-0 top-full pt-1 w-36 hidden group-hover:block z-50">
+                                <!-- 實際的白色選單框 -->
+                                <div class="bg-white border border-gray-200 rounded-md shadow-xl flex flex-col overflow-hidden">
+                                    <button onclick="openSectorRotationModal('sector.html')" class="px-4 py-2 text-left text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition border-b border-gray-100 cursor-pointer">
+                                        📍 本週分析
+                                    </button>
+                                    <button onclick="openSectorRotationModal('sector_260712.html')" class="px-4 py-2 text-left text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer">
+                                        📅 260712 週分析
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
