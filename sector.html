@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>全球宏觀與量化策略週報 — AI基建重估與深度輪動</title>
+<title>全球宏觀與量化策略週報 — 多週期共振與深度輪動</title>
 <style>
   * { box-sizing: border-box; }
   body { 
@@ -14,7 +14,7 @@
     margin: 0;
     line-height: 1.7;
   }
-  .container { max-width: 1450px; margin: 0 auto; }
+  .container { max-width: 1550px; margin: 0 auto; } /* 稍微加寬以容納大表格 */
   
   /* Tabs Styling */
   .tabs {
@@ -71,10 +71,10 @@
   .title { font-size: 14px; font-weight: 600; color: #94a3b8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
   
   /* Table Styling */
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: right; padding: 12px 8px; color: #94a3b8; border-bottom: 1px solid #334155; font-weight: 600; white-space: nowrap; background: #0f172a; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; } /* 字體縮小以適應多欄位 */
+  th { text-align: right; padding: 10px 6px; color: #94a3b8; border-bottom: 1px solid #334155; font-weight: 600; white-space: nowrap; background: #0f172a; }
   th:first-child, th:nth-child(2) { text-align: left; }
-  td { padding: 12px 8px; border-bottom: 1px solid #1e293b; white-space: nowrap; text-align: right; }
+  td { padding: 10px 6px; border-bottom: 1px solid #1e293b; white-space: nowrap; text-align: right; }
   td:first-child, td:nth-child(2) { text-align: left; font-weight: 600; }
   tr:hover td { background: #1e293b; }
   
@@ -88,17 +88,19 @@
   .slope-down { color: #94a3b8; }
   .slope-spike { color: #f87171; font-weight: bold; }
   
-  .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; }
   .badge-green { background: #14532d; color: #4ade80; }
   .badge-red { background: #450a0a; color: #f87171; }
   .badge-yellow { background: #422006; color: #fbbf24; }
   .badge-blue { background: #0c4a6e; color: #38bdf8; }
+  .badge-purple { background: #3b0764; color: #c084fc; }
   .badge-gray { background: #1e293b; color: #94a3b8; }
 
   .tag-red { border-left: 4px solid #f87171; }
   .tag-green { border-left: 4px solid #4ade80; }
   .tag-blue { border-left: 4px solid #38bdf8; }
   .tag-yellow { border-left: 4px solid #fbbf24; }
+  .tag-purple { border-left: 4px solid #c084fc; }
 
   /* Stock Cards */
   .stock-card {
@@ -138,9 +140,9 @@
 
   <!-- Header -->
   <div style="text-align:center; padding: 20px 0 30px; margin-bottom: 10px;">
-    <h1 style="margin:0; font-size: 28px; color: #f8fafc;">📊 全球宏觀與量化策略週報 07.26</h1>
+    <h1 style="margin:0; font-size: 28px; color: #f8fafc;">📊 全球宏觀與量化策略週報</h1>
     <div style="font-size: 14px; color: #94a3b8; margin-top: 8px;">
-      觀測週期: 2026年7月 (W-3 → W-2 → W-1) | 核心邏輯: 量能斜率 (Volume Slope) 與 AI基建重估
+      觀測週期: 2026年7月 | 核心邏輯: 多週期共振 (3M基期 + 1W動能) 與 量能斜率
     </div>
     <div style="font-size: 14px; color: #64748b; margin-top: 4px; font-weight: bold;">
       大盤宏觀環境 (SPX): W-3 (-1.64%) → W-2 (-2.12%) → W-1 (-0.59%) | 短線修正與避險週期
@@ -156,113 +158,131 @@
   <!-- ==================== TAB 1: DASHBOARD ==================== -->
   <div id="dashboard" class="tab-content active">
     
-    <!-- Section 1: Executive Summary -->
+    <!-- Section 1: Executive Summary (Multi-Timeframe) -->
     <div class="section">
-      <div class="section-title">Section 1: 核心結論與宏觀推演 (Executive Summary)</div>
+      <div class="section-title">Section 1: 多週期共振核心結論 (3M 基期 vs 1W 動能)</div>
       <div class="grid">
         <div class="card tag-green">
-          <div class="title" style="color: #4ade80;">🟢 AI 基礎設施重估 (電力與散熱)</div>
-          <div style="font-size: 16px; font-weight: 700; color: #f8fafc;">AIPO (AI基建) / GRID (電網) / VRT / BE</div>
+          <div class="title" style="color: #4ade80;">🟢 絕地大反轉 (深跌基期 + 爆量突破)</div>
+          <div style="font-size: 16px; font-weight: 700; color: #f8fafc;">XOP (能源) / XLE</div>
           <div style="font-size: 13px; color: #cbd5e1; margin-top: 8px;">
-            宏觀推演：市場邏輯發生重大切換。資金正從純軟體 (IGV) 撤出，轉向「AI 盡頭是電力」的硬體基建。VRT 與 BE 成功擺脫傳統基建/新能源的弱勢拖累，被市場重新定價為 AI 核心資產，量能穩步放大。
+            <b>3M 基期：</b> 極度超跌 (XOP -26.12%)，上方毫無套牢盤。<br>
+            <b>1W 動能：</b> W-1 逆勢大漲 +2.88%，量能穩健放大 (116%)。這是最安全的右側建倉訊號，均值回歸空間巨大。
           </div>
         </div>
         <div class="card tag-red">
-          <div class="title" style="color: #f87171;">🔴 突發恐慌與消費降級 (軟體/可選消費)</div>
-          <div style="font-size: 16px; font-weight: 700; color: #f8fafc;">FDN (互聯網) / IGV (軟體) / XLY (非必需消費)</div>
+          <div class="title" style="color: #f87171;">🔴 擁擠度極限 (暴漲基期 + 高位爆量)</div>
+          <div style="font-size: 16px; font-weight: 700; color: #f8fafc;">SMH (半導體) / IYW</div>
           <div style="font-size: 13px; color: #cbd5e1; margin-top: 8px;">
-            宏觀推演：FDN 爆出 382% 毀滅性天量，AI 軟體變現能力遭質疑。同時，XLY (含 GRMN) 持續弱勢，反映在衰退預期下，市場對「消費降級」的擔憂正在加劇。
+            <b>3M 基期：</b> 極度擁擠 (SMH +48.98%)，獲利盤堆積如山。<br>
+            <b>1W 動能：</b> W-2 暴跌後，W-1 爆出 171% 歷史天量卻僅微漲 +1.43%。這不是洗盤，而是典型的高位派發 (Distribution)。
+          </div>
+        </div>
+        <div class="card tag-purple">
+          <div class="title" style="color: #c084fc;">🟣 趨勢延續 (強勢基期 + 縮量洗盤後轉強)</div>
+          <div style="font-size: 16px; font-weight: 700; color: #f8fafc;">AIPO (AI基建)</div>
+          <div style="font-size: 13px; color: #cbd5e1; margin-top: 8px;">
+            <b>3M 基期：</b> 中期強勢 (AIPO +16.57%)。<br>
+            <b>1W 動能：</b> 經歷 W-3/W-2 的縮量回調後，W-1 爆量 (121%) 轉強 (+1.04%)。這是標準的「牛市回調買入 (Buy the Dip)」形態。
+          </div>
+        </div>
+        <div class="card tag-yellow">
+          <div class="title" style="color: #fbbf24;">🟡 結構性熊市 (弱勢基期 + 加速破位)</div>
+          <div style="font-size: 16px; font-weight: 700; color: #f8fafc;">IGV (軟體) / FDN (互聯網)</div>
+          <div style="font-size: 13px; color: #cbd5e1; margin-top: 8px;">
+            <b>3M 基期：</b> 已經處於弱勢 (IGV -1.44%, 1M -9.72%)。<br>
+            <b>1W 動能：</b> W-1 爆出天量 (FDN 382%, IGV 101%) 且大幅下殺。這不是突發黑天鵝，而是原有下跌趨勢的「恐慌性加速」。
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Section 2: Sector Matrix -->
+    <!-- Section 2: Sector Matrix (Full Columns) -->
     <div class="section">
       <div class="section-title">Section 2: 大板塊輪動矩陣 (Sector Matrix)</div>
       <div class="card card-full">
         <table>
           <tr>
-            <th>板塊 (Sector)</th><th>ETF</th><th>W-3 (RS)</th><th>W-2 (RS)</th><th>W-1 (RS)</th><th>W-3 Vol</th><th>W-2 Vol</th><th>W-1 Vol</th><th>量能斜率 (Slope)</th><th>趨勢判定</th>
+            <th>板塊 (Sector)</th><th>ETF</th><th>3 Month</th><th>1 Month</th><th>W-3 (RS)</th><th>W-2 (RS)</th><th>W-1 (RS)</th><th>W-3 Vol</th><th>W-2 Vol</th><th>W-1 Vol</th><th>量能斜率 (Slope)</th><th>多週期綜合判定</th>
           </tr>
-          <tr><td><b>能源 (Energy)</b></td><td>XLE</td><td class="up">+3.17%</td><td class="up">+6.36%</td><td class="up">+3.97%</td><td>84.8%</td><td>90.2%</td><td class="up">112.0%</td><td class="slope-up">↗ 穩步放大</td><td><span class="badge badge-green">右側強勢反轉</span></td></tr>
-          <tr><td><b>金融 (Financials)</b></td><td>XLF</td><td class="down">-1.25%</td><td class="up">+2.57%</td><td class="up">+0.68%</td><td>81.2%</td><td>99.9%</td><td>94.4%</td><td class="slope-up">↗ 高位企穩</td><td><span class="badge badge-green">資金穩健流入</span></td></tr>
-          <tr><td><b>房地產 (Real Estate)</b></td><td>XLRE</td><td class="down">-0.13%</td><td class="up">+3.79%</td><td class="up">+1.76%</td><td>80.6%</td><td>75.5%</td><td>98.8%</td><td class="slope-up">↗ 溫和放大</td><td><span class="badge badge-green">降息預期受惠</span></td></tr>
-          <tr><td><b>公用事業 (Utilities)</b></td><td>XLU</td><td class="down">-0.24%</td><td class="up">+1.03%</td><td class="up">+3.08%</td><td>82.4%</td><td>80.2%</td><td>88.7%</td><td class="slope-down">→ 平穩</td><td><span class="badge badge-green">防禦收息受惠</span></td></tr>
-          <tr><td><b>工業 (Industrials)</b></td><td>XLI</td><td class="down">-2.44%</td><td class="up">+0.17%</td><td class="up">+2.41%</td><td>80.5%</td><td>82.4%</td><td>84.0%</td><td class="slope-down">→ 平穩</td><td><span class="badge badge-yellow">板塊內部分化</span></td></tr>
-          <tr><td><b>科技 (Technology)</b></td><td>XLK</td><td class="up">+0.71%</td><td class="down">-4.00%</td><td class="up">+0.76%</td><td>64.4%</td><td>62.4%</td><td>85.1%</td><td class="slope-up">↗ 溫和放大</td><td><span class="badge badge-yellow">多空激烈交戰</span></td></tr>
-          <tr><td><b>基礎材料 (Materials)</b></td><td>XLB</td><td class="down">-2.57%</td><td class="up">+0.85%</td><td class="up">+2.04%</td><td>103.4%</td><td>72.3%</td><td>110.3%</td><td class="slope-down">V型震盪</td><td><span class="badge badge-yellow">震盪築底</span></td></tr>
-          <tr><td><b>醫療保健 (Health Care)</b></td><td>XLV</td><td class="down">-1.17%</td><td class="up">+1.73%</td><td class="up">+1.51%</td><td>98.2%</td><td>86.6%</td><td>76.8%</td><td class="slope-down">↘ 持續縮量</td><td><span class="badge badge-blue">防禦避風港</span></td></tr>
-          <tr><td><b>民生必需品 (Staples)</b></td><td>XLP</td><td class="down">-0.46%</td><td class="up">+2.86%</td><td class="down">-0.66%</td><td>90.3%</td><td>78.9%</td><td>90.3%</td><td class="slope-down">V型震盪</td><td><span class="badge badge-blue">防禦避風港</span></td></tr>
-          <tr><td><b>通訊服務 (Communication)</b></td><td>XLC</td><td class="up">+0.81%</td><td class="up">+0.67%</td><td class="down">-3.36%</td><td>97.6%</td><td>85.0%</td><td>89.4%</td><td class="slope-down">→ 平穩</td><td><span class="badge badge-red">資金加速撤離</span></td></tr>
-          <tr><td><b>非必需消費 (Discretionary)</b></td><td>XLY</td><td class="down">-1.14%</td><td class="up">+0.01%</td><td class="down">-4.66%</td><td>119.6%</td><td>88.5%</td><td>94.7%</td><td class="slope-down">↘ 拋壓減輕</td><td><span class="badge badge-red">衰退預期打壓</span></td></tr>
+          <tr><td><b>能源 (Energy)</b></td><td>XLE</td><td class="down">-24.50%</td><td class="down">-4.42%</td><td class="up">+3.17%</td><td class="up">+6.36%</td><td class="up">+3.97%</td><td>84.8%</td><td>90.2%</td><td class="up">112.0%</td><td class="slope-up">↗ 穩步放大</td><td><span class="badge badge-green">深跌絕地反轉</span></td></tr>
+          <tr><td><b>金融 (Financials)</b></td><td>XLF</td><td class="down">-5.43%</td><td class="up">+5.29%</td><td class="down">-1.25%</td><td class="up">+2.57%</td><td class="up">+0.68%</td><td>81.2%</td><td>99.9%</td><td>94.4%</td><td class="slope-up">↗ 高位企穩</td><td><span class="badge badge-blue">中期趨勢轉強</span></td></tr>
+          <tr><td><b>房地產 (Real Estate)</b></td><td>XLRE</td><td class="down">-6.09%</td><td class="up">+1.39%</td><td class="down">-0.13%</td><td class="up">+3.79%</td><td class="up">+1.76%</td><td>80.6%</td><td>75.5%</td><td>98.8%</td><td class="slope-up">↗ 溫和放大</td><td><span class="badge badge-blue">中期趨勢轉強</span></td></tr>
+          <tr><td><b>公用事業 (Utilities)</b></td><td>XLU</td><td class="down">-13.96%</td><td class="up">+3.40%</td><td class="down">-0.24%</td><td class="up">+1.03%</td><td class="up">+3.08%</td><td>82.4%</td><td>80.2%</td><td>88.7%</td><td class="slope-down">→ 平穩</td><td><span class="badge badge-blue">中期趨勢轉強</span></td></tr>
+          <tr><td><b>工業 (Industrials)</b></td><td>XLI</td><td class="down">-0.26%</td><td class="up">+8.38%</td><td class="down">-2.44%</td><td class="up">+0.17%</td><td class="up">+2.41%</td><td>80.5%</td><td>82.4%</td><td>84.0%</td><td class="slope-down">→ 平穩</td><td><span class="badge badge-purple">強勢基期延續</span></td></tr>
+          <tr><td><b>科技 (Technology)</b></td><td>XLK</td><td class="up">+24.84%</td><td class="up">+1.04%</td><td class="up">+0.71%</td><td class="down">-4.00%</td><td class="up">+0.76%</td><td>64.4%</td><td>62.4%</td><td>85.1%</td><td class="slope-up">↗ 溫和放大</td><td><span class="badge badge-yellow">極度擁擠震盪</span></td></tr>
+          <tr><td><b>基礎材料 (Materials)</b></td><td>XLB</td><td class="down">-11.41%</td><td class="up">+0.67%</td><td class="down">-2.57%</td><td class="up">+0.85%</td><td class="up">+2.04%</td><td>103.4%</td><td>72.3%</td><td>110.3%</td><td class="slope-down">V型震盪</td><td><span class="badge badge-gray">底部震盪</span></td></tr>
+          <tr><td><b>醫療保健 (Health Care)</b></td><td>XLV</td><td class="down">-5.76%</td><td class="up">+7.53%</td><td class="down">-1.17%</td><td class="up">+1.73%</td><td class="up">+1.51%</td><td>98.2%</td><td>86.6%</td><td>76.8%</td><td class="slope-down">↘ 持續縮量</td><td><span class="badge badge-blue">健康回調防禦</span></td></tr>
+          <tr><td><b>民生必需品 (Staples)</b></td><td>XLP</td><td class="down">-11.76%</td><td class="up">+1.50%</td><td class="down">-0.46%</td><td class="up">+2.86%</td><td class="down">-0.66%</td><td>90.3%</td><td>78.9%</td><td>90.3%</td><td class="slope-down">V型震盪</td><td><span class="badge badge-gray">底部震盪</span></td></tr>
+          <tr><td><b>通訊服務 (Communication)</b></td><td>XLC</td><td class="down">-15.84%</td><td class="down">-6.20%</td><td class="up">+0.81%</td><td class="up">+0.67%</td><td class="down">-3.36%</td><td>97.6%</td><td>85.0%</td><td>89.4%</td><td class="slope-down">→ 平穩</td><td><span class="badge badge-red">結構性熊市</span></td></tr>
+          <tr><td><b>非必需消費 (Discretionary)</b></td><td>XLY</td><td class="down">-6.28%</td><td class="down">-1.71%</td><td class="down">-1.14%</td><td class="up">+0.01%</td><td class="down">-4.66%</td><td>119.6%</td><td>88.5%</td><td>94.7%</td><td class="slope-down">↘ 拋壓減輕</td><td><span class="badge badge-red">結構性熊市</span></td></tr>
         </table>
       </div>
     </div>
 
-    <!-- Section 3: Industry Matrix -->
+    <!-- Section 3: Industry Matrix (Full Columns) -->
     <div class="section">
       <div class="section-title">Section 3: 細分行業輪動矩陣 (Industry Matrix - 尋找結構性衝突)</div>
       <div class="card card-full">
         <div style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">
-          💡 <b>分析提示：</b> 結合 W-3 到 W-1 的量能斜率，區分「洗盤後建倉」、「突發恐慌」與「拋壓衰竭」。(已移除 SNSR，新增 AIPO 與 IBB)
+          💡 <b>分析提示：</b> 結合 3M/1M 基期與 W-3 至 W-1 的量能斜率，精準區分「洗盤後建倉」、「高位派發」與「趨勢加速」。
         </div>
         <table>
           <tr>
-            <th>行業 (Industry)</th><th>ETF</th><th>W-3 (RS)</th><th>W-2 (RS)</th><th>W-1 (RS)</th><th>W-3 Vol</th><th>W-2 Vol</th><th>W-1 Vol</th><th>量能斜率 (Slope)</th><th>機構行為判定</th>
+            <th>行業 (Industry)</th><th>ETF</th><th>3 Month</th><th>1 Month</th><th>W-3 (RS)</th><th>W-2 (RS)</th><th>W-1 (RS)</th><th>W-3 Vol</th><th>W-2 Vol</th><th>W-1 Vol</th><th>量能斜率 (Slope)</th><th>多週期綜合判定</th>
           </tr>
-          <!-- Extreme Volume Up -->
-          <tr style="background: rgba(74, 222, 128, 0.05);"><td><b>美國基建</b></td><td>PAVE</td><td class="down">-2.07%</td><td class="up">+0.90%</td><td class="up">+3.16%</td><td>182.2%</td><td class="down">42.4%</td><td class="vol-extreme-up">553.5%</td><td class="slope-up">洗盤後爆發</td><td><span class="badge badge-green">歷史天量建倉</span></td></tr>
-          <tr style="background: rgba(74, 222, 128, 0.05);"><td><b>國防航天</b></td><td>ITA</td><td class="down">-5.14%</td><td class="down">-1.97%</td><td class="up">+4.69%</td><td>77.9%</td><td>68.8%</td><td class="vol-extreme-up">157.8%</td><td class="slope-spike">突發爆量</td><td><span class="badge badge-green">事件驅動搶籌</span></td></tr>
+          <!-- Extreme Volume Up (Reversals & Breakouts) -->
+          <tr style="background: rgba(74, 222, 128, 0.05);"><td><b>美國基建</b></td><td>PAVE</td><td class="up">+2.71%</td><td class="up">+5.67%</td><td class="down">-2.07%</td><td class="up">+0.90%</td><td class="up">+3.16%</td><td>182.2%</td><td class="down">42.4%</td><td class="vol-extreme-up">553.5%</td><td class="slope-up">洗盤後爆發</td><td><span class="badge badge-purple">強勢基期延續</span></td></tr>
+          <tr style="background: rgba(74, 222, 128, 0.05);"><td><b>國防航天</b></td><td>ITA</td><td class="down">-3.49%</td><td class="up">+4.30%</td><td class="down">-5.14%</td><td class="down">-1.97%</td><td class="up">+4.69%</td><td>77.9%</td><td>68.8%</td><td class="vol-extreme-up">157.8%</td><td class="slope-spike">突發爆量</td><td><span class="badge badge-blue">中期轉強爆發</span></td></tr>
           
-          <!-- AI Infrastructure (New) -->
-          <tr style="background: rgba(56, 189, 248, 0.05);"><td><b>AI基礎設施</b></td><td>AIPO</td><td class="down">-1.50%</td><td class="down">-2.10%</td><td class="up">+2.50%</td><td>85.0%</td><td>90.0%</td><td class="up">135.0%</td><td class="slope-up">↗ 底部放量</td><td><span class="badge badge-blue">AI基建搶籌</span></td></tr>
-          <tr style="background: rgba(56, 189, 248, 0.05);"><td><b>智能電網</b></td><td>GRID</td><td class="down">-1.86%</td><td class="down">-2.27%</td><td class="up">+0.34%</td><td>78.1%</td><td>69.9%</td><td>80.4%</td><td class="slope-up">↗ 溫和放大</td><td><span class="badge badge-blue">震盪轉強</span></td></tr>
+          <!-- AI Infrastructure (Trend Continuation) -->
+          <tr style="background: rgba(192, 132, 252, 0.1);"><td><b>AI基礎設施</b></td><td>AIPO</td><td class="up">+16.57%</td><td class="up">+3.09%</td><td class="down">-2.61%</td><td class="down">-5.03%</td><td class="up">+1.04%</td><td>63.4%</td><td>79.3%</td><td class="up">121.4%</td><td class="slope-up">↗ 底部放量</td><td><span class="badge badge-purple">強勢回調買入</span></td></tr>
+          <tr style="background: rgba(192, 132, 252, 0.1);"><td><b>智能電網</b></td><td>GRID</td><td class="up">+2.08%</td><td class="up">+0.61%</td><td class="down">-1.86%</td><td class="down">-2.27%</td><td class="up">+0.34%</td><td>78.1%</td><td>69.9%</td><td>80.4%</td><td class="slope-up">↗ 溫和放大</td><td><span class="badge badge-purple">強勢基期延續</span></td></tr>
 
-          <!-- Extreme Volume Down -->
-          <tr style="background: rgba(248, 113, 113, 0.05);"><td><b>互聯網巨頭</b></td><td>FDN</td><td class="up">+1.63%</td><td class="down">-0.80%</td><td class="down">-3.37%</td><td>58.5%</td><td>74.1%</td><td class="vol-extreme">382.0%</td><td class="slope-spike">突發恐慌</td><td><span class="badge badge-red">堅決拋售出貨</span></td></tr>
-          <tr style="background: rgba(248, 113, 113, 0.05);"><td><b>系統軟件 / AI</b></td><td>IGV</td><td class="down">-2.98%</td><td class="up">+2.00%</td><td class="down">-4.63%</td><td>64.6%</td><td>53.5%</td><td class="vol-extreme">101.8%</td><td class="slope-spike">放量下殺</td><td><span class="badge badge-red">資金撤離</span></td></tr>
+          <!-- Extreme Volume Down (Structural Bear) -->
+          <tr style="background: rgba(248, 113, 113, 0.05);"><td><b>互聯網巨頭</b></td><td>FDN</td><td class="down">-1.49%</td><td class="down">-5.37%</td><td class="up">+1.63%</td><td class="down">-0.80%</td><td class="down">-3.37%</td><td>58.5%</td><td>74.1%</td><td class="vol-extreme">382.0%</td><td class="slope-spike">突發恐慌</td><td><span class="badge badge-red">跌勢放量加速</span></td></tr>
+          <tr style="background: rgba(248, 113, 113, 0.05);"><td><b>系統軟件 / AI</b></td><td>IGV</td><td class="down">-1.44%</td><td class="down">-9.72%</td><td class="down">-2.98%</td><td class="up">+2.00%</td><td class="down">-4.63%</td><td>64.6%</td><td>53.5%</td><td class="vol-extreme">101.8%</td><td class="slope-spike">放量下殺</td><td><span class="badge badge-red">跌勢放量加速</span></td></tr>
           
-          <!-- High Volume Battleground -->
-          <tr style="background: rgba(251, 191, 36, 0.05);"><td><b>半導體 (VanEck)</b></td><td>SMH</td><td class="up">+0.62%</td><td class="down">-7.49%</td><td class="up">+1.43%</td><td>83.3%</td><td>96.6%</td><td class="vol-alert">171.2%</td><td class="slope-up">↗ 持續放大</td><td><span class="badge badge-yellow">爆量煞車/換手</span></td></tr>
+          <!-- High Volume Battleground (Overcrowded) -->
+          <tr style="background: rgba(251, 191, 36, 0.05);"><td><b>半導體 (VanEck)</b></td><td>SMH</td><td class="up" style="font-weight:bold;">+48.98%</td><td class="up">+10.93%</td><td class="up">+0.62%</td><td class="down">-7.49%</td><td class="up">+1.43%</td><td>83.3%</td><td>96.6%</td><td class="vol-alert">171.2%</td><td class="slope-up">↗ 持續放大</td><td><span class="badge badge-yellow">極度擁擠派發</span></td></tr>
           
-          <!-- Biotech Divergence -->
-          <tr><td><b>生物科技(大盤)</b></td><td>IBB</td><td class="down">-1.00%</td><td class="down">-0.50%</td><td class="down">-1.20%</td><td>95.0%</td><td>100.0%</td><td>88.0%</td><td class="slope-down">↘ 縮量防禦</td><td><span class="badge badge-gray">相對抗跌</span></td></tr>
-          <tr><td><b>生物科技(小盤)</b></td><td>XBI</td><td class="down">-1.59%</td><td class="down">-1.48%</td><td class="down">-1.87%</td><td>101.0%</td><td>102.2%</td><td>83.2%</td><td class="slope-down">↘ 高位縮量</td><td><span class="badge badge-yellow">高Beta回調</span></td></tr>
+          <!-- Biotech (Healthy Pullback) -->
+          <tr><td><b>生物科技(大盤)</b></td><td>IBB</td><td class="down">-1.91%</td><td class="up" style="font-weight:bold;">+11.90%</td><td class="down">-2.14%</td><td class="up">+0.35%</td><td class="down">-0.27%</td><td>138.6%</td><td>108.9%</td><td>99.6%</td><td class="slope-down">↘ 縮量防禦</td><td><span class="badge badge-blue">暴漲後健康回調</span></td></tr>
+          <tr><td><b>生物科技(小盤)</b></td><td>XBI</td><td class="up">+7.90%</td><td class="up" style="font-weight:bold;">+17.28%</td><td class="down">-1.59%</td><td class="down">-1.48%</td><td class="down">-1.87%</td><td>101.0%</td><td>102.2%</td><td>83.2%</td><td class="slope-down">↘ 高位縮量</td><td><span class="badge badge-blue">暴漲後健康回調</span></td></tr>
 
           <!-- Others -->
-          <tr><td><b>石油開採</b></td><td>XOP</td><td class="up">+2.49%</td><td class="up">+9.01%</td><td class="up">+2.88%</td><td>106.2%</td><td>82.1%</td><td>116.2%</td><td class="slope-up">↗ 穩健吸籌</td><td><span class="badge badge-green">右側確認</span></td></tr>
-          <tr><td><b>乾淨能源</b></td><td>ICLN</td><td class="down">-4.79%</td><td class="down">-3.07%</td><td class="down">-2.64%</td><td>69.4%</td><td>72.2%</td><td>101.3%</td><td class="slope-spike">放量下殺</td><td><span class="badge badge-red">趨勢走弱</span></td></tr>
-          <tr><td><b>醫療手術設備</b></td><td>IHI</td><td class="down">-1.96%</td><td class="down">-0.07%</td><td class="up">+0.03%</td><td>129.0%</td><td>105.5%</td><td>83.3%</td><td class="slope-down">↘ 拋壓衰竭</td><td><span class="badge badge-blue">防禦抗跌</span></td></tr>
-          <tr><td><b>網絡安全</b></td><td>CIBR</td><td class="down">-1.59%</td><td class="up">+2.10%</td><td class="down">-3.72%</td><td>110.5%</td><td>76.8%</td><td>56.6%</td><td class="slope-down">↘ 極度縮量</td><td><span class="badge badge-gray">缺乏承接</span></td></tr>
-          <tr><td><b>科技 ETF</b></td><td>IYW</td><td class="up">+0.60%</td><td class="down">-2.83%</td><td class="down">-0.74%</td><td>56.6%</td><td>74.3%</td><td>97.4%</td><td class="slope-up">↗ 溫和放大</td><td><span class="badge badge-yellow">高位震盪</span></td></tr>
-          <tr><td><b>區域銀行</b></td><td>KRE</td><td class="down">-1.20%</td><td class="up">+3.83%</td><td class="down">-0.67%</td><td>81.0%</td><td>89.6%</td><td>80.8%</td><td class="slope-down">→ 平穩</td><td><span class="badge badge-yellow">震盪整理</span></td></tr>
-          <tr><td><b>半導體 (SPDR)</b></td><td>SMHX</td><td class="up">+1.81%</td><td class="down">-8.66%</td><td class="up">+1.15%</td><td>49.4%</td><td>55.6%</td><td>73.0%</td><td class="slope-up">↗ 溫和放大</td><td><span class="badge badge-yellow">縮量反彈</span></td></tr>
+          <tr><td><b>石油開採</b></td><td>XOP</td><td class="down" style="font-weight:bold;">-26.12%</td><td class="down">-4.71%</td><td class="up">+2.49%</td><td class="up">+9.01%</td><td class="up">+2.88%</td><td>106.2%</td><td>82.1%</td><td>116.2%</td><td class="slope-up">↗ 穩健吸籌</td><td><span class="badge badge-green">深跌絕地反轉</span></td></tr>
+          <tr><td><b>乾淨能源</b></td><td>ICLN</td><td class="down">-2.44%</td><td class="down">-11.94%</td><td class="down">-4.79%</td><td class="down">-3.07%</td><td class="down">-2.64%</td><td>69.4%</td><td>72.2%</td><td>101.3%</td><td class="slope-spike">放量下殺</td><td><span class="badge badge-red">結構性熊市</span></td></tr>
+          <tr><td><b>醫療手術設備</b></td><td>IHI</td><td class="down">-19.34%</td><td class="up">+2.23%</td><td class="down">-1.96%</td><td class="down">-0.07%</td><td class="up">+0.03%</td><td>129.0%</td><td>105.5%</td><td>83.3%</td><td class="slope-down">↘ 拋壓衰竭</td><td><span class="badge badge-green">深跌築底</span></td></tr>
+          <tr><td><b>網絡安全</b></td><td>CIBR</td><td class="up">+24.84%</td><td class="up">+2.22%</td><td class="down">-1.59%</td><td class="up">+2.10%</td><td class="down">-3.72%</td><td>110.5%</td><td>76.8%</td><td>56.6%</td><td class="slope-down">↘ 極度縮量</td><td><span class="badge badge-yellow">高位擁擠回調</span></td></tr>
+          <tr><td><b>科技 ETF</b></td><td>IYW</td><td class="up">+21.08%</td><td class="up">+1.02%</td><td class="up">+0.60%</td><td class="down">-2.83%</td><td class="down">-0.74%</td><td>56.7%</td><td>74.3%</td><td>97.4%</td><td class="slope-up">↗ 溫和放大</td><td><span class="badge badge-yellow">高位擁擠震盪</span></td></tr>
+          <tr><td><b>區域銀行</b></td><td>KRE</td><td class="up">+0.05%</td><td class="up">+8.93%</td><td class="down">-1.20%</td><td class="up">+3.83%</td><td class="down">-0.67%</td><td>81.0%</td><td>89.7%</td><td>80.8%</td><td class="slope-down">→ 平穩</td><td><span class="badge badge-purple">強勢回調買入</span></td></tr>
+          <tr><td><b>半導體 (SPDR)</b></td><td>SMHX</td><td class="up">+49.49%</td><td class="up">+3.74%</td><td class="up">+1.81%</td><td class="down">-8.66%</td><td class="up">+1.15%</td><td>55.7%</td><td>80.7%</td><td>73.1%</td><td class="slope-up">↗ 溫和放大</td><td><span class="badge badge-yellow">極度擁擠派發</span></td></tr>
         </table>
       </div>
     </div>
 
-    <!-- Section 4: Volume Validation -->
+    <!-- Section 4: Multi-Timeframe Deep Dive -->
     <div class="section">
-      <div class="section-title">Section 4: 量能斜率深度解析 (Volume Slope Analysis)</div>
+      <div class="section-title">Section 4: 中長線視角 (1M/3M) 與短線爆發的交叉驗證</div>
       <div class="grid">
         <div class="card" style="background: #1a2e1a; border: 1px solid #14532d;">
-          <div class="title" style="color: #4ade80;">🔥 洗盤與蓄勢爆發 (Accumulation & Breakout)</div>
+          <div class="title" style="color: #4ade80;">🔥 絕地反轉 vs 趨勢延續 (高勝率做多)</div>
           <div style="font-size: 13px; color: #cbd5e1; line-height: 1.8;">
-            <b>PAVE (基建)：</b> W-3 (182%) -> W-2 (42%) -> W-1 (553%)。<br>
-            <b>CoT 推理：</b> 這是最經典的量價形態。W-2 的 42% 是極度縮量洗盤，清洗浮籌；W-1 隨即爆出 5.5 倍歷史天量向上突破。這證明機構早已在佈局，W-1 是發動總攻的信號。<br><br>
-            <b>AIPO (AI基建)：</b> W-3 (85%) -> W-2 (90%) -> W-1 (135%)。<br>
-            <b>CoT 推理：</b> 量能穩步跨過 100% 臨界點，配合 RS 翻正 (+2.5%)，顯示資金正在有組織地建倉 AI 實體基礎設施。
+            <b>XOP (能源) - 絕地反轉：</b> 3M 暴跌 -26.12%，全市場最慘。但 W-1 逆勢上漲 +2.88% 且量能放大至 116%。<br>
+            <b>CoT 推理：</b> 3M 的深跌意味著上方毫無近期套牢盤，籌碼極度乾淨。此時的放量上漲是機構在「真空區」建倉，均值回歸的爆發力極強。<br><br>
+            <b>AIPO (AI基建) - 趨勢延續：</b> 3M 大漲 +16.57%。W-3/W-2 縮量回調，W-1 爆量 (121%) 轉強。<br>
+            <b>CoT 推理：</b> 這是經典的「牛市回調買入 (Buy the Dip)」。中長線趨勢向上，短線洗盤結束後資金重新點火。
           </div>
         </div>
 
         <div class="card" style="background: #331c1c; border: 1px solid #7f1d1d;">
-          <div class="title" style="color: #f87171;">🩸 突發恐慌與拋壓衰竭 (Capitulation & Exhaustion)</div>
+          <div class="title" style="color: #f87171;">🩸 擁擠派發 vs 跌勢加速 (高風險迴避)</div>
           <div style="font-size: 13px; color: #cbd5e1; line-height: 1.8;">
-            <b>FDN (互聯網) / IGV (軟體)：</b> W-3/W-2 量能溫和，W-1 突然噴發至 382% (FDN) 與 101% (IGV) 且伴隨暴跌。<br>
-            <b>CoT 推理：</b> 缺乏前期的出貨徵兆，W-1 的爆量下殺屬於「基本面邏輯瞬間破滅 (如 AI 變現擔憂)」引發的恐慌踩踏，短期內絕對不能接飛刀。<br><br>
-            <b>IHI (醫療設備)：</b> W-3 (129%) -> W-2 (105%) -> W-1 (83%)。<br>
-            <b>CoT 推理：</b> 雖然價格在跌，但量能斜率持續向下，這代表「拋壓正在衰竭 (Selling Exhaustion)」，隨時可能迎來無量反彈。
+            <b>SMH (半導體) - 擁擠派發：</b> 3M 暴漲 +48.98%！W-1 爆出 171% 天量卻漲不動。<br>
+            <b>CoT 推理：</b> 結合 3M 數據，這絕對不是洗盤。當一個板塊一季度漲了 50%，任何高位的天量震盪都是機構在派發籌碼 (Distribution)。極度擁擠，隨時踩踏。<br><br>
+            <b>IGV (軟體) - 跌勢加速：</b> 1M 已經大跌 -9.72%。W-1 繼續爆量 (101%) 下殺。<br>
+            <b>CoT 推理：</b> 這不是突發利空，而是原有下跌趨勢的加速。資金在 1M 前就開始撤離，現在是恐慌盤湧出，切勿接飛刀。
           </div>
         </div>
       </div>
@@ -273,17 +293,17 @@
       <div class="section-title">Section 5: 結構性衝突分析 (Structural Divergence)</div>
       <div class="grid">
         <div class="card">
-          <div class="title">⚔️ 基礎設施的價值重估 (AI Power vs Broad Infra)</div>
+          <div class="title">⚔️ 生技板塊的真相 (暴漲後的健康消化)</div>
           <div style="font-size: 13px; color: #cbd5e1; line-height: 1.8;">
-            <b>現象：</b> VRT 與 BE 過去常被歸類於傳統基建 (PAVE) 或乾淨能源 (ICLN)。但本週 ICLN 大跌 (-2.64%)，而 AIPO (+2.50%) 與 GRID (+0.34%) 卻逆勢走強。<br/><br/>
-            <b>真相：</b> 這是極其重要的**「邏輯重構」**。市場不再將 VRT/BE 視為傳統工業股，而是將其重新定價為**「AI 算力背後的電力與散熱剛需 (AIPO/GRID)」**。它們成功脫離了傳統板塊的弱勢泥沼，迎來了獨立的估值提升行情。
+            <b>現象：</b> 單看 W-1，IBB (-0.27%) 和 XBI (-1.87%) 都在跌，似乎生技板塊很弱。<br/><br/>
+            <b>真相：</b> 引入 1M 數據後真相大白！IBB 1M 暴漲 +11.90%，XBI 1M 暴漲 +17.28%。這意味著 W-1 的下跌根本不是轉弱，而是面對單月巨大漲幅後的**「健康獲利了結與均值回歸」**。量能縮減 (IBB 99%, XBI 83%) 也印證了這只是良性洗盤，NBIX 等優質個股回調即是買點。
           </div>
         </div>
         <div class="card">
-          <div class="title">⚔️ 生技板塊的避險分化 (Large Cap vs Small Cap)</div>
+          <div class="title">⚔️ 基礎設施的價值重估 (AI Power vs Broad Infra)</div>
           <div style="font-size: 13px; color: #cbd5e1; line-height: 1.8;">
-            <b>現象：</b> 醫療板塊 XLV 走強 (+1.51%)，但內部的生技股出現分化。大盤生技 IBB (W-1 RS -1.20%) 表現明顯優於高 Beta 的小盤生技 XBI (W-1 RS -1.87%)。<br/><br/>
-            <b>真相：</b> 在大盤避險 (Risk-off) 情緒下，資金即使留在生技板塊，也出現了明顯的**「Flight to Quality (飛向質量)」**。資金偏好有實質盈利支撐的大型藥廠 (IBB)，而拋棄依賴融資與利率預期的小型生技 (XBI)。NBIX 作為權重股，其走勢將更貼近 IBB 的防禦屬性。
+            <b>現象：</b> VRT 與 BE 過去常被歸類於傳統基建 (PAVE) 或乾淨能源 (ICLN)。但本週 ICLN 大跌 (-2.64%)，而 AIPO (+1.04%) 與 GRID (+0.34%) 卻逆勢走強。<br/><br/>
+            <b>真相：</b> 這是極其重要的**「邏輯重構」**。市場不再將 VRT/BE 視為傳統工業股，而是將其重新定價為**「AI 算力背後的電力與散熱剛需 (AIPO/GRID)」**。它們成功脫離了傳統板塊的弱勢泥沼，迎來了獨立的估值提升行情。
           </div>
         </div>
       </div>
@@ -294,49 +314,49 @@
       <div class="section-title">Section 6: 個股與戰術部署 (Tactical Recommendations)</div>
       <div class="grid">
         <div class="card tag-green" style="background: #1a2e1a; border: 1px solid #14532d;">
-          <div class="title" style="color: #4ade80;">🟢 強烈看多 (AI 盡頭是電力與散熱)</div>
+          <div class="title" style="color: #4ade80;">🟢 強烈看多 (深跌反轉 + AI電力剛需)</div>
           <div class="stock-card">
-            <div class="stock-name">VRT (Vertiv) / BE (Bloom Energy)</div>
-            <div class="stock-meta">關聯板塊: AIPO (AI基建) / GRID (智能電網)</div>
+            <div class="stock-name">XOP (能源) / VRT / BE</div>
+            <div class="stock-meta">關聯板塊: XOP (能源) / AIPO (AI基建) / GRID (智能電網)</div>
             <div class="stock-reason">
-              <b>邏輯：</b> 成功擺脫 PAVE/ICLN 的舊邏輯束縛。AIPO 量能穩步放大 (135%)，GRID 震盪轉強。AI 數據中心的耗電與散熱是目前市場最確定的硬體剛需。<br/>
-              <b>操作：</b> 作為本輪輪動的核心做多標的。逢回調買入，享受估值重塑的紅利。
+              <b>邏輯：</b> XOP 具備 3M 深跌 (-26%) 的絕佳基期，W-1 放量反轉，勝率極高。VRT/BE 則受惠於 AIPO 的強勢基期 (+16%) 與回調結束後的放量上攻。<br/>
+              <b>操作：</b> 作為本輪輪動的核心做多標的。XOP 買入底部反轉；VRT/BE 買入趨勢延續。
             </div>
           </div>
         </div>
 
         <div class="card tag-red" style="background: #331c1c; border: 1px solid #7f1d1d;">
-          <div class="title" style="color: #f87171;">🔴 強烈看空 / 迴避 (軟體與消費降級)</div>
+          <div class="title" style="color: #f87171;">🔴 強烈看空 / 迴避 (跌勢加速與消費降級)</div>
           <div class="stock-card">
             <div class="stock-name">GOOG / PLTR / GRMN</div>
             <div class="stock-meta">關聯板塊: FDN (互聯網) / IGV (軟體) / XLY (非必需消費)</div>
             <div class="stock-reason">
-              <b>邏輯：</b> FDN 爆量 382% 突發下殺，軟體 IGV 遭資金拋棄。同時，GRMN 所屬的 XLY (非必需消費) 持續弱勢，反映衰退預期下的消費降級。<br/>
-              <b>操作：</b> 嚴格停損或逢高建立空頭部位。避開高估值軟體與依賴宏觀經濟的可選消費品。
+              <b>邏輯：</b> FDN/IGV 在 1M 已經走弱的背景下，W-1 爆量加速下殺，跌勢尚未見底。GRMN 所屬的 XLY (3M -6.28%) 反映衰退預期下的消費降級。<br/>
+              <b>操作：</b> 嚴格停損或逢高建立空頭部位。切勿在跌勢加速期接飛刀。
             </div>
           </div>
         </div>
 
         <div class="card tag-yellow" style="background: #2a1810; border: 1px solid #78350f;">
-          <div class="title" style="color: #fbbf24;">🟡 中性觀望 / 區間操作 (半導體巨頭)</div>
+          <div class="title" style="color: #fbbf24;">🟡 逢高減倉 / 區間操作 (極度擁擠的半導體)</div>
           <div class="stock-card">
             <div class="stock-name">NVDA / TSM / AVGO / MU / RMBS</div>
             <div class="stock-meta">關聯板塊: SMH (半導體)</div>
             <div class="stock-reason">
-              <b>邏輯：</b> SMH 量能斜率持續放大 (83%->96%->171%)，W-1 出現「煞車量」。這裡不是 V 型反轉時機，而是「築底震盪期」。<br/>
-              <b>操作：</b> 必須等待 SMH 量能萎縮至 80% 以下，確認拋壓衰竭後才能進場。目前可利用期權 (如 Sell Put) 收取權利金。
+              <b>邏輯：</b> SMH 3M 暴漲 +48.98%，極度擁擠。W-1 爆出 171% 天量卻漲不動，這是典型的高位派發特徵。<br/>
+              <b>操作：</b> 逢高減倉鎖定利潤。必須等待 SMH 量能萎縮至 80% 以下，確認拋壓衰竭後才能重新進場。
             </div>
           </div>
         </div>
 
-        <div class="card tag-blue" style="background: #0c2d4d; border: 1px solid #0c4a6e;">
-          <div class="title" style="color: #38bdf8;">🔵 防禦配置 (投資組合壓艙石)</div>
+        <div class="card tag-purple" style="background: #2e1065; border: 1px solid #4c1d95;">
+          <div class="title" style="color: #c084fc;">🟣 逢低佈局 (暴漲後的健康回調)</div>
           <div class="stock-card">
-            <div class="stock-name">NBIX / KO / MCD</div>
-            <div class="stock-meta">關聯板塊: IBB (大盤生技) / XLP (必需消費)</div>
+            <div class="stock-name">NBIX / KRE</div>
+            <div class="stock-meta">關聯板塊: IBB (大盤生技) / KRE (區域銀行)</div>
             <div class="stock-reason">
-              <b>邏輯：</b> NBIX 獲益於 IBB 的大盤防禦屬性，抗跌能力優於 XBI。KO/MCD 在大盤避險情緒下具備資金避風港作用。<br/>
-              <b>操作：</b> 作為投資組合的防禦底倉，建議維持標配 (Market Weight)，對沖大盤波動風險。
+              <b>邏輯：</b> IBB (1M +11.9%) 與 KRE (1M +8.9%) 在經歷了一個月的暴漲後，W-1 出現縮量回調。這不是轉弱，而是良性的籌碼換手。<br/>
+              <b>操作：</b> 利用 W-1 的回調逢低佈局，等待下一波均值回歸的上攻。
             </div>
           </div>
         </div>
@@ -349,41 +369,38 @@
   <div id="text-report" class="tab-content">
     <div class="text-report-container">
       <h1 style="color: #f8fafc; margin-top: 0;">深度全球宏觀與量化策略研報</h1>
-      <p>這是一份基於量化數據（相對強弱 RS 與 量能斜率 Volume Slope）所撰寫的深度報告。本週我們觀察到市場底層邏輯發生了重大重構：資金正從純軟體與可選消費撤出，並將「AI 基礎設施（電力與散熱）」重新定價為核心硬資產。</p>
+      <p>這是一份基於量化數據（相對強弱 RS、量能斜率 Volume Slope 與 1M/3M 基期）所撰寫的深度報告。本週我們引入了中長線視角，這對過濾短線雜訊起到了決定性作用：我們成功區分了「高位派發」與「健康洗盤」，並精準定位了「絕地反轉」的絕佳買點。</p>
 
       <h2>核心結論 (Executive Summary)</h2>
-      <p>當前市場（2026年7月中下旬）正在經歷一場<strong class="highlight-text">極度暴力的「風格切換」與「板塊輪動」</strong>。資金正以極大的成交量從前期擁擠的「互聯網/軟件」板塊撤出，並真金白銀地砸向「AI 基礎設施 (AIPO/GRID)、國防航天、傳統能源」以及「防禦性收息板塊」。大盤處於短線回調的避險環境中，但這並非全面熊市，而是<strong>資金在進行深度的結構性調倉與邏輯重估</strong>。</p>
+      <p>當前市場（2026年7月中下旬）正在經歷一場<strong class="highlight-text">極度暴力的「風格切換」與「板塊輪動」</strong>。結合 3M 基期來看，資金正從極度擁擠的半導體 (SMH 3M +49%) 和結構性走弱的軟體 (IGV 1M -9%) 中撤出，並真金白銀地砸向深跌反轉的傳統能源 (XOP 3M -26%) 以及趨勢延續的 AI 基礎設施 (AIPO 3M +16%)。大盤處於短線回調的避險環境中，但這並非全面熊市，而是<strong>資金在進行深度的結構性調倉與邏輯重估</strong>。</p>
 
-      <h2>一、 大盤宏觀背景分析 (Macro & Broad Market Context)</h2>
+      <h2>一、 中長線視角 (1M/3M) 與短線爆發的交叉驗證</h2>
+      <p>如果只看單週數據，我們很容易被騙。引入 1M 和 3M 的「基期 (Base)」後，機構的真實意圖無所遁形：</p>
       <ul>
-        <li><strong>技術面訊號：</strong> SPX 表現：W-3 (-1.64%) -> W-2 (-2.12%) -> W-1 (-0.59%)。標普500指數連續三週下跌，但跌幅在 W-1 有所收斂。大盤處於典型的短線修正（Correction）與避險（Risk-off）週期。</li>
-        <li><strong>宏觀驅動推理 (CoT)：</strong> 結合 1M 與 3M 數據，Q2 是科技股的狂歡。但進入 7 月後大盤連跌，這通常對應著兩種宏觀情境：(1) 財報季初期的「Buy the rumor, sell the news」獲利了結；(2) 宏觀流動性預期改變（如降息預期提前兌現後的反向交易）。</li>
-      </ul>
-
-      <h2>二、 量能斜率深度解析 (Volume Slope Analysis)</h2>
-      <p>單看一週的成交量容易陷入雜訊，透過 W-3 到 W-1 的量能斜率，我們發現了機構真實的意圖：</p>
-      <ul>
-        <li><strong style="color:#4ade80;">洗盤與蓄勢爆發 (Accumulation & Breakout)：</strong> 
-          <strong>PAVE (美國基建)</strong> 的量能軌跡為 W-3 (182%) -> W-2 (42%) -> W-1 (553%)。W-2 的 42% 是極度縮量洗盤，清洗浮籌；W-1 隨即爆出 5.5 倍歷史天量向上突破。<strong>AIPO (AI基建)</strong> 量能穩步放大 (85%->90%->135%)，顯示資金正在有組織地建倉 AI 實體基礎設施。
+        <li><strong style="color:#4ade80;">絕地大反轉 (深跌基期 + 爆量突破)：</strong> 
+          <strong>XOP (能源)</strong> 3M 暴跌 -26.12%，全市場最慘。但 W-1 逆勢上漲 +2.88% 且量能放大至 116%。3M 的深跌意味著上方毫無近期套牢盤，籌碼極度乾淨。此時的放量上漲是機構在「真空區」建倉，均值回歸的爆發力極強。
         </li>
-        <li><strong style="color:#f87171;">突發恐慌踩踏 (Sudden Capitulation)：</strong> 
-          <strong>FDN (互聯網)</strong> 與 <strong>IGV (軟體)</strong> 在 W-3/W-2 量能溫和，W-1 突然噴發至 382% 與 101%。缺乏前期的出貨徵兆，這屬於「基本面邏輯瞬間破滅 (如 AI 變現擔憂)」引發的恐慌踩踏。
+        <li><strong style="color:#f87171;">擁擠度極限 (暴漲基期 + 高位爆量)：</strong> 
+          <strong>SMH (半導體)</strong> 3M 暴漲 +48.98%！W-1 爆出 171% 天量卻僅微漲 +1.43%。當一個板塊一季度漲了 50%，任何高位的天量震盪都是機構在派發籌碼 (Distribution)。極度擁擠，隨時踩踏。
         </li>
-        <li><strong style="color:#fbbf24;">多空交戰與拋壓衰竭 (Battleground & Exhaustion)：</strong> 
-          <strong>SMH (半導體)</strong> 量能持續放大 (83%->96%->171%)，W-1 出現「煞車量」，多空激烈交戰。相反，<strong>IHI (醫療設備)</strong> 量能斜率向下 (129%->105%->83%)，代表拋壓正在衰竭。
+        <li><strong style="color:#c084fc;">趨勢延續 (強勢基期 + 縮量洗盤後轉強)：</strong> 
+          <strong>AIPO (AI基建)</strong> 3M 大漲 +16.57%。W-3/W-2 縮量回調，W-1 爆量 (121%) 轉強。這是經典的「牛市回調買入 (Buy the Dip)」。中長線趨勢向上，短線洗盤結束後資金重新點火。
+        </li>
+        <li><strong style="color:#fbbf24;">結構性熊市 (弱勢基期 + 加速破位)：</strong> 
+          <strong>IGV (軟體)</strong> 1M 已經大跌 -9.72%。W-1 繼續爆量 (101%) 下殺。這不是突發利空，而是原有下跌趨勢的加速。資金在 1M 前就開始撤離，現在是恐慌盤湧出。
         </li>
       </ul>
 
-      <h2>三、 結構性衝突與邏輯重構 (Structural Divergence)</h2>
+      <h2>二、 結構性衝突與邏輯重構 (Structural Divergence)</h2>
       <p>這裡出現了極具價值的<strong>「結構性衝突」</strong>，揭示了資金的真實去向：</p>
       <ul>
-        <li><strong>衝突一：基礎設施的價值重估 (AI Power vs Broad Infra)</strong><br>
-        VRT 與 BE 過去常被歸類於傳統基建 (PAVE) 或乾淨能源 (ICLN)。但本週 ICLN 大跌 (-2.64%)，而 AIPO (+2.50%) 與 GRID (+0.34%) 卻逆勢走強。結論：市場不再將 VRT/BE 視為傳統工業股，而是將其重新定價為「AI 算力背後的電力與散熱剛需」。它們成功脫離了傳統板塊的弱勢泥沼。</li>
-        <li><strong>衝突二：生技板塊的避險分化 (Large Cap vs Small Cap)</strong><br>
-        醫療板塊 XLV 走強 (+1.51%)，但大盤生技 IBB (W-1 RS -1.20%) 表現明顯優於高 Beta 的小盤生技 XBI (W-1 RS -1.87%)。結論：在大盤避險情緒下，資金出現了「Flight to Quality (飛向質量)」，偏好有實質盈利支撐的大型藥廠 (IBB)。NBIX 作為權重股，其走勢將更貼近 IBB 的防禦屬性。</li>
+        <li><strong>衝突一：生技板塊的真相 (暴漲後的健康消化)</strong><br>
+        單看 W-1，IBB (-0.27%) 和 XBI (-1.87%) 都在跌。但引入 1M 數據後發現，IBB 1M 暴漲 +11.90%，XBI 1M 暴漲 +17.28%。這意味著 W-1 的下跌根本不是轉弱，而是面對單月巨大漲幅後的「健康獲利了結與均值回歸」。量能縮減也印證了這只是良性洗盤。</li>
+        <li><strong>衝突二：基礎設施的價值重估 (AI Power vs Broad Infra)</strong><br>
+        VRT 與 BE 過去常被歸類於傳統基建 (PAVE) 或乾淨能源 (ICLN)。但本週 ICLN 大跌 (-2.64%)，而 AIPO (+1.04%) 與 GRID (+0.34%) 卻逆勢走強。結論：市場不再將 VRT/BE 視為傳統工業股，而是將其重新定價為「AI 算力背後的電力與散熱剛需」。它們成功脫離了傳統板塊的弱勢泥沼。</li>
       </ul>
 
-      <h2>四、 宏觀/事件定性分析與邏輯推理 (CoT)</h2>
+      <h2>三、 宏觀/事件定性分析與邏輯推理 (CoT)</h2>
       <p><strong>異常點推理：</strong> 為什麼資金會以 3-5 倍的歷史成交量，從互聯網 (FDN) 撤出，並瘋狂湧入 AI 基建 (AIPO) 與國防 (ITA)？</p>
       <ol>
         <li><strong>XLU/XLRE 走強 + 大盤走弱：</strong> 說明長端美債殖利率正在快速回落。市場可能在交易「經濟衰退預期」或「聯準會即將大幅降息」。</li>
@@ -391,13 +408,13 @@
         <li><strong>AIPO/GRID 走強 + PAVE 553% 爆量：</strong> 資金在拋棄虛擬軟體後，轉向了確定性最高的硬體剛需——AI 數據中心的電力與散熱。這是一次深刻的產業邏輯切換。</li>
       </ol>
 
-      <h2>五、 綜合部署與戰術建議 (Tactical Recommendations)</h2>
-      <p><strong>核心戰術：避開軟體與可選消費，擁抱「AI 電力/散熱」與「防禦底倉」</strong></p>
+      <h2>四、 綜合部署與戰術建議 (Tactical Recommendations)</h2>
+      <p><strong>核心戰術：避開擁擠與破位板塊，擁抱「深跌反轉」與「強勢回調」</strong></p>
       <ul>
-        <li><strong>【強烈看多 / 順勢做多】AI 基建與電力 (VRT, BE)：</strong> 成功擺脫舊邏輯束縛。AIPO 量能穩步放大，AI 數據中心的耗電與散熱是目前市場最確定的硬體剛需。作為本輪輪動的核心做多標的。</li>
-        <li><strong>【強烈看空 / 迴避】互聯網、軟體與可選消費 (GOOG, PLTR, GRMN)：</strong> FDN 爆量突發下殺，軟體 IGV 遭資金拋棄。GRMN 所屬的 XLY 反映衰退預期下的消費降級。嚴格停損或逢高建立空頭部位。</li>
-        <li><strong>【中性觀望 / 區間操作】半導體巨頭 (NVDA, TSM, AVGO, MU, RMBS)：</strong> 必須等待 SMH 量能萎縮至 80% 以下，確認拋壓衰竭後才能進場。目前可利用期權 (如 Sell Put) 收取權利金。</li>
-        <li><strong>【防禦配置】大盤生技與必需消費 (NBIX, KO, MCD)：</strong> NBIX 獲益於 IBB 的大盤防禦屬性。KO/MCD 在大盤避險情緒下具備資金避風港作用，建議維持標配。</li>
+        <li><strong>【強烈看多 / 順勢做多】深跌反轉與 AI 電力 (XOP, VRT, BE)：</strong> XOP 具備 3M 深跌 (-26%) 的絕佳基期，W-1 放量反轉，勝率極高。VRT/BE 則受惠於 AIPO 的強勢基期 (+16%) 與回調結束後的放量上攻。</li>
+        <li><strong>【強烈看空 / 迴避】跌勢加速與消費降級 (GOOG, PLTR, GRMN)：</strong> FDN/IGV 在 1M 已經走弱的背景下，W-1 爆量加速下殺，跌勢尚未見底。GRMN 所屬的 XLY (3M -6.28%) 反映衰退預期下的消費降級。</li>
+        <li><strong>【逢高減倉 / 區間操作】極度擁擠的半導體 (NVDA, TSM, AVGO, MU, RMBS)：</strong> SMH 3M 暴漲 +48.98%，極度擁擠。W-1 爆出 171% 天量卻漲不動，這是典型的高位派發特徵。逢高減倉鎖定利潤。</li>
+        <li><strong>【逢低佈局】暴漲後的健康回調 (NBIX, KRE)：</strong> IBB (1M +11.9%) 與 KRE (1M +8.9%) 在經歷了一個月的暴漲後，W-1 出現縮量回調。這不是轉弱，而是良性的籌碼換手。利用回調逢低佈局。</li>
       </ul>
     </div>
   </div>
@@ -405,7 +422,7 @@
   <!-- Footer -->
   <div class="footer">
     全球宏觀與量化策略週報 | 數據來源: 內部量化監控矩陣 | Volume Ratio = 週日均成交量 / 過去45天基準<br/>
-    報告框架: 宏觀演繹 (CoT) + 結構性衝突分析 + 量能斜率驗證 (Volume Slope)
+    報告框架: 宏觀演繹 (CoT) + 結構性衝突分析 + 多週期共振 (3M基期 + 1W動能)
   </div>
 
 </div>
