@@ -115,8 +115,7 @@
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-indigo-500 flex flex-col justify-between">
                     <div>
-                        <!-- 🔥 更改標題 -->
-                        <p class="text-sm text-gray-500 font-medium">🇺🇸 美股持倉總市值</p>
+                        <p class="text-sm text-gray-500 font-medium">📈 證券持倉總市值</p>
                         <p id="headerAllocationUsd" class="text-2xl font-bold text-gray-950 mt-1">USD $0.00</p>
                         <p id="headerAllocationHkd" class="text-sm text-gray-400 font-medium mt-0.5">HKD $0.00</p>
                     </div>
@@ -124,14 +123,9 @@
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-gray-400 flex flex-col justify-between" id="headerPlContainer">
                     <div>
-                        <!-- 🔥 更改標題 -->
-                        <p class="text-sm text-gray-500 font-medium">🇺🇸 美股持倉總賺蝕 (%)</p>
-                        <div class="flex items-baseline gap-2 mt-1">
-                            <p id="headerTotalPl" class="text-2xl font-bold text-gray-800">0.00%</p>
-                            <span id="headerDailyPl" class="hidden"></span>
-                        </div>
+                        <p class="text-sm text-gray-500 font-medium">📈 證券持倉總賺蝕 (%)</p>
+                        <p id="headerTotalPl" class="text-2xl font-bold text-gray-800 mt-1">0.00%</p>
                     </div>
-                    <!-- 這裡的 detail id 留著，等一下 JS 會改裡面的字 -->
                     <p id="headerTotalPlDetail" class="text-xs text-gray-400 mt-2 border-t pt-1 border-gray-100">正在計算...</p>
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-emerald-500 flex flex-col justify-between">
@@ -1262,13 +1256,8 @@
             let effectiveAssetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "OPTIONS": 0, "CASH_TOTAL": 0 };
             
             let computedStocks = []; 
-            // 用來算總資產(NAV)的全倉統計
-            let allPositionsMarketValueUsd = 0; 
-            let allEffectivePositionsMarketValueUsd = 0; 
-            
-            // 🔥 專門給面板顯示用的美股統計
-            let usOnlyMarketValueUsd = 0; 
-            let usOnlyCostUsd = 0;
+            let totalStockMarketValueUsd = 0; let totalStockCostUsd = 0;
+            let totalEffectiveStockMarketValueUsd = 0; 
             
             let usSectorsData = {};
             let attackValueUsd = 0; let defenseValueUsd = 0;
@@ -1310,22 +1299,14 @@
                 effectiveAssetRealValuesUsd[p.market] += p.effectiveMktValUsd;
 
                 if (!p.isPlannedOnly && p.shares > 0) {
-                    // 全倉累加 (包含債券、黃金、港股，用於計算真實 NAV)
-                    allPositionsMarketValueUsd += mktValUsd; 
-                    allEffectivePositionsMarketValueUsd += p.effectiveMktValUsd; 
+                    totalStockMarketValueUsd += mktValUsd; 
+                    totalStockCostUsd += costUsd;
+                    totalEffectiveStockMarketValueUsd += p.effectiveMktValUsd; 
                     
                     if (p.market === 'US') {
-                        // 🔥 僅將美股累加到看板專用變數
-                        usOnlyMarketValueUsd += mktValUsd;
-                        usOnlyCostUsd += costUsd;
-                        
                         let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                         let strat = (matchPlan && matchPlan.strategy) ? matchPlan.strategy.trim() : "攻擊";
                         if (strat === '防守') defenseValueUsd += p.effectiveMktValUsd; else attackValueUsd += p.effectiveMktValUsd; 
-                        
-                        // 統計美股的當日總表現
-                        totalUsDailyPlUsd += dailyPlUsd;
-                        totalUsPrevMktValUsd += prevMktValUsd;
                     }
                 }
                 
@@ -1349,9 +1330,8 @@
             assetRealValuesUsd["OPTIONS"] = totalOptionsLockedUsd;
             effectiveAssetRealValuesUsd["OPTIONS"] = totalOptionsLockedUsd;
                         
-            // 計算全倉總資產 NAV (這裡使用 allPositionsMarketValueUsd 確保債券與金沒被漏掉)
-            const totalAssetUsd = allPositionsMarketValueUsd + totalCashUsd + optionsLockedLC; 
-            const totalEffectiveAssetUsd = allEffectivePositionsMarketValueUsd + totalCashUsd + totalOptionsLockedUsd;
+            const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd + optionsLockedLC; 
+            const totalEffectiveAssetUsd = totalEffectiveStockMarketValueUsd + totalCashUsd + totalOptionsLockedUsd;
 
             const currentYear = new Date().getFullYear();
             const yearInitial = parseFloat(perfConfig[currentYear + "_initial"]) || 0;
@@ -1442,15 +1422,13 @@
             document.getElementById('headerCashHkd').innerText = `等值 HKD $${(totalCashUsd * exchangeRate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashDetail').innerText = `🇺🇸 帳上美金: $${(cashBalances['US']||0).toLocaleString()} | 🇭🇰 帳上港幣: $${(cashBalances['HK']||0).toLocaleString()}`;
             
-            // 🔥 更新看板 (純美股市值)
-            document.getElementById('headerAllocationUsd').innerText = `USD $${usOnlyMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
-            document.getElementById('headerAllocationHkd').innerText = `等值 HKD $${(usOnlyMarketValueUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:2})}`;
+            document.getElementById('headerAllocationUsd').innerText = `USD $${totalStockMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
+            document.getElementById('headerAllocationHkd').innerText = `等值 HKD $${(totalStockMarketValueUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:2})}`;
             document.getElementById('headerTotalAsset').innerText = `資產淨值(NAV): USD $${totalAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})} (全倉總曝險: $${totalEffectiveAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})})`;
             
-            // 🔥 更新看板 (純美股未實現賺蝕)
-            const totalPlPercent = usOnlyCostUsd > 0 ? ((usOnlyMarketValueUsd - usOnlyCostUsd) / usOnlyCostUsd * 100) : 0;
+            const totalPlPercent = totalStockCostUsd > 0 ? ((totalStockMarketValueUsd - totalStockCostUsd) / totalStockCostUsd * 100) : 0;
             document.getElementById('headerTotalPl').innerText = `${totalPlPercent >= 0 ? '+' : ''}${totalPlPercent.toFixed(2)}%`;
-            document.getElementById('headerTotalPlDetail').innerText = `美股未實現盈虧: USD $${(usOnlyMarketValueUsd - usOnlyCostUsd).toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${((usOnlyMarketValueUsd - usOnlyCostUsd)*exchangeRate).toLocaleString(undefined, {maximumFractionDigits:0})}`;
+            document.getElementById('headerTotalPlDetail').innerText = `持倉未實現盈虧: USD $${(totalStockMarketValueUsd - totalStockCostUsd).toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${((totalStockMarketValueUsd - totalStockCostUsd)*exchangeRate).toLocaleString(undefined, {maximumFractionDigits:0})}`;
 
             const assetPlanTable = document.getElementById('assetPlanTable'); 
             assetPlanTable.innerHTML = '';
