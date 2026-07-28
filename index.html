@@ -125,11 +125,14 @@
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-gray-400 flex flex-col justify-between" id="headerPlContainer">
                     <div>
-                        <!-- 🔥 已更新標題為當日賺蝕 -->
-                        <p class="text-sm text-gray-500 font-medium">📈 US 美股當日賺蝕 / 累計盈虧</p>
-                        <p id="headerTotalPl" class="text-2xl font-bold text-gray-800 mt-1">0.00%</p>
+                        <p class="text-sm text-gray-500 font-medium">📈 US 持倉盈虧 / 今日盈虧</p>
+                        <div id="headerTotalPl" class="text-lg font-black mt-2 text-gray-800 tracking-wide">
+                            持倉盈虧: USD $0 (0.00%)
+                        </div>
                     </div>
-                    <p id="headerTotalPlDetail" class="text-xs text-gray-400 mt-2 border-t pt-1 border-gray-100">正在計算...</p>
+                    <div id="headerTotalPlDetail" class="text-[13px] font-bold mt-2 border-t pt-2 border-gray-100 text-gray-600 tracking-wide">
+                        今日盈虧: USD $0 (0.00%)
+                    </div>
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-emerald-500 flex flex-col justify-between">
                     <div>
@@ -1461,14 +1464,23 @@
             // 🔥 計算並渲染 US 美股當日賺蝕 % 與細節
             let usYesterdayValueUsd = usEffectiveStockMarketValueUsd - usDailyChangeUsd; // 逆推昨日市值
             let usDailyPlPct = usYesterdayValueUsd > 0 ? (usDailyChangeUsd / usYesterdayValueUsd * 100) : 0;
-            const usPlUsd = usStockMarketValueUsd - usStockCostUsd;
             
-            document.getElementById('headerTotalPl').innerText = `${usDailyPlPct >= 0 ? '+' : ''}${usDailyPlPct.toFixed(2)}%`;
-            document.getElementById('headerTotalPl').className = `text-2xl font-bold mt-1 ${usDailyPlPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
-            document.getElementById('headerTotalPlDetail').innerHTML = `
-                <span class="font-bold ${usDailyChangeUsd >= 0 ? 'text-emerald-600' : 'text-rose-600'}">今日變化: ${usDailyChangeUsd >= 0 ? '+' : ''}$${usDailyChangeUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</span> 
-                <span class="mx-1 text-gray-300">|</span> 累計未實現: $${usPlUsd.toLocaleString(undefined, {maximumFractionDigits:0})}
-            `;
+            const usPlUsd = usStockMarketValueUsd - usStockCostUsd;
+            const usPlPercent = usStockCostUsd > 0 ? (usPlUsd / usStockCostUsd * 100) : 0;
+            
+            // 決定正負號與顏色
+            let usPlSign = usPlUsd >= 0 ? '+' : '';
+            let usPlColor = usPlUsd >= 0 ? 'text-emerald-600' : 'text-rose-600';
+            let usDailySign = usDailyChangeUsd >= 0 ? '+' : '';
+            let usDailyColor = usDailyChangeUsd >= 0 ? 'text-emerald-600' : 'text-rose-600';
+            
+            // 金額格式化函數 (負數顯示為 -$xxx 而不是 $-xxx)
+            let formatMoney = (val) => val < 0 ? `-$${Math.abs(val).toLocaleString(undefined, {maximumFractionDigits:0})}` : `$${val.toLocaleString(undefined, {maximumFractionDigits:0})}`;
+
+            // 寫入 HTML
+            document.getElementById('headerTotalPl').innerHTML = `持倉盈虧: <span class="${usPlColor}">USD ${formatMoney(usPlUsd)} (${usPlSign}${usPlPercent.toFixed(2)}%)</span>`;
+            
+            document.getElementById('headerTotalPlDetail').innerHTML = `今日盈虧: <span class="${usDailyColor}">USD ${formatMoney(usDailyChangeUsd)} (${usDailySign}${usDailyPlPct.toFixed(2)}%)</span>`;
             const assetPlanTable = document.getElementById('assetPlanTable'); 
             assetPlanTable.innerHTML = '';
             
