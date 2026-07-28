@@ -440,38 +440,62 @@
         </div>
         <!-- 頁籤四：績效報告 (Performance Reports) -->
         <div id="tab-reports" class="space-y-6 hidden">
-            <!-- Overall Portfolio -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-indigo-600">
-                    <p class="text-sm text-gray-500 font-bold">💰 期權總淨損益 (Net P&L)</p>
-                    <p id="reportNetPl" class="text-3xl font-black mt-2">USD $0.00</p>
-                    <p class="text-[10px] text-gray-400 mt-1">已實現利潤 (扣除成本與計入收入)</p>
+            
+            <!-- 內部頁籤導覽列 (Sub-tabs) -->
+            <div class="flex gap-2 border-b border-gray-200 pb-2">
+                <button id="btn-sub-port-perf" onclick="switchReportSubTab('port')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-blue-600 text-blue-600 transition">📈 倉位績效走勢 (YTD)</button>
+                <button id="btn-sub-opt-perf" onclick="switchReportSubTab('opt')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-purple-600 transition">📜 期權績效分析</button>
+            </div>
+
+            <!-- 視圖 1：倉位績效 (圖表) -->
+            <div id="view-port-perf" class="bg-gray-900 p-6 rounded-xl shadow-md border border-gray-800">
+                <div class="mb-4">
+                    <h3 class="text-base font-black text-white">年初至今 收益率走勢</h3>
+                    <div id="navChartLegend" class="flex flex-wrap gap-4 text-xs font-bold mt-2 h-4">
+                        <!-- Legend 將由 JS 動態注入 -->
+                    </div>
                 </div>
-                <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-emerald-500">
-                    <p class="text-sm text-gray-500 font-bold">🎯 整體勝率 (Win Rate)</p>
-                    <p id="reportWinRate" class="text-3xl font-black mt-2 text-emerald-600">0.0%</p>
-                    <p id="reportTradeCount" class="text-[10px] text-gray-400 mt-1">0 勝 / 0 總單數</p>
+                <!-- 放置圖表的畫布 -->
+                <div id="navChartContainer" class="w-full h-80 relative bg-gray-950 rounded-lg shadow-inner overflow-hidden border border-gray-800"></div>
+                
+                <p class="text-[10px] text-gray-500 mt-3 text-center">💡 收益率 = 每日全倉總淨值(NAV) ÷ 年度基準資本額(Initial+Added) - 1。基準數據取自「配置計劃設定」。大盤指數以圖表起始點作為 0% 基準。</p>
+            </div>
+
+            <!-- 視圖 2：期權績效 (維持原本內容) -->
+            <div id="view-opt-perf" class="space-y-6 hidden">
+                <!-- Overall Portfolio -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-indigo-600">
+                        <p class="text-sm text-gray-500 font-bold">💰 期權總淨損益 (Net P&L)</p>
+                        <p id="reportNetPl" class="text-3xl font-black mt-2">USD $0.00</p>
+                        <p class="text-[10px] text-gray-400 mt-1">已實現利潤 (扣除成本與計入收入)</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-emerald-500">
+                        <p class="text-sm text-gray-500 font-bold">🎯 整體勝率 (Win Rate)</p>
+                        <p id="reportWinRate" class="text-3xl font-black mt-2 text-emerald-600">0.0%</p>
+                        <p id="reportTradeCount" class="text-[10px] text-gray-400 mt-1">0 勝 / 0 總單數</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-purple-500">
+                        <p class="text-sm text-gray-500 font-bold">🌊 總流水 (Total Premium)</p>
+                        <div class="mt-2 text-sm font-bold flex flex-col gap-1">
+                            <div class="flex justify-between"><span class="text-rose-600">🔴 累計付出 (Long):</span> <span id="reportPremPaid">$0</span></div>
+                            <div class="flex justify-between"><span class="text-emerald-600">🟢 累計收入 (Short):</span> <span id="reportPremRecv">$0</span></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-purple-500">
-                    <p class="text-sm text-gray-500 font-bold">🌊 總流水 (Total Premium)</p>
-                    <div class="mt-2 text-sm font-bold flex flex-col gap-1">
-                        <div class="flex justify-between"><span class="text-rose-600">🔴 累計付出 (Long):</span> <span id="reportPremPaid">$0</span></div>
-                        <div class="flex justify-between"><span class="text-emerald-600">🟢 累計收入 (Short):</span> <span id="reportPremRecv">$0</span></div>
+                <!-- Strategy Breakdown -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                        <h3 class="text-lg font-black text-gray-800 mb-4">📈 Long Call 表現</h3>
+                        <div class="space-y-3 text-sm font-medium text-gray-600" id="reportLongCallBody"></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                        <h3 class="text-lg font-black text-gray-800 mb-4">📉 Short Put 表現</h3>
+                        <div class="space-y-3 text-sm font-medium text-gray-600" id="reportShortPutBody"></div>
                     </div>
                 </div>
             </div>
-        
-            <!-- Strategy Breakdown -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-                    <h3 class="text-lg font-black text-gray-800 mb-4">📈 Long Call 表現</h3>
-                    <div class="space-y-3 text-sm font-medium text-gray-600" id="reportLongCallBody"></div>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
-                    <h3 class="text-lg font-black text-gray-800 mb-4">📉 Short Put 表現</h3>
-                    <div class="space-y-3 text-sm font-medium text-gray-600" id="reportShortPutBody"></div>
-                </div>
-            </div>
+
         </div>
         
         <!-- 彈窗：期權平倉 Modal -->
@@ -822,6 +846,9 @@
         </div>
     </div>    
     <script>
+        let dailyNavData = [];
+        let navChartInstance = null; // 控制走勢圖實體
+        
         const API_URL = "https://script.google.com/macros/s/AKfycbzsDE79EEEn1EpdYYTg44A8HeXzIEXs1hpV4JSjQUXeWo8uzeucaKndIm-RWce_l3Gy/exec";
 
         const assetLabels = {
@@ -893,6 +920,7 @@
                 renderPerformanceReport(); 
             } else if (tabId === 'reports-tab') {
                 document.getElementById('tab-reports').classList.remove('hidden');
+                setTimeout(renderPortfolioChart, 50);
                 renderPerformanceReport(); 
             } else if (tabId === 'trading-tab') {
                 document.getElementById('tab-trading-plan').classList.remove('hidden');
@@ -961,6 +989,25 @@
                 btnLedger.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-blue-600 transition";
                 viewOptions.classList.remove('hidden'); 
                 viewLedger.classList.add('hidden');
+            }
+        }
+
+        function switchReportSubTab(tab) {
+            const btnPort = document.getElementById('btn-sub-port-perf');
+            const btnOpt = document.getElementById('btn-sub-opt-perf');
+            const viewPort = document.getElementById('view-port-perf');
+            const viewOpt = document.getElementById('view-opt-perf');
+        
+            if (tab === 'port') {
+                btnPort.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-blue-600 text-blue-600 transition";
+                btnOpt.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-purple-600 transition";
+                viewPort.classList.remove('hidden'); viewOpt.classList.add('hidden');
+                // 延遲繪製確保寬度正確
+                setTimeout(renderPortfolioChart, 50); 
+            } else if (tab === 'opt') {
+                btnOpt.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-purple-600 text-purple-600 transition";
+                btnPort.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-blue-600 transition";
+                viewOpt.classList.remove('hidden'); viewPort.classList.add('hidden');
             }
         }
         
@@ -2943,6 +2990,94 @@
                 <div class="flex justify-between"><span>最大虧損單</span><span class="font-bold text-rose-600">${spData.maxLoss.desc || '無'}</span></div>
             `;
         }
+
+        // ==========================================
+        // 🚀 繪製：年初至今倉位績效走勢圖 (YTD)
+        // ==========================================
+        function renderPortfolioChart() {
+            const container = document.getElementById('navChartContainer');
+            if (!container) return;
+            
+            // 排序資料並過濾為今年度
+            const currentYear = new Date().getFullYear().toString();
+            let yearData = dailyNavData.filter(d => d.date.startsWith(currentYear)).sort((a,b) => new Date(a.date) - new Date(b.date));
+            
+            if (yearData.length === 0) {
+                container.innerHTML = `<div class="flex items-center justify-center h-full text-xs text-gray-500">尚無本年度的每日快照數據。系統明天早上將自動產生第一筆！</div>`;
+                return;
+            }
+
+            // 清空舊圖表
+            container.innerHTML = '';
+            if (navChartInstance) { navChartInstance.remove(); navChartInstance = null; }
+
+            // 取出本年度設定的資本額作為分母
+            const baseCapital = (parseFloat(perfConfig[currentYear + "_initial"]) || 0) + (parseFloat(perfConfig[currentYear + "_added"]) || 0);
+            
+            // 取第一天的大盤指數作為 0% 基準點
+            const baseSp500 = yearData[0].sp500 || 1;
+            const baseNasdaq = yearData[0].nasdaq || 1;
+
+            let portSeriesData = []; let sp500SeriesData = []; let nasdaqSeriesData = [];
+
+            yearData.forEach(d => {
+                let portPct = baseCapital > 0 ? ((d.totalNav / baseCapital) - 1) * 100 : 0;
+                let spPct = ((d.sp500 / baseSp500) - 1) * 100;
+                let nasPct = ((d.nasdaq / baseNasdaq) - 1) * 100;
+                
+                portSeriesData.push({ time: d.date, value: portPct });
+                sp500SeriesData.push({ time: d.date, value: spPct });
+                nasdaqSeriesData.push({ time: d.date, value: nasPct });
+            });
+
+            // 建立 Lightweight Charts
+            navChartInstance = LightweightCharts.createChart(container, {
+                width: container.clientWidth, height: 320,
+                layout: { background: { type: 'solid', color: '#030712' }, textColor: '#9ca3af' },
+                grid: { vertLines: { color: '#1f2937' }, horzLines: { color: '#1f2937' } },
+                crosshair: { mode: LightweightCharts.CrosshairMode.Magnet },
+                rightPriceScale: { borderColor: '#374151', autoScale: true },
+                timeScale: { borderColor: '#374151', timeVisible: false, fixLeftEdge: true, fixRightEdge: true }
+            });
+
+            const portLine = navChartInstance.addLineSeries({ color: '#eab308', lineWidth: 2, priceFormat: { type: 'custom', formatter: price => price.toFixed(2) + '%' } });
+            const spLine = navChartInstance.addLineSeries({ color: '#14b8a6', lineWidth: 1.5, priceFormat: { type: 'custom', formatter: price => price.toFixed(2) + '%' } });
+            const nasLine = navChartInstance.addLineSeries({ color: '#3b82f6', lineWidth: 1.5, priceFormat: { type: 'custom', formatter: price => price.toFixed(2) + '%' } });
+
+            portLine.setData(portSeriesData);
+            spLine.setData(sp500SeriesData);
+            nasLine.setData(nasdaqSeriesData);
+
+            navChartInstance.timeScale().fitContent();
+
+            // 綁定 Legend (游標移動時動態更新數值)
+            const legend = document.getElementById('navChartLegend');
+            const setLegend = (dateStr, p, s, n) => {
+                legend.innerHTML = `
+                    <div class="text-gray-400 mr-2">${dateStr}</div>
+                    <div class="text-yellow-500 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-500"></span>本倉收益: ${p >= 0 ? '+' : ''}${p.toFixed(2)}%</div>
+                    <div class="text-teal-500 flex items-center gap-1 ml-2"><span class="w-2 h-2 rounded-full bg-teal-500"></span>標普500: ${s >= 0 ? '+' : ''}${s.toFixed(2)}%</div>
+                    <div class="text-blue-500 flex items-center gap-1 ml-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>納斯達克: ${n >= 0 ? '+' : ''}${n.toFixed(2)}%</div>
+                `;
+            };
+
+            // 預設顯示最後一天的數值
+            let last = portSeriesData[portSeriesData.length - 1];
+            setLegend(last.time, last.value, sp500SeriesData[sp500SeriesData.length-1].value, nasdaqSeriesData[nasdaqSeriesData.length-1].value);
+
+            navChartInstance.subscribeCrosshairMove(param => {
+                if (param.time && param.seriesData.size > 0) {
+                    const p = param.seriesData.get(portLine)?.value ?? last.value;
+                    const s = param.seriesData.get(spLine)?.value ?? sp500SeriesData[sp500SeriesData.length-1].value;
+                    const n = param.seriesData.get(nasLine)?.value ?? nasdaqSeriesData[nasdaqSeriesData.length-1].value;
+                    setLegend(param.time, p, s, n);
+                }
+            });
+
+            // 確保 RWD 大小自動調整
+            window.addEventListener('resize', () => { if (navChartInstance) navChartInstance.resize(container.clientWidth, 320); });
+        }
+        
         // ==========================================
         // 🚀 本星期建倉策略相關函數
         // ==========================================
