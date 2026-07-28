@@ -1071,7 +1071,7 @@
         async function loadData() {
             try {
                 updateStatus("🔄 讀取即時數據中...", "loading");
-                const fetchUrl = API_URL + "?token=" + encodeURIComponent(userGoogleToken);
+                const fetchUrl = API_URL + "?token=" + encodeURIComponent(userGoogleToken) + "&t=" + new Date().getTime();
                 const response = await fetch(fetchUrl);
                 const data = await response.json();
                 
@@ -3000,10 +3000,19 @@
             
             // 排序資料並過濾為今年度
             const currentYear = new Date().getFullYear().toString();
-            let yearData = dailyNavData.filter(d => d.date.startsWith(currentYear)).sort((a,b) => new Date(a.date) - new Date(b.date));
+            
+            // 🔥 強化過濾邏輯：確保無論日期被解析成什麼格式，只要包含今年年份就算數
+            let yearData = dailyNavData.filter(d => {
+                if (!d.date) return false;
+                return String(d.date).includes(currentYear);
+            }).sort((a,b) => new Date(a.date) - new Date(b.date));
             
             if (yearData.length === 0) {
-                container.innerHTML = `<div class="flex items-center justify-center h-full text-xs text-gray-500">尚無本年度的每日快照數據。系統明天早上將自動產生第一筆！</div>`;
+                // 加入除錯提示，這樣如果沒出來，我們就知道是沒拿到資料，還是日期格式不對
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-xs text-gray-500 text-center">
+                    <span>尚無 ${currentYear} 年度的每日快照數據。系統明天早上將自動產生第一筆！</span>
+                    <span class="text-[10px] text-amber-500 mt-2">💡 Debug 資訊：目前後端實際回傳了 ${dailyNavData.length} 筆資料</span>
+                </div>`;
                 return;
             }
 
