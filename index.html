@@ -2991,100 +2991,24 @@
             `;
         }
 
-        // ==========================================
-        // 🚀 繪製：年初至今倉位績效走勢圖 (YTD)
+       // ==========================================
+        // 🚀 繪製：年初至今倉位績效走勢圖 (YTD) - 暫時關閉
         // ==========================================
         function renderPortfolioChart() {
             const container = document.getElementById('navChartContainer');
             if (!container) return;
             
-            // 排序資料並過濾為今年度
-            const currentYear = new Date().getFullYear().toString();
-            
-            // 🔥 強化過濾邏輯：確保無論日期被解析成什麼格式，只要包含今年年份就算數
-            let yearData = dailyNavData.filter(d => {
-                if (!d.date) return false;
-                return String(d.date).includes(currentYear);
-            }).sort((a,b) => new Date(a.date) - new Date(b.date));
-            
-            if (yearData.length === 0) {
-                // 加入除錯提示，這樣如果沒出來，我們就知道是沒拿到資料，還是日期格式不對
-                container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-xs text-gray-500 text-center">
-                    <span>尚無 ${currentYear} 年度的每日快照數據。系統明天早上將自動產生第一筆！</span>
-                    <span class="text-[10px] text-amber-500 mt-2">💡 Debug 資訊：目前後端實際回傳了 ${dailyNavData.length} 筆資料</span>
-                </div>`;
-                return;
-            }
-
-            // 清空舊圖表
-            container.innerHTML = '';
+            // 清空並顯示暫停訊息
             if (navChartInstance) { navChartInstance.remove(); navChartInstance = null; }
-
-            // 取出本年度設定的資本額作為分母
-            const baseCapital = (parseFloat(perfConfig[currentYear + "_initial"]) || 0) + (parseFloat(perfConfig[currentYear + "_added"]) || 0);
-            
-            // 取第一天的大盤指數作為 0% 基準點
-            const baseSp500 = yearData[0].sp500 || 1;
-            const baseNasdaq = yearData[0].nasdaq || 1;
-
-            let portSeriesData = []; let sp500SeriesData = []; let nasdaqSeriesData = [];
-
-            yearData.forEach(d => {
-                let portPct = baseCapital > 0 ? ((d.totalNav / baseCapital) - 1) * 100 : 0;
-                let spPct = ((d.sp500 / baseSp500) - 1) * 100;
-                let nasPct = ((d.nasdaq / baseNasdaq) - 1) * 100;
-                
-                portSeriesData.push({ time: d.date, value: portPct });
-                sp500SeriesData.push({ time: d.date, value: spPct });
-                nasdaqSeriesData.push({ time: d.date, value: nasPct });
-            });
-
-            // 建立 Lightweight Charts
-            navChartInstance = LightweightCharts.createChart(container, {
-                width: container.clientWidth, height: 320,
-                layout: { background: { type: 'solid', color: '#030712' }, textColor: '#9ca3af' },
-                grid: { vertLines: { color: '#1f2937' }, horzLines: { color: '#1f2937' } },
-                crosshair: { mode: LightweightCharts.CrosshairMode.Magnet },
-                rightPriceScale: { borderColor: '#374151', autoScale: true },
-                timeScale: { borderColor: '#374151', timeVisible: false, fixLeftEdge: true, fixRightEdge: true }
-            });
-
-            const portLine = navChartInstance.addLineSeries({ color: '#eab308', lineWidth: 2, priceFormat: { type: 'custom', formatter: price => price.toFixed(2) + '%' } });
-            const spLine = navChartInstance.addLineSeries({ color: '#14b8a6', lineWidth: 1.5, priceFormat: { type: 'custom', formatter: price => price.toFixed(2) + '%' } });
-            const nasLine = navChartInstance.addLineSeries({ color: '#3b82f6', lineWidth: 1.5, priceFormat: { type: 'custom', formatter: price => price.toFixed(2) + '%' } });
-
-            portLine.setData(portSeriesData);
-            spLine.setData(sp500SeriesData);
-            nasLine.setData(nasdaqSeriesData);
-
-            navChartInstance.timeScale().fitContent();
-
-            // 綁定 Legend (游標移動時動態更新數值)
             const legend = document.getElementById('navChartLegend');
-            const setLegend = (dateStr, p, s, n) => {
-                legend.innerHTML = `
-                    <div class="text-gray-400 mr-2">${dateStr}</div>
-                    <div class="text-yellow-500 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-500"></span>本倉收益: ${p >= 0 ? '+' : ''}${p.toFixed(2)}%</div>
-                    <div class="text-teal-500 flex items-center gap-1 ml-2"><span class="w-2 h-2 rounded-full bg-teal-500"></span>標普500: ${s >= 0 ? '+' : ''}${s.toFixed(2)}%</div>
-                    <div class="text-blue-500 flex items-center gap-1 ml-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span>納斯達克: ${n >= 0 ? '+' : ''}${n.toFixed(2)}%</div>
-                `;
-            };
-
-            // 預設顯示最後一天的數值
-            let last = portSeriesData[portSeriesData.length - 1];
-            setLegend(last.time, last.value, sp500SeriesData[sp500SeriesData.length-1].value, nasdaqSeriesData[nasdaqSeriesData.length-1].value);
-
-            navChartInstance.subscribeCrosshairMove(param => {
-                if (param.time && param.seriesData.size > 0) {
-                    const p = param.seriesData.get(portLine)?.value ?? last.value;
-                    const s = param.seriesData.get(spLine)?.value ?? sp500SeriesData[sp500SeriesData.length-1].value;
-                    const n = param.seriesData.get(nasLine)?.value ?? nasdaqSeriesData[nasdaqSeriesData.length-1].value;
-                    setLegend(param.time, p, s, n);
-                }
-            });
-
-            // 確保 RWD 大小自動調整
-            window.addEventListener('resize', () => { if (navChartInstance) navChartInstance.resize(container.clientWidth, 320); });
+            if (legend) legend.innerHTML = '';
+            
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full text-sm font-bold text-gray-500 bg-gray-950 px-6 text-center leading-relaxed">
+                    <span class="text-xl mb-2">🚧</span>
+                    走勢圖與今日盈虧推算功能已暫時關閉，以恢復系統極速載入狀態。<br>
+                    <span class="text-xs text-gray-600 font-medium mt-1">（分頁與資料紀錄功能已保留，稍後再行研究最佳效能方案）</span>
+                </div>`;
         }
         
         // ==========================================
