@@ -115,21 +115,25 @@
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-indigo-500 flex flex-col justify-between">
                     <div>
-                        <p class="text-sm text-gray-500 font-medium">📈 證券持倉總市值</p>
+                        <!-- 🔥 已更新標題 -->
+                        <p class="text-sm text-gray-500 font-medium">📈 US 美股持倉市值</p>
                         <p id="headerAllocationUsd" class="text-2xl font-bold text-gray-950 mt-1">USD $0.00</p>
                         <p id="headerAllocationHkd" class="text-sm text-gray-400 font-medium mt-0.5">HKD $0.00</p>
                     </div>
+                    <!-- 🔥 準備綁定「槓桿後市值」 -->
                     <p id="headerTotalAsset" class="text-xs text-gray-400 mt-2 border-t pt-1 border-gray-100">正在計算...</p>
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-gray-400 flex flex-col justify-between" id="headerPlContainer">
                     <div>
-                        <p class="text-sm text-gray-500 font-medium">📈 證券持倉總賺蝕 (%)</p>
+                        <!-- 🔥 已更新標題 -->
+                        <p class="text-sm text-gray-500 font-medium">📈 US 美股持倉賺蝕 (%)</p>
                         <p id="headerTotalPl" class="text-2xl font-bold text-gray-800 mt-1">0.00%</p>
                     </div>
                     <p id="headerTotalPlDetail" class="text-xs text-gray-400 mt-2 border-t pt-1 border-gray-100">正在計算...</p>
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-emerald-500 flex flex-col justify-between">
                     <div>
+                        <!-- 📊 維持不變：包辦所有資產 -->
                         <p class="text-sm text-gray-500 font-medium">📊 持倉總賺蝕 (%)</p>
                         <p id="headerPerfYearlyPl" class="text-3xl font-bold text-gray-950 mt-1">0.00%</p>
                         <p class="text-[10px] text-gray-400 font-semibold mt-0.5 tracking-wider uppercase">📈 今年度全倉資產回報率</p>
@@ -1259,6 +1263,11 @@
             let totalStockMarketValueUsd = 0; let totalStockCostUsd = 0;
             let totalEffectiveStockMarketValueUsd = 0; 
             
+            // 🔥 新增：純 US 美股的累加變數
+            let usStockMarketValueUsd = 0; 
+            let usStockCostUsd = 0;
+            let usEffectiveStockMarketValueUsd = 0;
+
             let usSectorsData = {};
             let attackValueUsd = 0; let defenseValueUsd = 0;
 
@@ -1304,6 +1313,11 @@
                     totalEffectiveStockMarketValueUsd += p.effectiveMktValUsd; 
                     
                     if (p.market === 'US') {
+                        // 🔥 僅將美股累加進 US 變數中
+                        usStockMarketValueUsd += mktValUsd;
+                        usStockCostUsd += costUsd;
+                        usEffectiveStockMarketValueUsd += p.effectiveMktValUsd;
+                        
                         let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                         let strat = (matchPlan && matchPlan.strategy) ? matchPlan.strategy.trim() : "攻擊";
                         if (strat === '防守') defenseValueUsd += p.effectiveMktValUsd; else attackValueUsd += p.effectiveMktValUsd; 
@@ -1422,13 +1436,16 @@
             document.getElementById('headerCashHkd').innerText = `等值 HKD $${(totalCashUsd * exchangeRate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashDetail').innerText = `🇺🇸 帳上美金: $${(cashBalances['US']||0).toLocaleString()} | 🇭🇰 帳上港幣: $${(cashBalances['HK']||0).toLocaleString()}`;
             
-            document.getElementById('headerAllocationUsd').innerText = `USD $${totalStockMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
-            document.getElementById('headerAllocationHkd').innerText = `等值 HKD $${(totalStockMarketValueUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:2})}`;
-            document.getElementById('headerTotalAsset').innerText = `資產淨值(NAV): USD $${totalAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})} (全倉總曝險: $${totalEffectiveAssetUsd.toLocaleString(undefined, {maximumFractionDigits:0})})`;
+            // 🔥 Box 2 更新 (US 美股持倉市值 與 槓桿後市值)
+            document.getElementById('headerAllocationUsd').innerText = `USD $${usStockMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
+            document.getElementById('headerAllocationHkd').innerText = `等值 HKD $${(usStockMarketValueUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:2})}`;
+            document.getElementById('headerTotalAsset').innerText = `槓桿後市值: USD $${usEffectiveStockMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:0})}`;
             
-            const totalPlPercent = totalStockCostUsd > 0 ? ((totalStockMarketValueUsd - totalStockCostUsd) / totalStockCostUsd * 100) : 0;
-            document.getElementById('headerTotalPl').innerText = `${totalPlPercent >= 0 ? '+' : ''}${totalPlPercent.toFixed(2)}%`;
-            document.getElementById('headerTotalPlDetail').innerText = `持倉未實現盈虧: USD $${(totalStockMarketValueUsd - totalStockCostUsd).toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${((totalStockMarketValueUsd - totalStockCostUsd)*exchangeRate).toLocaleString(undefined, {maximumFractionDigits:0})}`;
+            // 🔥 Box 3 更新 (US 美股持倉賺蝕 %)
+            const usPlPercent = usStockCostUsd > 0 ? ((usStockMarketValueUsd - usStockCostUsd) / usStockCostUsd * 100) : 0;
+            document.getElementById('headerTotalPl').innerText = `${usPlPercent >= 0 ? '+' : ''}${usPlPercent.toFixed(2)}%`;
+            const usPlUsd = usStockMarketValueUsd - usStockCostUsd;
+            document.getElementById('headerTotalPlDetail').innerText = `美股未實現盈虧: USD $${usPlUsd.toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${(usPlUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:0})}`;
 
             const assetPlanTable = document.getElementById('assetPlanTable'); 
             assetPlanTable.innerHTML = '';
