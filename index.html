@@ -125,8 +125,8 @@
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-gray-400 flex flex-col justify-between" id="headerPlContainer">
                     <div>
-                        <!-- 🔥 已更新標題 -->
-                        <p class="text-sm text-gray-500 font-medium">📈 US 美股持倉賺蝕 (%)</p>
+                        <!-- 🔥 已更新標題為當日賺蝕 -->
+                        <p class="text-sm text-gray-500 font-medium">📈 US 美股當日賺蝕 / 累計盈虧</p>
                         <p id="headerTotalPl" class="text-2xl font-bold text-gray-800 mt-1">0.00%</p>
                     </div>
                     <p id="headerTotalPlDetail" class="text-xs text-gray-400 mt-2 border-t pt-1 border-gray-100">正在計算...</p>
@@ -829,7 +829,7 @@
         let currentPosSort = 'default'; 
         
         let userGoogleToken = ""; let userRole = "Visitor"; 
-        let transactions = []; let prices = {}; let exchangeRate = 7.82;
+        let transactions = []; let prices = {}; let changes = {}; let exchangeRate = 7.82;
         let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "OPTIONS": 0, "CASH_TOTAL": 0 }; 
         let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "OPTIONS": false, "CASH_TOTAL": false };
         let optionsTx = []; // 🔥 存放期權紀錄
@@ -1033,6 +1033,7 @@
                 transactions = data.transactions || []; 
                 optionsTx = data.optionsTx || []; // 🔥 關鍵修復：這裡確保將後端的期權數據接進來
                 prices = data.prices || {}; 
+                changes = data.changes || {};
                 exchangeRate = data.exchangeRate || 7.82;
 
                 for (const key in assetLabels) {
@@ -1267,6 +1268,7 @@
             let usStockMarketValueUsd = 0; 
             let usStockCostUsd = 0;
             let usEffectiveStockMarketValueUsd = 0;
+            let usDailyChangeUsd = 0; // 當日美股漲跌總金額
 
             let usSectorsData = {};
             let attackValueUsd = 0; let defenseValueUsd = 0;
@@ -1285,6 +1287,8 @@
             for (const code in positions) {
                 const p = positions[code];
                 const livePrice = prices[p.yahooSymbol] || 0;
+                const dailyChg = changes[p.yahooSymbol] || 0; // 🔥 獲取今日漲跌額
+
                 const isHkdMarket = p.market === 'HK';
                 const mktValUsd = isHkdMarket ? ((p.shares * livePrice) / exchangeRate) : (p.shares * livePrice);
                 const costUsd = isHkdMarket ? (p.totalCost / exchangeRate) : p.totalCost;
@@ -1313,10 +1317,12 @@
                     totalEffectiveStockMarketValueUsd += p.effectiveMktValUsd; 
                     
                     if (p.market === 'US') {
-                        // 🔥 僅將美股累加進 US 變數中
                         usStockMarketValueUsd += mktValUsd;
                         usStockCostUsd += costUsd;
                         usEffectiveStockMarketValueUsd += p.effectiveMktValUsd;
+                        
+                        // 🔥 累加美股當日盈虧 (持股數 * 漲跌額 * 槓桿倍數)
+                        usDailyChangeUsd += (p.shares * dailyChg * pLev);
                         
                         let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                         let strat = (matchPlan && matchPlan.strategy) ? matchPlan.strategy.trim() : "攻擊";
@@ -1340,11 +1346,23 @@
             assetRealValuesUsd["CASH_TOTAL"] = totalCashUsd;
             effectiveAssetRealValuesUsd["CASH_TOTAL"] = totalCashUsd; 
 
+            // 🔥 計算期權真實浮動淨值 (NLV)
+            let optionsNLV = 0;
+            optionsTx.forEach(opt => {
+                if (opt.status === 'OPEN') {
+                    let currPrem = opt.current_premium !== undefined && opt.current_premium !== "" ? Number(opt.current_premium) : Number(opt.open_premium);
+                    let multi = Number(opt.qty) * 100;
+                    if (opt.strategy === 'Long Call') optionsNLV += (currPrem * multi);
+                    else if (opt.strategy === 'Short Put') optionsNLV -= (currPrem * multi); // 負債
+                }
+            });
+
             let totalOptionsLockedUsd = optionsLockedLC + optionsLockedSP;
-            assetRealValuesUsd["OPTIONS"] = totalOptionsLockedUsd;
-            effectiveAssetRealValuesUsd["OPTIONS"] = totalOptionsLockedUsd;
+            assetRealValuesUsd["OPTIONS"] = optionsNLV; // 表格內呈現真實淨值
+            effectiveAssetRealValuesUsd["OPTIONS"] = totalOptionsLockedUsd; // 曝險仍用保證金/風險金
                         
-            const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd + optionsLockedLC; 
+            // 🔥 全倉總淨值：現金 + 股票市值 + 期權真實浮動淨值
+            const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd + optionsNLV; 
             const totalEffectiveAssetUsd = totalEffectiveStockMarketValueUsd + totalCashUsd + totalOptionsLockedUsd;
 
             const currentYear = new Date().getFullYear();
@@ -1436,17 +1454,21 @@
             document.getElementById('headerCashHkd').innerText = `等值 HKD $${(totalCashUsd * exchangeRate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashDetail').innerText = `🇺🇸 帳上美金: $${(cashBalances['US']||0).toLocaleString()} | 🇭🇰 帳上港幣: $${(cashBalances['HK']||0).toLocaleString()}`;
             
-            // 🔥 Box 2 更新 (US 美股持倉市值 與 槓桿後市值)
             document.getElementById('headerAllocationUsd').innerText = `USD $${usStockMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:2})}`;
             document.getElementById('headerAllocationHkd').innerText = `等值 HKD $${(usStockMarketValueUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:2})}`;
             document.getElementById('headerTotalAsset').innerText = `槓桿後市值: USD $${usEffectiveStockMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:0})}`;
             
-            // 🔥 Box 3 更新 (US 美股持倉賺蝕 %)
-            const usPlPercent = usStockCostUsd > 0 ? ((usStockMarketValueUsd - usStockCostUsd) / usStockCostUsd * 100) : 0;
-            document.getElementById('headerTotalPl').innerText = `${usPlPercent >= 0 ? '+' : ''}${usPlPercent.toFixed(2)}%`;
+            // 🔥 計算並渲染 US 美股當日賺蝕 % 與細節
+            let usYesterdayValueUsd = usEffectiveStockMarketValueUsd - usDailyChangeUsd; // 逆推昨日市值
+            let usDailyPlPct = usYesterdayValueUsd > 0 ? (usDailyChangeUsd / usYesterdayValueUsd * 100) : 0;
             const usPlUsd = usStockMarketValueUsd - usStockCostUsd;
-            document.getElementById('headerTotalPlDetail').innerText = `美股未實現盈虧: USD $${usPlUsd.toLocaleString(undefined, {maximumFractionDigits:0})} / HKD $${(usPlUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:0})}`;
-
+            
+            document.getElementById('headerTotalPl').innerText = `${usDailyPlPct >= 0 ? '+' : ''}${usDailyPlPct.toFixed(2)}%`;
+            document.getElementById('headerTotalPl').className = `text-2xl font-bold mt-1 ${usDailyPlPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
+            document.getElementById('headerTotalPlDetail').innerHTML = `
+                <span class="font-bold ${usDailyChangeUsd >= 0 ? 'text-emerald-600' : 'text-rose-600'}">今日變化: ${usDailyChangeUsd >= 0 ? '+' : ''}$${usDailyChangeUsd.toLocaleString(undefined, {maximumFractionDigits:0})}</span> 
+                <span class="mx-1 text-gray-300">|</span> 累計未實現: $${usPlUsd.toLocaleString(undefined, {maximumFractionDigits:0})}
+            `;
             const assetPlanTable = document.getElementById('assetPlanTable'); 
             assetPlanTable.innerHTML = '';
             
