@@ -3066,11 +3066,12 @@
             const container = document.getElementById('navChartContainer');
             const legend = document.getElementById('navChartLegend');
             
-            // 如果已有圖表實體，先銷毀
+            // 🔥 1. 徹底清空容器，防止重複繪圖導致的重影
             if (navChartInstance) {
                 navChartInstance.remove();
                 navChartInstance = null;
             }
+            container.innerHTML = ''; 
         
             // 建立圖表實體
             navChartInstance = LightweightCharts.createChart(container, {
@@ -3078,7 +3079,7 @@
                 height: 320,
                 layout: {
                     background: { type: 'solid', color: 'transparent' },
-                    textColor: '#64748b',
+                    textColor: '#94a3b8', // 稍微亮一點的文字顏色
                 },
                 grid: {
                     vertLines: { color: '#1e293b' },
@@ -3094,10 +3095,33 @@
                 handleScale: true,
             });
         
-            // 定義線條屬性 (配色參考富途牛牛)
-            const portLine = navChartInstance.addLineSeries({ color: '#10b981', lineWidth: 3, title: '我的倉位' }); // 翡翠綠
-            const spLine = navChartInstance.addLineSeries({ color: '#0ea5e9', lineWidth: 1, lineStyle: 2 }); // 淺藍 虛線
-            const nasLine = navChartInstance.addLineSeries({ color: '#f59e0b', lineWidth: 1, lineStyle: 2 }); // 琥珀色 虛線
+            // 🔥 2. 定義線條 (關閉 priceLineVisible 解決雙線問題)
+            // 我的倉位：粗實線
+            const portLine = navChartInstance.addLineSeries({ 
+                color: '#10b981', 
+                lineWidth: 3, 
+                title: '我的倉位',
+                priceLineVisible: false, // ❌ 關閉橫向價格虛線
+                lastValueVisible: true   // ✅ 保留右側刻度標籤
+            }); 
+        
+            // S&P500：幼實線
+            const spLine = navChartInstance.addLineSeries({ 
+                color: '#0ea5e9', 
+                lineWidth: 1, 
+                lineStyle: 0,            // ✅ 改為實線 (Solid)
+                priceLineVisible: false, // ❌ 關閉橫向價格虛線
+                lastValueVisible: true   // ✅ 保留右側刻度標籤
+            }); 
+        
+            // NASDAQ：幼實線
+            const nasLine = navChartInstance.addLineSeries({ 
+                color: '#f59e0b', 
+                lineWidth: 1, 
+                lineStyle: 0,            // ✅ 改為實線 (Solid)
+                priceLineVisible: false, // ❌ 關閉橫向價格虛線
+                lastValueVisible: true   // ✅ 保留右側刻度標籤
+            }); 
         
             // 注入數據
             portLine.setData(portData);
@@ -3113,15 +3137,18 @@
             const lastNas = nasData[nasData.length - 1].value.toFixed(2);
         
             legend.innerHTML = `
-                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> <span class="text-white">全倉: ${lastPort}%</span></div>
-                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span> <span class="text-sky-400">S&P500: ${lastSp}%</span></div>
-                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> <span class="text-amber-400">NASDAQ: ${lastNas}%</span></div>
+                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> <span class="text-white">全倉: ${lastPort >= 0 ? '+' : ''}${lastPort}%</span></div>
+                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span> <span class="text-sky-400">S&P500: ${lastSp >= 0 ? '+' : ''}${lastSp}%</span></div>
+                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> <span class="text-amber-400">NASDAQ: ${lastNas >= 0 ? '+' : ''}${lastNas}%</span></div>
             `;
         
             // 響應式處理
-            window.addEventListener('resize', () => {
-                if (navChartInstance) navChartInstance.resize(container.clientWidth, 320);
-            });
+            const handleResize = () => {
+                if (navChartInstance) {
+                    navChartInstance.resize(container.clientWidth, 320);
+                }
+            };
+            window.addEventListener('resize', handleResize);
         }
         
         // ==========================================
