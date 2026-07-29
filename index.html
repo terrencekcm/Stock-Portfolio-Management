@@ -1090,6 +1090,9 @@
                 const fetchUrl = API_URL + "?token=" + encodeURIComponent(userGoogleToken) + "&t=" + new Date().getTime();
                 const response = await fetch(fetchUrl);
                 const data = await response.json();
+
+                // 🔥 加入這行來除錯
+                console.log("從雲端收到的數據總覽:", data);
                 
                 if (data.result === 'error') {
                     updateStatus("❌ 權限被拒絕: " + data.error, "error");
