@@ -936,7 +936,6 @@
                 renderPerformanceReport(); 
             } else if (tabId === 'reports-tab') {
                 document.getElementById('tab-reports').classList.remove('hidden');
-                setTimeout(renderPortfolioChart, 50);
                 renderPerformanceReport(); 
             } else if (tabId === 'trading-tab') {
                 document.getElementById('tab-trading-plan').classList.remove('hidden');
@@ -1093,6 +1092,7 @@
 
                 // 🔥 加入這行來除錯
                 console.log("從雲端收到的數據總覽:", data);
+                dailyNavData = data.dailyNavData || []; 
                 
                 if (data.result === 'error') {
                     updateStatus("❌ 權限被拒絕: " + data.error, "error");
