@@ -2686,17 +2686,33 @@
             }
         }
 
-        function addPerfYearRow(year = '', initial = 0, added = 0) {
+        function addPerfYearRow(year = '', initial = 0, added = 0, usInitial = 0, exOptInitial = 0) {
             const container = document.getElementById('perfYearRowsContainer');
             container.insertAdjacentHTML('beforeend', `
-                <div class="perf-year-row grid grid-cols-3 gap-1.5 bg-white p-2 rounded border border-gray-200 shadow-sm">
-                    <div><input type="number" value="${year}" placeholder="年份" class="w-full text-center rounded border border-gray-300 font-bold py-1 sp-perf-year"></div>
-                    <div><input type="number" value="${initial}" placeholder="起初金額" class="w-full text-right rounded border border-gray-300 font-semibold text-emerald-600 py-1 sp-perf-initial"></div>
-                    <div><input type="number" value="${added}" placeholder="新增資金" class="w-full text-right rounded border border-gray-300 font-semibold text-blue-600 py-1 sp-perf-added"></div>
+                <div class="perf-year-row grid grid-cols-5 gap-1.5 bg-white p-2 rounded border border-gray-200 shadow-sm mb-2">
+                    <div>
+                        <label class="block text-[9px] text-gray-400 mb-0.5">年份</label>
+                        <input type="number" value="${year}" class="w-full text-center rounded border border-gray-300 font-bold py-1 sp-perf-year text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] text-emerald-600 mb-0.5">全倉起始</label>
+                        <input type="number" value="${initial}" class="w-full text-right rounded border border-gray-300 font-semibold text-emerald-600 py-1 sp-perf-initial text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] text-indigo-600 mb-0.5">美股起始</label>
+                        <input type="number" value="${usInitial}" class="w-full text-right rounded border border-gray-300 font-semibold text-indigo-600 py-1 sp-perf-us-initial text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] text-amber-600 mb-0.5">敝除期權起始</label>
+                        <input type="number" value="${exOptInitial}" class="w-full text-right rounded border border-gray-300 font-semibold text-amber-600 py-1 sp-perf-exopt-initial text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] text-blue-600 mb-0.5">年度新增資金</label>
+                        <input type="number" value="${added}" class="w-full text-right rounded border border-gray-300 font-semibold text-blue-600 py-1 sp-perf-added text-xs">
+                    </div>
                 </div>
             `);
         }
-
         function renderSettingsPage() {
             if (userRole !== 'PM') return;
             const container = document.getElementById('assetSettingInputs'); container.innerHTML = '';
@@ -2720,11 +2736,27 @@
 
             document.getElementById('inputHistStartYear').value = perfConfig["historical_start_year"] || new Date().getFullYear();
             const perfContainer = document.getElementById('perfYearRowsContainer'); perfContainer.innerHTML = '';
+            
             let uniqueYears = new Set();
-            for (let k in perfConfig) { if (k.endsWith('_initial') || k.endsWith('_added')) { uniqueYears.add(k.split('_')[0]); } }
+            for (let k in perfConfig) { 
+                if (k.indexOf('_initial') !== -1 || k.indexOf('_added') !== -1) { 
+                    uniqueYears.add(k.split('_')[0]); 
+                } 
+            }
+            
             if (uniqueYears.size === 0) { uniqueYears.add(new Date().getFullYear().toString()); }
             let sortedYears = Array.from(uniqueYears).sort((a, b) => b - a);
-            sortedYears.forEach(y => { addPerfYearRow(y, perfConfig[y + "_initial"] || 0, perfConfig[y + "_added"] || 0); });
+            
+            sortedYears.forEach(y => { 
+                // 讀取五種數據
+                addPerfYearRow(
+                    y, 
+                    perfConfig[y + "_initial"] || 0, 
+                    perfConfig[y + "_added"] || 0,
+                    perfConfig[y + "_us_initial"] || 0,
+                    perfConfig[y + "_ex_opt_initial"] || 0
+                ); 
+            });
 
             const tbody = document.getElementById('stockPlanSettingRows'); tbody.innerHTML = '';
             stockPlan.forEach((s) => {
@@ -2819,22 +2851,33 @@
                 if (code) newStockPlan.push({ code, market, leverage, target_weight: weight, sector, earnings_date, date_type, strategy });
             });
 
-            let newPerfConfig = {}; newPerfConfig["historical_start_year"] = document.getElementById('inputHistStartYear').value.trim();
+            let newPerfConfig = {}; 
+            newPerfConfig["historical_start_year"] = document.getElementById('inputHistStartYear').value.trim();
+            
             document.querySelectorAll('.perf-year-row').forEach(row => {
                 const y = row.querySelector('.sp-perf-year').value.trim();
                 const initVal = parseFloat(row.querySelector('.sp-perf-initial').value) || 0;
                 const addVal = parseFloat(row.querySelector('.sp-perf-added').value) || 0;
-                if (y) { newPerfConfig[y + "_initial"] = initVal; newPerfConfig[y + "_added"] = addVal; }
+                const usInitVal = parseFloat(row.querySelector('.sp-perf-us-initial').value) || 0;
+                const exOptInitVal = parseFloat(row.querySelector('.sp-perf-exopt-initial').value) || 0;
+                
+                if (y) { 
+                    newPerfConfig[y + "_initial"] = initVal; 
+                    newPerfConfig[y + "_added"] = addVal; 
+                    newPerfConfig[y + "_us_initial"] = usInitVal;
+                    newPerfConfig[y + "_ex_opt_initial"] = exOptInitVal;
+                }
             });
-
+        
             try {
                 await fetch(API_URL, {
-                    method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
+                    method: "POST", mode: "no-cors",
                     body: JSON.stringify({ action: "SAVE_SETTINGS", token: userGoogleToken, assetPlan: newAssetPlan, assetHidden: newAssetHidden, stockPlan: newStockPlan, perfConfig: newPerfConfig })
                 });
-                assetPlan = newAssetPlan; assetHidden = newAssetHidden; stockPlan = newStockPlan; perfConfig = newPerfConfig;
-                updateStatus("✅ 保存成功！正在重新精算...", "success");
-                setTimeout(async () => { await loadData(); switchTab('dashboard-tab'); }, 1200);
+                // 更新本地快取
+                perfConfig = newPerfConfig; 
+                updateStatus("✅ 保存成功！", "success");
+                setTimeout(() => { loadData(); }, 1200);
             } catch(e) { updateStatus("❌ 參數儲存失敗", "error"); }
         }
 
