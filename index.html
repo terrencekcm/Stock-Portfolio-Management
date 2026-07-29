@@ -449,16 +449,32 @@
 
             <!-- 視圖 1：倉位績效 (圖表) -->
             <div id="view-port-perf" class="bg-gray-900 p-6 rounded-xl shadow-md border border-gray-800">
-                <div class="mb-4">
-                    <h3 class="text-base font-black text-white">年初至今 收益率走勢</h3>
-                    <div id="navChartLegend" class="flex flex-wrap gap-4 text-xs font-bold mt-2 h-4">
-                        <!-- Legend 將由 JS 動態注入 -->
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="text-base font-black text-white">📈 倉位績效走勢 (YTD)</h3>
+                        <p class="text-[10px] text-gray-500">比較全倉 NAV 與 S&P 500、NASDAQ 的累積回報率</p>
+                    </div>
+                    <!-- 🔥 生成圖表按鈕 -->
+                    <button id="btn-render-chart" onclick="initPerformanceChart()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-lg transition transform hover:scale-105 cursor-pointer">
+                        🚀 生成績效對比圖表
+                    </button>
+                </div>
+            
+                <!-- 圖例欄 -->
+                <div id="navChartLegend" class="flex flex-wrap gap-4 text-[10px] font-bold mb-3 h-4">
+                    <!-- Legend 將由 JS 動態注入 -->
+                </div>
+            
+                <!-- 畫布容器 -->
+                <div id="navChartContainer" class="w-full h-80 relative bg-gray-950 rounded-lg shadow-inner overflow-hidden border border-gray-800">
+                    <!-- 初始提示 -->
+                    <div id="chartPlaceholder" class="flex flex-col items-center justify-center h-full text-gray-600">
+                        <span class="text-2xl mb-2">📊</span>
+                        <p class="text-xs">點擊上方按鈕開始進行數據校準與繪圖</p>
                     </div>
                 </div>
-                <!-- 放置圖表的畫布 -->
-                <div id="navChartContainer" class="w-full h-80 relative bg-gray-950 rounded-lg shadow-inner overflow-hidden border border-gray-800"></div>
                 
-                <p class="text-[10px] text-gray-500 mt-3 text-center">💡 收益率 = 每日全倉總淨值(NAV) ÷ 年度基準資本額(Initial+Added) - 1。基準數據取自「配置計劃設定」。大盤指數以圖表起始點作為 0% 基準。</p>
+                <p class="text-[9px] text-gray-500 mt-3 text-center">💡 計算邏輯：以 2026.07.01 為基準點 (0%)，計算每日累積百分比變化。大盤數據取自每日收盤快照。</p>
             </div>
 
             <!-- 視圖 2：期權績效 (維持原本內容) -->
@@ -2991,24 +3007,121 @@
             `;
         }
 
-       // ==========================================
-        // 🚀 繪製：年初至今倉位績效走勢圖 (YTD) - 暫時關閉
         // ==========================================
-        function renderPortfolioChart() {
+        // 🚀 倉位績效圖表繪製核心體 (精簡高效版)
+        // ==========================================
+        function initPerformanceChart() {
+            const btn = document.getElementById('btn-render-chart');
+            const placeholder = document.getElementById('chartPlaceholder');
+            
+            btn.innerText = "🔄 數據處理中...";
+            btn.disabled = true;
+        
+            // 1. 模擬/Hardcode 數據獲取 (之後可直接使用 dailyNavData)
+            // 這裡我們暫時 Hardcode 模擬從 2026-07-01 開始的數據
+            let chartSourceData = dailyNavData.length > 0 ? dailyNavData : [
+                { date: "2026-07-01", totalNav: 127555, sp500: 7499.36, nasdaq: 26213.72 },
+                { date: "2026-07-02", totalNav: 127405.12, sp500: 7490.50, nasdaq: 26105.30 },
+                { date: "2026-07-03", totalNav: 127480.90, sp500: 7495.10, nasdaq: 26150.80 },
+                { date: "2026-07-28", totalNav: 125313.71, sp500: 7413.18, nasdaq: 24932.08 },
+                { date: "2026-07-29", totalNav: 125075.53, sp500: 7428.78, nasdaq: 24876.91 }
+            ];
+        
+            // 2. 設定 Hardcode 時間範圍過濾 (2026.07.01 - 2026.09.30)
+            const startDate = "2026-07-01";
+            const endDate = "2026-09-30";
+            
+            const filteredData = chartSourceData.filter(d => d.date >= startDate && d.date <= endDate)
+                                                .sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+            if (filteredData.length < 2) {
+                alert("數據點不足，無法生成趨勢圖");
+                btn.innerText = "🚀 生成績效對比圖表";
+                btn.disabled = false;
+                return;
+            }
+        
+            // 3. 計算百分比收益率 (以第一筆為 0% 基準)
+            const base = filteredData[0];
+            const portfolioSeries = [];
+            const sp500Series = [];
+            const nasdaqSeries = [];
+        
+            filteredData.forEach(d => {
+                const time = d.date; // Lightweight charts 接受 yyyy-mm-dd
+                portfolioSeries.push({ time: time, value: ((d.totalNav / base.totalNav) - 1) * 100 });
+                sp500Series.push({ time: time, value: ((d.sp500 / base.sp500) - 1) * 100 });
+                nasdaqSeries.push({ time: time, value: ((d.nasdaq / base.nasdaq) - 1) * 100 });
+            });
+        
+            // 4. 清除 Placeholder 並啟動繪圖
+            placeholder.classList.add('hidden');
+            renderPerformanceLineChart(portfolioSeries, sp500Series, nasdaqSeries);
+        
+            btn.innerText = "✅ 已更新";
+            btn.disabled = false;
+        }
+        
+        function renderPerformanceLineChart(portData, spData, nasData) {
             const container = document.getElementById('navChartContainer');
-            if (!container) return;
-            
-            // 清空並顯示暫停訊息
-            if (navChartInstance) { navChartInstance.remove(); navChartInstance = null; }
             const legend = document.getElementById('navChartLegend');
-            if (legend) legend.innerHTML = '';
             
-            container.innerHTML = `
-                <div class="flex flex-col items-center justify-center h-full text-sm font-bold text-gray-500 bg-gray-950 px-6 text-center leading-relaxed">
-                    <span class="text-xl mb-2">🚧</span>
-                    走勢圖與今日盈虧推算功能已暫時關閉，以恢復系統極速載入狀態。<br>
-                    <span class="text-xs text-gray-600 font-medium mt-1">（分頁與資料紀錄功能已保留，稍後再行研究最佳效能方案）</span>
-                </div>`;
+            // 如果已有圖表實體，先銷毀
+            if (navChartInstance) {
+                navChartInstance.remove();
+                navChartInstance = null;
+            }
+        
+            // 建立圖表實體
+            navChartInstance = LightweightCharts.createChart(container, {
+                width: container.clientWidth,
+                height: 320,
+                layout: {
+                    background: { type: 'solid', color: 'transparent' },
+                    textColor: '#64748b',
+                },
+                grid: {
+                    vertLines: { color: '#1e293b' },
+                    horzLines: { color: '#1e293b' },
+                },
+                rightPriceScale: {
+                    borderColor: '#334155',
+                },
+                timeScale: {
+                    borderColor: '#334155',
+                },
+                handleScroll: true,
+                handleScale: true,
+            });
+        
+            // 定義線條屬性 (配色參考富途牛牛)
+            const portLine = navChartInstance.addLineSeries({ color: '#10b981', lineWidth: 3, title: '我的倉位' }); // 翡翠綠
+            const spLine = navChartInstance.addLineSeries({ color: '#0ea5e9', lineWidth: 1, lineStyle: 2 }); // 淺藍 虛線
+            const nasLine = navChartInstance.addLineSeries({ color: '#f59e0b', lineWidth: 1, lineStyle: 2 }); // 琥珀色 虛線
+        
+            // 注入數據
+            portLine.setData(portData);
+            spLine.setData(spData);
+            nasLine.setData(nasData);
+        
+            // 自動縮放
+            navChartInstance.timeScale().fitContent();
+        
+            // 更新圖例 (Legend)
+            const lastPort = portData[portData.length - 1].value.toFixed(2);
+            const lastSp = spData[spData.length - 1].value.toFixed(2);
+            const lastNas = nasData[nasData.length - 1].value.toFixed(2);
+        
+            legend.innerHTML = `
+                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> <span class="text-white">全倉: ${lastPort}%</span></div>
+                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span> <span class="text-sky-400">S&P500: ${lastSp}%</span></div>
+                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> <span class="text-amber-400">NASDAQ: ${lastNas}%</span></div>
+            `;
+        
+            // 響應式處理
+            window.addEventListener('resize', () => {
+                if (navChartInstance) navChartInstance.resize(container.clientWidth, 320);
+            });
         }
         
         // ==========================================
