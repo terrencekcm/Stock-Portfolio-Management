@@ -3008,130 +3008,123 @@
         }
 
         // ==========================================
-        // 🚀 倉位績效圖表繪製核心體 (精簡高效版)
+        // ==========================================
+        // 🚀 倉位績效圖表繪製核心 (接接 Google Sheet 數據版)
         // ==========================================
         function initPerformanceChart() {
             const btn = document.getElementById('btn-render-chart');
             const placeholder = document.getElementById('chartPlaceholder');
             
-            btn.innerText = "🔄 數據處理中...";
+            // 防呆：檢查數據是否已從 GAS 載入
+            if (!dailyNavData || dailyNavData.length === 0) {
+                alert("⚠️ 尚未從雲端取得每日快照數據，請稍後再試或檢查 __Daily_NAV__ 分頁。");
+                return;
+            }
+        
+            btn.innerText = "🔄 正在計算回報率...";
             btn.disabled = true;
         
-            // 1. 模擬/Hardcode 數據獲取 (之後可直接使用 dailyNavData)
-            // 這裡我們暫時 Hardcode 模擬從 2026-07-01 開始的數據
-            let chartSourceData = dailyNavData.length > 0 ? dailyNavData : [
-                { date: "2026-07-01", totalNav: 127555, sp500: 7499.36, nasdaq: 26213.72 },
-                { date: "2026-07-02", totalNav: 127405.12, sp500: 7490.50, nasdaq: 26105.30 },
-                { date: "2026-07-03", totalNav: 127480.90, sp500: 7495.10, nasdaq: 26150.80 },
-                { date: "2026-07-28", totalNav: 125313.71, sp500: 7413.18, nasdaq: 24932.08 },
-                { date: "2026-07-29", totalNav: 125075.53, sp500: 7428.78, nasdaq: 24876.91 }
-            ];
-        
-            // 2. 設定 Hardcode 時間範圍過濾 (2026.07.01 - 2026.09.30)
+            // 1. 定義時間範圍 (Hard-coded as requested)
             const startDate = "2026-07-01";
             const endDate = "2026-09-30";
             
-            const filteredData = chartSourceData.filter(d => d.date >= startDate && d.date <= endDate)
-                                                .sort((a, b) => new Date(a.date) - new Date(b.date));
+            // 2. 過濾並排序數據
+            const filteredData = dailyNavData
+                .filter(d => d.date >= startDate && d.date <= endDate)
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
         
-            if (filteredData.length < 2) {
-                alert("數據點不足，無法生成趨勢圖");
+            // 3. 尋找基準點 (2026-07-01)
+            const baseRow = filteredData.find(d => d.date === startDate);
+            
+            if (!baseRow) {
+                alert("❌ 找不到 2026-07-01 的基準數據，請確保 __Daily_NAV__ 表中有該日紀錄。");
                 btn.innerText = "🚀 生成績效對比圖表";
                 btn.disabled = false;
                 return;
             }
         
-            // 3. 計算百分比收益率 (以第一筆為 0% 基準)
-            const base = filteredData[0];
+            // 4. 計算三大序列的百分比收益率
+            // 基準值取自 2026-07-01 當天
+            const baseNav = parseFloat(baseRow.totalNav);
+            const baseSP = parseFloat(baseRow.sp500);
+            const baseNAS = parseFloat(baseRow.nasdaq);
+        
             const portfolioSeries = [];
             const sp500Series = [];
             const nasdaqSeries = [];
         
             filteredData.forEach(d => {
-                const time = d.date; // Lightweight charts 接受 yyyy-mm-dd
-                portfolioSeries.push({ time: time, value: ((d.totalNav / base.totalNav) - 1) * 100 });
-                sp500Series.push({ time: time, value: ((d.sp500 / base.sp500) - 1) * 100 });
-                nasdaqSeries.push({ time: time, value: ((d.nasdaq / base.nasdaq) - 1) * 100 });
+                const time = d.date; // 格式為 yyyy-mm-dd
+                
+                // 累積回報率公式: (當前值 / 基準值 - 1) * 100
+                portfolioSeries.push({ 
+                    time: time, 
+                    value: baseNav !== 0 ? ((parseFloat(d.totalNav) / baseNav) - 1) * 100 : 0 
+                });
+                
+                sp500Series.push({ 
+                    time: time, 
+                    value: baseSP !== 0 ? ((parseFloat(d.sp500) / baseSP) - 1) * 100 : 0 
+                });
+                
+                nasdaqSeries.push({ 
+                    time: time, 
+                    value: baseNAS !== 0 ? ((parseFloat(d.nasdaq) / baseNAS) - 1) * 100 : 0 
+                });
             });
         
-            // 4. 清除 Placeholder 並啟動繪圖
-            placeholder.classList.add('hidden');
+            // 5. 執行繪圖
+            if (placeholder) placeholder.classList.add('hidden');
+            
+            // 呼叫先前定義好的繪圖引擎 (確保 renderPerformanceLineChart 函數已存在)
             renderPerformanceLineChart(portfolioSeries, sp500Series, nasdaqSeries);
         
+            // 6. 更新 UI 狀態
             btn.innerText = "✅ 已更新";
-            btn.disabled = false;
-        }
+            btn.className = "px-4 py-2 bg-gray-600 text-white text-xs font-bold rounded-lg shadow-inner transition cursor-not-allowed";
+            btn.disabled = true; // 生成後禁用，若要刷新需重新進入頁面或另設重置邏輯
         
+            console.log("Chart Rendered with " + filteredData.length + " data points.");
+        }
+
         function renderPerformanceLineChart(portData, spData, nasData) {
             const container = document.getElementById('navChartContainer');
             const legend = document.getElementById('navChartLegend');
             
-            // 🔥 1. 徹底清空容器，防止重複繪圖導致的重影
             if (navChartInstance) {
                 navChartInstance.remove();
                 navChartInstance = null;
             }
             container.innerHTML = ''; 
         
-            // 建立圖表實體
             navChartInstance = LightweightCharts.createChart(container, {
                 width: container.clientWidth,
                 height: 320,
-                layout: {
-                    background: { type: 'solid', color: 'transparent' },
-                    textColor: '#94a3b8', // 稍微亮一點的文字顏色
-                },
-                grid: {
-                    vertLines: { color: '#1e293b' },
-                    horzLines: { color: '#1e293b' },
-                },
-                rightPriceScale: {
-                    borderColor: '#334155',
-                },
-                timeScale: {
-                    borderColor: '#334155',
-                },
-                handleScroll: true,
-                handleScale: true,
+                layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#94a3b8' },
+                grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
+                rightPriceScale: { borderColor: '#334155' },
+                timeScale: { borderColor: '#334155' }
             });
         
-            // 🔥 2. 定義線條 (關閉 priceLineVisible 解決雙線問題)
-            // 我的倉位：粗實線
+            // 倉位線：綠色粗實線
             const portLine = navChartInstance.addLineSeries({ 
-                color: '#10b981', 
-                lineWidth: 3, 
-                title: '我的倉位',
-                priceLineVisible: false, // ❌ 關閉橫向價格虛線
-                lastValueVisible: true   // ✅ 保留右側刻度標籤
+                color: '#10b981', lineWidth: 3, priceLineVisible: false, lastValueVisible: true 
             }); 
-        
-            // S&P500：幼實線
+            // S&P500：藍色幼實線
             const spLine = navChartInstance.addLineSeries({ 
-                color: '#0ea5e9', 
-                lineWidth: 1, 
-                lineStyle: 0,            // ✅ 改為實線 (Solid)
-                priceLineVisible: false, // ❌ 關閉橫向價格虛線
-                lastValueVisible: true   // ✅ 保留右側刻度標籤
+                color: '#0ea5e9', lineWidth: 1, lineStyle: 0, priceLineVisible: false, lastValueVisible: true 
             }); 
-        
-            // NASDAQ：幼實線
+            // NASDAQ：橘色幼實線
             const nasLine = navChartInstance.addLineSeries({ 
-                color: '#f59e0b', 
-                lineWidth: 1, 
-                lineStyle: 0,            // ✅ 改為實線 (Solid)
-                priceLineVisible: false, // ❌ 關閉橫向價格虛線
-                lastValueVisible: true   // ✅ 保留右側刻度標籤
+                color: '#f59e0b', lineWidth: 1, lineStyle: 0, priceLineVisible: false, lastValueVisible: true 
             }); 
         
-            // 注入數據
             portLine.setData(portData);
             spLine.setData(spData);
             nasLine.setData(nasData);
-        
-            // 自動縮放
             navChartInstance.timeScale().fitContent();
         
-            // 更新圖例 (Legend)
+            // 更新 Legend 數值
             const lastPort = portData[portData.length - 1].value.toFixed(2);
             const lastSp = spData[spData.length - 1].value.toFixed(2);
             const lastNas = nasData[nasData.length - 1].value.toFixed(2);
@@ -3141,16 +3134,7 @@
                 <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span> <span class="text-sky-400">S&P500: ${lastSp >= 0 ? '+' : ''}${lastSp}%</span></div>
                 <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> <span class="text-amber-400">NASDAQ: ${lastNas >= 0 ? '+' : ''}${lastNas}%</span></div>
             `;
-        
-            // 響應式處理
-            const handleResize = () => {
-                if (navChartInstance) {
-                    navChartInstance.resize(container.clientWidth, 320);
-                }
-            };
-            window.addEventListener('resize', handleResize);
         }
-        
         // ==========================================
         // 🚀 本星期建倉策略相關函數
         // ==========================================
