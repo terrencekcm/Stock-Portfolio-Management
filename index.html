@@ -773,7 +773,7 @@
             
                     <div id="optionsFields" class="space-y-4 hidden border border-purple-200 bg-purple-50/30 p-3 rounded-lg">
                         <div class="grid grid-cols-2 gap-3">
-                            <div><label class="block text-xs font-bold text-purple-800">正股代號 (Ticker)</label><input type="text" id="optTicker" placeholder="NVDA" class="mt-1 block w-full rounded border-purple-200 p-2 uppercase font-bold focus:outline-purple-500"></div>
+                            <div><label class="block text-xs font-bold text-purple-800">正股代號 (Ticker)</label><input type="text" id="optTicker" placeholder="e.g. NVDA" class="mt-1 block w-full rounded border-purple-200 p-2 uppercase font-bold focus:outline-purple-500"></div>
                             <div>
                                 <label class="block text-xs font-bold text-purple-800">策略 (Strategy)</label>
                                 <select id="optStrategy" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500 font-bold">
@@ -781,10 +781,10 @@
                                     <option value="Short Put">📉 Short Put</option>
                                 </select>
                             </div>
-                            <div><label class="block text-xs font-bold text-purple-800">行使價 (Strike)</label><input type="number" id="optStrike" step="any" placeholder="125" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500"></div>
+                            <div><label class="block text-xs font-bold text-purple-800">行使價 (Strike)</label><input type="number" id="optStrike" step="any" placeholder="" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500"></div>
                             <div><label class="block text-xs font-bold text-purple-800">到期日 (Expiry)</label><input type="date" id="optExpiry" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500"></div>
-                            <div><label class="block text-xs font-bold text-purple-800">合約張數</label><input type="number" id="optQty" step="1" placeholder="1" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500"></div>
-                            <div><label class="block text-xs font-bold text-purple-800">開倉單價</label><input type="number" id="optPremium" step="any" placeholder="5.00" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500 text-blue-600 font-bold"></div>
+                            <div><label class="block text-xs font-bold text-purple-800">合約張數</label><input type="number" id="optQty" step="1" placeholder="" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500"></div>
+                            <div><label class="block text-xs font-bold text-purple-800">開倉單價</label><input type="number" id="optPremium" step="any" placeholder="" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500 text-blue-600 font-bold"></div>
                         </div>
                         <p class="text-[10px] text-purple-600 font-medium tracking-wide">💡 系統預設 1 張合約 = 100 股。</p>
                     </div>
