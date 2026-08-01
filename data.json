@@ -1,22 +1,22 @@
 {
-    "last_updated": "2026-07-25 04:07",
+    "last_updated": "2026-08-01 04:18",
     "stock_metrics": {
-        "nvda_close": 206.84,
-        "nvda_50ma": 209.11,
+        "nvda_close": 200.75,
+        "nvda_50ma": 206.12,
         "asic_strength": "normal"
     },
     "supply_chain_news": {
         "dram": {
-            "title": "伺服器DRAM現貨價暴漲146%！AI需求全面擴散 記憶體缺貨加劇 - news.cnyes.com",
-            "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE9pR01TUkMxdnN0N2tXZTJMRDV3U1FUT1BtRXdvaGF2RnV1QTc5OEkzSE8xYU50M2JYakk3ZWpPTk0zMVVuSC1zN2xjdG9tTjA?oc=5"
+            "title": "樣品也吃緊 伺服器DRAM現貨價較合約價飆升146% - DIGITIMES",
+            "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOQUVjT0dxd0ZtT3IxNjlHQkZEV1JrNTlpa056NmNJSGR2MlVrWGJ0YlpfXzJOSXhOOXBhdVNUcXU3OGhNVlJzSm9lNFduVjJCX1Zpa3ZVN0JoYnAtcFlIbnlJTjNPRVZheGxUUDBEWDhpaVhXQkl4UksycmFMLWt0TUVrZXYxSE1OR3JlOGpn?oc=5"
         },
         "cowos": {
-            "title": "InFO到CoWoS四波潮，台積電 (2330) 該盯哪個數據？-周哲翰 - CMoney投資網誌",
-            "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQUGpOdk5od0xSR0FuQ1hSWU1VVGhJOWc0di1TVEd3V0dWT3dJTXdPSDgyNWh2ZjBnUE1heG1aOXVFSzVqRlR0cGQ2UHZ2VDJHOGRNVzNBWjFnWDk4bm9fNDlFaXBxZEJYcUt2bDI2UU5xamtIT2doenI5dDJ4TVAwZUhNMA?oc=5"
+            "title": "台積電CoWoS產能真的塞爆了！傳NVIDIA下一代晶片將轉交英特爾封裝， 台灣封測廠也大賺 - T客邦",
+            "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxQaHh0YVM2NnFUOWRGeEtjXzNZYS1oZGtWQUI5WlVrbXpBQTF5MkUtSUxGdi0yNlRqcERQVnM2NGNOLVZkYkdoMEIzcFVZLWRtWURocE1fS2NUanNKRVFoS0E1SHJmcnpEMmUxX2VYLU1tUW5MS3lBRzhQU09qQWJxWVlrYlFtbVExUWc?oc=5"
         },
         "equipment": {
-            "title": "2026年記憶體產業繁榮背後 市場關注的五項爭議 - news.cnyes.com",
-            "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE4xWGV0ZnV0aUpGcEFaamNKRWxpN0VzbGJuWUlTZTlqaDlNbTVoS09pRFlZTFR5Si0tRkl0WHBjbk9UR3JmUlEzZ19CenNmbFE?oc=5"
+            "title": "AI伺服器時代爆發：從NXP到KLA，半導體設備如何搶食「實體AI」千億商機？ - CMoney投資網誌",
+            "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOd2ttOTZYUWFsSUZjQWRBZVNreHl6Rm9MbzdTSlRuUHU3TGY3TlJXRHlRZlktWVJyZjVIODg1ZTFRU09veThCVkctdEN6d0RNQUppNnBXQlh0aWxtMGllMDcwTlZXOUt5a3NlUXRzUmFWZXE4MWpYYkYwNWZyZUpOWTZ6OENhYUkycEJ0TkZn?oc=5"
         }
     }
 }
