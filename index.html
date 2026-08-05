@@ -503,10 +503,14 @@
                     </div>
                 </div>
                 <!-- Strategy Breakdown -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
                         <h3 class="text-lg font-black text-gray-800 mb-4">📈 Long Call 表現</h3>
                         <div class="space-y-3 text-sm font-medium text-gray-600" id="reportLongCallBody"></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                        <h3 class="text-lg font-black text-gray-800 mb-4">📉 Long Put 表現</h3>
+                        <div class="space-y-3 text-sm font-medium text-gray-600" id="reportLongPutBody"></div>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
                         <h3 class="text-lg font-black text-gray-800 mb-4">📉 Short Put 表現</h3>
@@ -781,6 +785,7 @@
                                 <label class="block text-sm font-medium text-gray-700">策略 (Strategy)</label>
                                 <select id="optStrategy" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500 font-bold">
                                     <option value="Long Call">📈 Long Call</option>
+                                    <option value="Long Put">📉 Long Put</option>
                                     <option value="Short Put">📉 Short Put</option>
                                 </select>
                             </div>
@@ -1218,8 +1223,8 @@
                 }
             });
         
-            // 🔥 計算期權金現金流與凍結保證金
-            let optionsLockedLC = 0; let optionsLockedSP = 0;
+            // 🔥 計算期權金現金流與凍結保證金 (加入 Long Put)
+            let optionsLockedLC = 0; let optionsLockedSP = 0; let optionsLockedLP = 0;
             optionsTx.forEach(opt => {
                 let multiplier = 100 * Number(opt.qty);
                 let openVal = Number(opt.open_premium) * multiplier;
@@ -1227,15 +1232,16 @@
                 let strikeVal = Number(opt.strike) * multiplier;
         
                 if (opt.status === 'OPEN') {
-                    if (opt.strategy === 'Long Call') {
+                    if (opt.strategy === 'Long Call' || opt.strategy === 'Long Put') {
                         cashBalances['US'] -= openVal; // 付出期權金
-                        optionsLockedLC += openVal;    // LC 鎖定的是風險資金(Premium)
+                        if (opt.strategy === 'Long Call') optionsLockedLC += openVal;
+                        if (opt.strategy === 'Long Put') optionsLockedLP += openVal;
                     } else if (opt.strategy === 'Short Put') {
                         cashBalances['US'] += openVal; // 收入期權金
                         optionsLockedSP += strikeVal;  // SP 鎖定的是全額保證金 (Cash Secured Put)
                     }
                 } else if (opt.status === 'CLOSED') {
-                    if (opt.strategy === 'Long Call') {
+                    if (opt.strategy === 'Long Call' || opt.strategy === 'Long Put') {
                         cashBalances['US'] -= openVal; 
                         cashBalances['US'] += closeVal; // 賣出拿回
                     } else if (opt.strategy === 'Short Put') {
@@ -1245,7 +1251,7 @@
                 }
             });
         
-            return { cashBalances, positions, optionsLockedLC, optionsLockedSP };
+            return { cashBalances, positions, optionsLockedLC, optionsLockedSP, optionsLockedLP };
         }
 
         function applyPositionSort() {
@@ -1328,7 +1334,7 @@
         // 🚀 核心計算：投資儀表板與曝險分析
         // ==========================================
         function renderComponents() {
-            const { cashBalances, positions, optionsLockedLC, optionsLockedSP } = calculatePortfolio();
+            const { cashBalances, positions, optionsLockedLC, optionsLockedSP, optionsLockedLP } = calculatePortfolio();
             let assetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "OPTIONS": 0, "CASH_TOTAL": 0 };
             let effectiveAssetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "OPTIONS": 0, "CASH_TOTAL": 0 };
             
@@ -1336,15 +1342,14 @@
             let totalStockMarketValueUsd = 0; let totalStockCostUsd = 0;
             let totalEffectiveStockMarketValueUsd = 0; 
             
-            // 🔥 新增：純 US 美股的累加變數
             let usStockMarketValueUsd = 0; 
             let usStockCostUsd = 0;
             let usEffectiveStockMarketValueUsd = 0;
-            let usDailyChangeUsd = 0; // 當日美股漲跌總金額
-
+            let usDailyChangeUsd = 0; 
+        
             let usSectorsData = {};
             let attackValueUsd = 0; let defenseValueUsd = 0;
-
+        
             stockPlan.forEach(s => {
                 if (s.market === 'US') {
                     let sec = s.sector ? s.sector.trim() : "未分類";
@@ -1352,21 +1357,21 @@
                     usSectorsData[sec].plannedWeight += parseFloat(s.target_weight) || 0;
                 }
             });
-
+        
             let radarHtml = ""; let hasRadarAlert = false;
             const todayObj = new Date(); todayObj.setHours(0,0,0,0);
-
+        
             for (const code in positions) {
                 const p = positions[code];
                 const livePrice = prices[p.yahooSymbol] || 0;
-                const dailyChg = changes[p.yahooSymbol] || 0; // 🔥 獲取今日漲跌額
-
+                const dailyChg = changes[p.yahooSymbol] || 0; 
+        
                 const isHkdMarket = p.market === 'HK';
                 const mktValUsd = isHkdMarket ? ((p.shares * livePrice) / exchangeRate) : (p.shares * livePrice);
                 const costUsd = isHkdMarket ? (p.totalCost / exchangeRate) : p.totalCost;
                 const plUsd = mktValUsd - costUsd;
                 const avgPrice = p.shares > 0 ? (p.totalCost / p.shares) : 0;
-
+        
                 let pLev = 1;
                 if (p.market === 'US') {
                     let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
@@ -1374,15 +1379,15 @@
                 }
                 p.leverage = pLev;
                 p.effectiveMktValUsd = mktValUsd * pLev;
-
+        
                 let holdingDays = 0;
                 if(p.firstBuyDate !== '---') {
                     const diff = Math.floor((new Date() - new Date(p.firstBuyDate)) / (1000 * 60 * 60 * 24)); holdingDays = diff < 0 ? 0 : diff;
                 }
-
+        
                 assetRealValuesUsd[p.market] += mktValUsd;
                 effectiveAssetRealValuesUsd[p.market] += p.effectiveMktValUsd;
-
+        
                 if (!p.isPlannedOnly && p.shares > 0) {
                     totalStockMarketValueUsd += mktValUsd; 
                     totalStockCostUsd += costUsd;
@@ -1393,7 +1398,6 @@
                         usStockCostUsd += costUsd;
                         usEffectiveStockMarketValueUsd += p.effectiveMktValUsd;
                         
-                        // 🔥 累加美股當日盈虧 (持股數 * 漲跌額 * 槓桿倍數)
                         usDailyChangeUsd += (p.shares * dailyChg * pLev);
                         
                         let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
@@ -1403,7 +1407,7 @@
                 }
                 
                 computedStocks.push({ ...p, avgPrice, livePrice, mktValUsd, costUsd, plUsd, holdingDays });
-
+        
                 if (p.market === 'US' && !p.isPlannedOnly && p.shares > 0) {
                     let matchPlan = stockPlan.find(s => s.code === p.code && s.market === 'US');
                     let sec = (matchPlan && matchPlan.sector) ? matchPlan.sector.trim() : "未分類";
@@ -1411,32 +1415,31 @@
                     usSectorsData[sec].actualValueUsd += p.effectiveMktValUsd; 
                 }
             }
-
+        
             let totalCashUsd = 0;
             for (const mkt in cashBalances) { totalCashUsd += (cashBalances[mkt] * ((mkt === 'HK') ? (1 / exchangeRate) : 1)); }
             
             assetRealValuesUsd["CASH_TOTAL"] = totalCashUsd;
             effectiveAssetRealValuesUsd["CASH_TOTAL"] = totalCashUsd; 
-
+        
             // 🔥 計算期權真實浮動淨值 (NLV)
             let optionsNLV = 0;
             optionsTx.forEach(opt => {
                 if (opt.status === 'OPEN') {
                     let currPrem = opt.current_premium !== undefined && opt.current_premium !== "" ? Number(opt.current_premium) : Number(opt.open_premium);
                     let multi = Number(opt.qty) * 100;
-                    if (opt.strategy === 'Long Call') optionsNLV += (currPrem * multi);
+                    if (opt.strategy === 'Long Call' || opt.strategy === 'Long Put') optionsNLV += (currPrem * multi);
                     else if (opt.strategy === 'Short Put') optionsNLV -= (currPrem * multi); // 負債
                 }
             });
-
-            let totalOptionsLockedUsd = optionsLockedLC + optionsLockedSP;
-            assetRealValuesUsd["OPTIONS"] = optionsNLV; // 表格內呈現真實淨值
-            effectiveAssetRealValuesUsd["OPTIONS"] = totalOptionsLockedUsd; // 曝險仍用保證金/風險金
+        
+            let totalOptionsLockedUsd = optionsLockedLC + optionsLockedSP + optionsLockedLP;
+            assetRealValuesUsd["OPTIONS"] = optionsNLV; 
+            effectiveAssetRealValuesUsd["OPTIONS"] = totalOptionsLockedUsd; 
                         
-            // 🔥 全倉總淨值：現金 + 股票市值 + 期權真實浮動淨值
             const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd + optionsNLV; 
             const totalEffectiveAssetUsd = totalEffectiveStockMarketValueUsd + totalCashUsd + totalOptionsLockedUsd;
-
+        
             const currentYear = new Date().getFullYear();
             const yearInitial = parseFloat(perfConfig[currentYear + "_initial"]) || 0;
             const yearAdded = parseFloat(perfConfig[currentYear + "_added"]) || 0;
@@ -1445,11 +1448,11 @@
             const histStartYear = perfConfig["historical_start_year"] || currentYear;
             const histInitialAmount = parseFloat(perfConfig[histStartYear + "_initial"]) || yearInitial;
             let histPerfPlPct = 0; if (histInitialAmount > 0) { histPerfPlPct = ((totalAssetUsd / histInitialAmount) - 1) * 100; }
-
+        
             document.getElementById('headerPerfYearlyPl').innerText = `${yearlyPerfPlPct >= 0 ? '+' : ''}${yearlyPerfPlPct.toFixed(2)}%`;
             document.getElementById('headerPerfYearlyPl').className = `text-3xl font-black mt-1 ${yearlyPerfPlPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
             document.getElementById('headerPerfHistPlDetail').innerHTML = `歷來總賺蝕 (%): <span class="font-extrabold ${histPerfPlPct >= 0 ? 'text-emerald-600':'text-rose-600'}">${histPerfPlPct >= 0 ? '+' : ''}${histPerfPlPct.toFixed(2)}%</span> <span class="text-[10px] text-gray-400 font-normal">(基準年: ${histStartYear})</span>`;
-
+        
             const spPct = latestBenchmarks.sp500 || 0; const nasPct = latestBenchmarks.nasdaq || 0;
             const spEl = document.getElementById('benchSP500');
             spEl.innerText = `${spPct >= 0 ? '+' : ''}${spPct.toFixed(1)}%`;
@@ -1457,17 +1460,17 @@
             const nasEl = document.getElementById('benchNASDAQ');
             nasEl.innerText = `${nasPct >= 0 ? '+' : ''}${nasPct.toFixed(1)}%`;
             nasEl.className = `font-extrabold ${nasPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
-
+        
             const usAssetPlanWeight = assetPlan["US"] || 0; 
             const plannedUsTotalUsd = totalEffectiveAssetUsd * (usAssetPlanWeight / 100);
             let attPctOfPlan = plannedUsTotalUsd > 0 ? (attackValueUsd / plannedUsTotalUsd * 100) : 0;
             let defPctOfPlan = plannedUsTotalUsd > 0 ? (defenseValueUsd / plannedUsTotalUsd * 100) : 0;
             let totalDeployedPct = attPctOfPlan + defPctOfPlan; let remainingQuotaPct = Math.max(0, 100 - totalDeployedPct);
-
+        
             document.getElementById('attackBarPct').innerText = `${attPctOfPlan.toFixed(1)}%`;
             document.getElementById('defenseBarPct').innerText = `${defPctOfPlan.toFixed(1)}%`;
             document.getElementById('strategyBarTitle').innerText = `美股真實建倉進度 (已配: ${totalDeployedPct.toFixed(1)}% | 剩餘額度: ${remainingQuotaPct.toFixed(1)}%)`;
-
+        
             if (totalDeployedPct > 100) {
                 let scaleFactor = 100 / totalDeployedPct;
                 document.getElementById('attackBarSeg').style.width = `${attPctOfPlan * scaleFactor}%`;
@@ -1476,24 +1479,24 @@
                 document.getElementById('attackBarSeg').style.width = `${attPctOfPlan}%`;
                 document.getElementById('defenseBarSeg').style.width = `${defPctOfPlan}%`;
             }
-
+        
             computedStocks.forEach(p => {
                 let eDateStr = "";
                 let isManual = false;
                 const codeUpper = p.code.toUpperCase().trim();
-
+        
                 if (earningsMap[codeUpper] && earningsMap[codeUpper].date) {
                     eDateStr = earningsMap[codeUpper].date;
                     isManual = (earningsMap[codeUpper].type === "手動");
                 }
-
+        
                 if (eDateStr && eDateStr !== '---') {
                     const eDate = new Date(eDateStr);
                     eDate.setHours(0, 0, 0, 0);
                     
                     const diffTime = eDate.getTime() - todayObj.getTime();
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+        
                     if (diffDays >= 0 && diffDays <= 7) {
                         hasRadarAlert = true;
                         radarHtml += `
@@ -1513,7 +1516,7 @@
                     }
                 }
             });
-
+        
             const radarContainer = document.getElementById('earningsRadarContainer');
             if (hasRadarAlert) { 
                 radarContainer.classList.remove('hidden'); 
@@ -1521,7 +1524,7 @@
             } else { 
                 radarContainer.classList.add('hidden'); 
             }
-
+        
             document.getElementById('headerCashUsd').innerText = `USD $${totalCashUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashHkd').innerText = `等值 HKD $${(totalCashUsd * exchangeRate).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('headerCashDetail').innerText = `🇺🇸 帳上美金: $${(cashBalances['US']||0).toLocaleString()} | 🇭🇰 帳上港幣: $${(cashBalances['HK']||0).toLocaleString()}`;
@@ -1530,26 +1533,22 @@
             document.getElementById('headerAllocationHkd').innerText = `等值 HKD $${(usStockMarketValueUsd * exchangeRate).toLocaleString(undefined, {maximumFractionDigits:2})}`;
             document.getElementById('headerTotalAsset').innerText = `槓桿後市值: USD $${usEffectiveStockMarketValueUsd.toLocaleString(undefined, {maximumFractionDigits:0})}`;
             
-            // 🔥 計算並渲染 US 美股當日賺蝕 % 與細節
-            let usYesterdayValueUsd = usEffectiveStockMarketValueUsd - usDailyChangeUsd; // 逆推昨日市值
+            let usYesterdayValueUsd = usEffectiveStockMarketValueUsd - usDailyChangeUsd; 
             let usDailyPlPct = usYesterdayValueUsd > 0 ? (usDailyChangeUsd / usYesterdayValueUsd * 100) : 0;
             
             const usPlUsd = usStockMarketValueUsd - usStockCostUsd;
             const usPlPercent = usStockCostUsd > 0 ? (usPlUsd / usStockCostUsd * 100) : 0;
             
-            // 決定正負號與顏色
             let usPlSign = usPlUsd >= 0 ? '+' : '';
             let usPlColor = usPlUsd >= 0 ? 'text-emerald-600' : 'text-rose-600';
             let usDailySign = usDailyChangeUsd >= 0 ? '+' : '';
             let usDailyColor = usDailyChangeUsd >= 0 ? 'text-emerald-600' : 'text-rose-600';
             
-            // 金額格式化函數 (負數顯示為 -$xxx 而不是 $-xxx)
             let formatMoney = (val) => val < 0 ? `-$${Math.abs(val).toLocaleString(undefined, {maximumFractionDigits:0})}` : `$${val.toLocaleString(undefined, {maximumFractionDigits:0})}`;
-
-            // 寫入 HTML
+        
             document.getElementById('headerTotalPl').innerHTML = `持倉盈虧: <span class="${usPlColor}">USD ${formatMoney(usPlUsd)} (${usPlSign}${usPlPercent.toFixed(2)}%)</span>`;
-            
             document.getElementById('headerTotalPlDetail').innerHTML = `今日盈虧: <span class="${usDailyColor}">USD ${formatMoney(usDailyChangeUsd)} (${usDailySign}${usDailyPlPct.toFixed(2)}%)</span>`;
+            
             const assetPlanTable = document.getElementById('assetPlanTable'); 
             assetPlanTable.innerHTML = '';
             
@@ -1565,7 +1564,7 @@
                 if (effVal > rVal && ac !== 'OPTIONS') valHtml += ` <span class="text-[10px] text-purple-600 block">(總曝險: $${effVal.toLocaleString(undefined, {maximumFractionDigits:0})})</span>`;
                 
                 if (ac === 'OPTIONS' && effVal > 0) {
-                    valHtml += ` <div class="text-[10px] text-purple-600 font-bold mt-0.5 tracking-tighter block leading-tight">LC風險金: $${optionsLockedLC.toLocaleString()} | SP保證金: $${optionsLockedSP.toLocaleString()}</div>`;
+                    valHtml += ` <div class="text-[10px] text-purple-600 font-bold mt-0.5 tracking-tighter block leading-tight">LC/LP風險金: ${(optionsLockedLC + optionsLockedLP).toLocaleString()} | SP保證金: $${optionsLockedSP.toLocaleString()}</div>`;
                 }
             
                 assetPlanTable.innerHTML += `
@@ -1579,7 +1578,7 @@
             }
             
             renderOptionsTable(); 
-
+        
             const sectorTableBody = document.getElementById('sectorBreakdownTable'); sectorTableBody.innerHTML = '';
             const sectorNames = Object.keys(usSectorsData);
             if (sectorNames.length > 0) {
@@ -1595,16 +1594,16 @@
                         </tr>`;
                 });
             }
-
+        
             const posTableBody = document.getElementById('positionTable'); 
             posTableBody.innerHTML = '';
-
+        
             computedStocks.sort((a, b) => {
                 const planA = stockPlan.find(s => s.code === a.code && s.market === a.market);
                 const planB = stockPlan.find(s => s.code === b.code && s.market === b.market);
                 const sectorA = planA ? (planA.sector || "未分類").trim() : "未分類";
                 const sectorB = planB ? (planB.sector || "未分類").trim() : "未分類";
-
+        
                 if (currentPosSort === 'shares') { return b.shares - a.shares; } 
                 else if (currentPosSort === 'code') { return a.code.localeCompare(b.code); } 
                 else if (currentPosSort === 'sector') {
@@ -1617,27 +1616,26 @@
                     return a.code.localeCompare(b.code);
                 }
             });
-
+        
             computedStocks.forEach(p => {
                 const isHkdMarket = p.market === 'HK'; const priceSign = isHkdMarket ? 'HKD $' : 'USD $';
                 const sPlanObj = stockPlan.find(s => s.code === p.code && s.market === p.market);
                 const assetPlannedWeight = sPlanObj ? sPlanObj.target_weight : 0;
                 
-                // 🔥 提取出 策略 與 板塊資訊
                 const pSector = sPlanObj && sPlanObj.sector ? sPlanObj.sector.trim() : "未分類";
                 const pStrategy = sPlanObj && sPlanObj.strategy ? sPlanObj.strategy.trim() : "攻擊";
                 let strategyIcon = pStrategy === '防守' ? '🛡️' : '⚔️';
                 let strategyHtml = `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap ${pStrategy === '防守' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-rose-100 text-rose-700 border border-rose-200'}">${strategyIcon} ${pStrategy}</span>`;
                 let sectorHtml = `<span class="text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 whitespace-nowrap tracking-wide">${pSector}</span>`;
-
+        
                 const plannedAssetClassTotalUsd = totalEffectiveAssetUsd * ((assetPlan[p.market] || 0) / 100);
                 const assetRealWeight = plannedAssetClassTotalUsd > 0 ? (p.effectiveMktValUsd / plannedAssetClassTotalUsd * 100) : 0;
                 const totalRealWeight = totalEffectiveAssetUsd > 0 ? (p.effectiveMktValUsd / totalEffectiveAssetUsd * 100) : 0;
-
+        
                 const stockCodeUpper = p.code.toUpperCase().trim(); const fileLink = pdfMap[stockCodeUpper];
                 let levBadgeHtml = p.leverage > 1 ? `<span class="px-1 py-0.5 rounded text-[9px] font-extrabold bg-purple-100 text-purple-700 ml-1 border border-purple-200">${p.leverage}x</span>` : '';
                 let codeCellHtml = fileLink ? `<a href="${fileLink}" target="_blank" class="text-blue-600 hover:underline font-bold cursor-pointer">📄 ${p.code}</a>` : `<span class="font-bold text-gray-800">${p.code}</span>`;
-
+        
                 posTableBody.innerHTML += `
                     <tr class="hover:bg-gray-50 border-b border-gray-100 ${p.isPlannedOnly ? 'bg-amber-50/40 opacity-70' : ''}">
                         <td class="px-2 py-3 font-bold">
@@ -1674,16 +1672,19 @@
             
             activeOpts.forEach(o => {
                 let isLC = o.strategy === 'Long Call';
-                let stratBadge = isLC ? `<span class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[10px] border border-blue-200">📈 Long Call</span>` : `<span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[10px] border border-amber-200">📉 Short Put</span>`;
-                let lockVal = isLC ? (o.open_premium * o.qty * 100) : (o.strike * o.qty * 100);
+                let isLP = o.strategy === 'Long Put';
+                let stratBadge = isLC ? `<span class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[10px] border border-blue-200">📈 Long Call</span>` : 
+                                 isLP ? `<span class="bg-pink-100 text-pink-800 px-1.5 py-0.5 rounded text-[10px] border border-pink-200">📉 Long Put</span>` :
+                                        `<span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[10px] border border-amber-200">📉 Short Put</span>`;
+                let lockVal = (isLC || isLP) ? (o.open_premium * o.qty * 100) : (o.strike * o.qty * 100);
                 let cleanOpen = o.open_date ? String(o.open_date).split('T')[0] : '';
                 let cleanExp = o.expiry_date ? String(o.expiry_date).split('T')[0] : '';
                 
                 // 🔥 新增：浮動賺蝕計算邏輯
                 let currPrem = o.current_premium !== undefined && o.current_premium !== "" ? Number(o.current_premium) : Number(o.open_premium);
                 let pnl = 0;
-                if (isLC) pnl = (currPrem - o.open_premium) * o.qty * 100;      // Long Call: 漲了賺錢
-                else pnl = (o.open_premium - currPrem) * o.qty * 100;           // Short Put: 跌了虧錢 (買回成本變高)
+                if (isLC || isLP) pnl = (currPrem - o.open_premium) * o.qty * 100;      // Long Call / Long Put: 漲了賺錢 (期權金變貴)
+                else pnl = (o.open_premium - currPrem) * o.qty * 100;                   // Short Put: 跌了虧錢 (買回成本變高)
                 
                 let pnlSign = pnl > 0 ? '+' : '';
                 let pnlColor = pnl >= 0 ? 'text-emerald-600' : 'text-rose-600';
@@ -1692,7 +1693,7 @@
                 let updateBtn = (userRole === 'PM' || userRole === 'Trader') 
                     ? `<button onclick="promptUpdateOptionPremium('${o.id}', '${currPrem}')" class="ml-1 text-gray-400 hover:text-blue-600 font-bold" title="手動更新現價">✏️</button>` 
                     : '';
-
+        
                 tbody.innerHTML += `
                     <tr class="hover:bg-purple-50/20 border-b border-gray-100 font-bold bg-white">
                         <td class="px-2 py-3 text-gray-500">${cleanOpen}</td>
@@ -1707,7 +1708,7 @@
                         <td class="px-2 py-3 text-emerald-600 flex items-center gap-1">$${currPrem.toFixed(2)} ${updateBtn}</td>
                         <td class="px-2 py-3 font-black bg-gray-50 ${pnlColor}">${pnlSign}$${pnl.toLocaleString()}</td>
                         
-                        <td class="px-2 py-3 text-indigo-700">$${lockVal.toLocaleString()} <span class="text-[9px] text-gray-400 block font-normal">${isLC?'風險金':'保證金'}</span></td>
+                        <td class="px-2 py-3 text-indigo-700">$${lockVal.toLocaleString()} <span class="text-[9px] text-gray-400 block font-normal">${(isLC||isLP)?'風險金':'保證金'}</span></td>
                         <td class="px-2 py-3 text-center flex justify-center items-center gap-2 mt-1">
                             ${(userRole === 'PM' || userRole === 'Trader') ? `
                                 <button onclick="openCloseOptionModal('${o.id}', '${o.strategy}')" class="bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-3 py-1 rounded-md shadow text-[11px]">平倉</button>
@@ -2599,7 +2600,7 @@
             historyTableBody.innerHTML = '';
             
             let unifiedHistory = [];
-
+        
             // 1. 載入股票與現金流水
             transactions.forEach(t => {
                 if(!t.code) return;
@@ -2610,7 +2611,7 @@
                     price: Number(t.price), qty: Number(t.qty)
                 });
             });
-
+        
             // 2. 載入期權流水 (自動拆解為「開倉」與「平倉」兩個獨立事件)
             optionsTx.forEach(o => {
                 if(!o.ticker) return;
@@ -2635,10 +2636,10 @@
                     });
                 }
             });
-
+        
             // 3. 全局排序：按照日期由新到舊 (Descending)
             unifiedHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
-
+        
             // 4. 渲染至表格
             unifiedHistory.forEach(item => {
                 let badge = 'bg-gray-100 text-gray-800';
@@ -2654,16 +2655,17 @@
                 } else {
                     // 期權專屬 Badge
                     if(item.type.includes('Long Call')) badge = 'bg-blue-100 text-blue-800';
+                    if(item.type.includes('Long Put')) badge = 'bg-pink-100 text-pink-800';
                     if(item.type.includes('Short Put')) badge = 'bg-amber-100 text-amber-800';
                     codeDisplay = `📜 ${item.code} ($${item.strike})`;
                 }
-
+        
                 // 操作按鈕 (期權的刪除/管理維持在「期權持倉頁面」做，所以流水帳這裡對期權只顯示唯讀)
                 let actionHtml = `<span class="text-gray-300 select-none text-[10px]">自動紀錄</span>`;
                 if (item.source === 'TX' && (userRole === 'PM' || userRole === 'Trader')) {
                     actionHtml = `<button onclick="deleteTx('${item.id}')" class="text-red-500 hover:text-red-700 font-bold hover:underline cursor-pointer">刪除</button>`;
                 }
-
+        
                 historyTableBody.innerHTML += `
                     <tr class="border-b border-gray-100 hover:bg-gray-50">
                         <td class="px-3 py-1.5">${item.date}</td>
@@ -2939,7 +2941,7 @@
             } catch (error) { updateStatus("❌ 刪除失敗", "error"); }
         }
         function openCloseOptionModal(id, strategy) {
-            document.getElementById('closeOptTitle').innerText = strategy === 'Long Call' ? '📈 Long Call 平倉 (賣出)' : '📉 Short Put 平倉 (買回)';
+            document.getElementById('closeOptTitle').innerText = strategy === 'Long Call' ? '📈 Long Call 平倉 (賣出)' : strategy === 'Long Put' ? '📉 Long Put 平倉 (賣出)' : '📉 Short Put 平倉 (買回)';
             document.getElementById('closeOptId').value = id;
             document.getElementById('closeOptStrategy').value = strategy;
             document.getElementById('closeOptDate').value = new Date().toISOString().split('T')[0];
@@ -2970,31 +2972,38 @@
         }
 
         function renderPerformanceReport() {
-            // 🔥 加入防呆：強制轉字串、去空白、轉大寫，避免 Google Sheet 裡面的隱藏空白導致判定失敗
             let closedOps = optionsTx.filter(o => o.status && String(o.status).trim().toUpperCase() === 'CLOSED');
             
             let totalPnl = 0; let wins = 0; let premPaid = 0; let premRecv = 0;
             let lcData = { pnl: 0, wins: 0, count: 0, holdDays: [], maxProf: {val:0, desc:''}, maxLoss: {val:0, desc:''} };
+            let lpData = { pnl: 0, wins: 0, count: 0, holdDays: [], maxProf: {val:0, desc:''}, maxLoss: {val:0, desc:''} };
             let spData = { pnl: 0, wins: 0, count: 0, zeroCount: 0, maxProf: {val:0, desc:''}, maxLoss: {val:0, desc:''} };
         
             const tradeTable = document.getElementById('tradeLogTable'); 
             tradeTable.innerHTML = '';
         
             closedOps.sort((a,b) => new Date(b.close_date) - new Date(a.close_date)).forEach(o => {
-                // 🔥 防呆：比對策略時也強制去除空白
                 let isLC = String(o.strategy).trim() === 'Long Call';
+                let isLP = String(o.strategy).trim() === 'Long Put';
                 let multi = (Number(o.qty) || 1) * 100;
                 let pnl = 0;
                 let days = Math.floor((new Date(o.close_date) - new Date(o.open_date)) / (1000 * 60 * 60 * 24));
                 if(days < 0) days = 0;
         
-                if (isLC) {
+                if (isLC || isLP) {
                     pnl = (Number(o.close_premium) - Number(o.open_premium)) * multi;
                     premPaid += Number(o.open_premium) * multi;
-                    lcData.count++; lcData.pnl += pnl; lcData.holdDays.push(days);
-                    if(pnl > 0) { wins++; lcData.wins++; }
-                    if(pnl > lcData.maxProf.val) { lcData.maxProf.val = pnl; lcData.maxProf.desc = `${o.ticker} (+$${pnl})`; }
-                    if(pnl < lcData.maxLoss.val) { lcData.maxLoss.val = pnl; lcData.maxLoss.desc = `${o.ticker} (-$${Math.abs(pnl)})`; }
+                    if (isLC) {
+                        lcData.count++; lcData.pnl += pnl; lcData.holdDays.push(days);
+                        if(pnl > 0) { wins++; lcData.wins++; }
+                        if(pnl > lcData.maxProf.val) { lcData.maxProf.val = pnl; lcData.maxProf.desc = `${o.ticker} (+$${pnl})`; }
+                        if(pnl < lcData.maxLoss.val) { lcData.maxLoss.val = pnl; lcData.maxLoss.desc = `${o.ticker} (-$${Math.abs(pnl)})`; }
+                    } else {
+                        lpData.count++; lpData.pnl += pnl; lpData.holdDays.push(days);
+                        if(pnl > 0) { wins++; lpData.wins++; }
+                        if(pnl > lpData.maxProf.val) { lpData.maxProf.val = pnl; lpData.maxProf.desc = `${o.ticker} (+$${pnl})`; }
+                        if(pnl < lpData.maxLoss.val) { lpData.maxLoss.val = pnl; lpData.maxLoss.desc = `${o.ticker} (-$${Math.abs(pnl)})`; }
+                    }
                 } else {
                     pnl = (Number(o.open_premium) - Number(o.close_premium)) * multi;
                     premRecv += Number(o.open_premium) * multi;
@@ -3037,13 +3046,23 @@
             document.getElementById('reportPremRecv').innerText = `$${premRecv.toLocaleString()}`;
         
             // LC Body
-            let avgDays = lcData.count > 0 ? (lcData.holdDays.reduce((a,b)=>a+b,0) / lcData.count).toFixed(1) : 0;
+            let avgDaysLC = lcData.count > 0 ? (lcData.holdDays.reduce((a,b)=>a+b,0) / lcData.count).toFixed(1) : 0;
             document.getElementById('reportLongCallBody').innerHTML = `
                 <div class="flex justify-between border-b pb-1"><span>總淨損益</span><span class="font-bold ${lcData.pnl>=0?'text-emerald-600':'text-rose-600'}">${lcData.pnl>=0?'+':''}$${lcData.pnl.toLocaleString()}</span></div>
                 <div class="flex justify-between border-b pb-1"><span>勝率</span><span class="font-bold">${lcData.count>0?((lcData.wins/lcData.count)*100).toFixed(1):0}%</span></div>
-                <div class="flex justify-between border-b pb-1"><span>平均持倉天數</span><span class="font-bold">${avgDays} 天</span></div>
+                <div class="flex justify-between border-b pb-1"><span>平均持倉天數</span><span class="font-bold">${avgDaysLC} 天</span></div>
                 <div class="flex justify-between border-b pb-1"><span>最大盈利單</span><span class="font-bold text-emerald-600">${lcData.maxProf.desc || '無'}</span></div>
                 <div class="flex justify-between"><span>最大虧損單</span><span class="font-bold text-rose-600">${lcData.maxLoss.desc || '無'}</span></div>
+            `;
+        
+            // LP Body
+            let avgDaysLP = lpData.count > 0 ? (lpData.holdDays.reduce((a,b)=>a+b,0) / lpData.count).toFixed(1) : 0;
+            document.getElementById('reportLongPutBody').innerHTML = `
+                <div class="flex justify-between border-b pb-1"><span>總淨損益</span><span class="font-bold ${lpData.pnl>=0?'text-emerald-600':'text-rose-600'}">${lpData.pnl>=0?'+':''}$${lpData.pnl.toLocaleString()}</span></div>
+                <div class="flex justify-between border-b pb-1"><span>勝率</span><span class="font-bold">${lpData.count>0?((lpData.wins/lpData.count)*100).toFixed(1):0}%</span></div>
+                <div class="flex justify-between border-b pb-1"><span>平均持倉天數</span><span class="font-bold">${avgDaysLP} 天</span></div>
+                <div class="flex justify-between border-b pb-1"><span>最大盈利單</span><span class="font-bold text-emerald-600">${lpData.maxProf.desc || '無'}</span></div>
+                <div class="flex justify-between"><span>最大虧損單</span><span class="font-bold text-rose-600">${lpData.maxLoss.desc || '無'}</span></div>
             `;
         
             // SP Body
