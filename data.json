@@ -1,22 +1,22 @@
 {
-    "last_updated": "2026-08-01 04:18",
+    "last_updated": "2026-08-08 02:52",
     "stock_metrics": {
-        "nvda_close": 200.75,
-        "nvda_50ma": 206.12,
+        "nvda_close": 223.96,
+        "nvda_50ma": 206.05,
         "asic_strength": "normal"
     },
     "supply_chain_news": {
         "dram": {
-            "title": "樣品也吃緊 伺服器DRAM現貨價較合約價飆升146% - DIGITIMES",
-            "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOQUVjT0dxd0ZtT3IxNjlHQkZEV1JrNTlpa056NmNJSGR2MlVrWGJ0YlpfXzJOSXhOOXBhdVNUcXU3OGhNVlJzSm9lNFduVjJCX1Zpa3ZVN0JoYnAtcFlIbnlJTjNPRVZheGxUUDBEWDhpaVhXQkl4UksycmFMLWt0TUVrZXYxSE1OR3JlOGpn?oc=5"
+            "title": "記憶體漲勢現分歧：合約價7月飆新高 現貨價漲幅趨緩 - BigGo 財經",
+            "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE9QTllheE43NWNZZnMwRkhLeXczTEphS3ExR1N4RUNPZTFyZ0VHX2dCbGRjNmJ0NUxyWG9HblhVQzFkVU1Kd0Q5NGtrSnpabFhOdkdfUEJmVjU3ZW13V2NDN0R3dmluYTlOZl9nMGVrS0xYZmVLeWgyUjZn?oc=5"
         },
         "cowos": {
             "title": "台積電CoWoS產能真的塞爆了！傳NVIDIA下一代晶片將轉交英特爾封裝， 台灣封測廠也大賺 - T客邦",
             "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxQaHh0YVM2NnFUOWRGeEtjXzNZYS1oZGtWQUI5WlVrbXpBQTF5MkUtSUxGdi0yNlRqcERQVnM2NGNOLVZkYkdoMEIzcFVZLWRtWURocE1fS2NUanNKRVFoS0E1SHJmcnpEMmUxX2VYLU1tUW5MS3lBRzhQU09qQWJxWVlrYlFtbVExUWc?oc=5"
         },
         "equipment": {
-            "title": "AI伺服器時代爆發：從NXP到KLA，半導體設備如何搶食「實體AI」千億商機？ - CMoney投資網誌",
-            "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOd2ttOTZYUWFsSUZjQWRBZVNreHl6Rm9MbzdTSlRuUHU3TGY3TlJXRHlRZlktWVJyZjVIODg1ZTFRU09veThCVkctdEN6d0RNQUppNnBXQlh0aWxtMGllMDcwTlZXOUt5a3NlUXRzUmFWZXE4MWpYYkYwNWZyZUpOWTZ6OENhYUkycEJ0TkZn?oc=5"
+            "title": "AI需求推升記憶體供應壓力 市場憂「RAMageddon」延續至2027年 - 商傳媒",
+            "link": "https://news.google.com/rss/articles/CBMi7AJBVV95cUxQTkFBT0tSLXd4S1hvS0NSUWJVbkFvLURoN0xvVEQ2bVhMcGJROGY2b2ROWDJvT25GejVKenNDb1B3dHEwdy1obW5qcnJjWjlMUEo5VlRRX1FNQVpZVWpxeXNsREpkUlk2TjFqYUthT2M0QUtxQmtCWDZxS1Vab25SZnF3U1c5RVE0NWZ6QmJyUXVSSFY2cnQ3bE9Mbm9Dc01hNTlPVlB2aDE3X3lWUXhwSzM5TlRPY3NCMjgxYkpJU1NjelMwcUVqTlFwNjJSYVNSTVM4VlUzZEVvVFlVX0FjMkxzcHlLWFZJMHBVZWVhWm92cFhNN0xHWUt6a2ZMLW5oa3RoR1BqdXpqOGw2NFY1d0xNMjBveFZVemRpOEJ3RkQtTkdHU2RoM3pGWTRXSWJ2eWRXQzRNN1lBajZXUkx1bDZJWktyaUozZnhjT0RUU2NCRHMtc2xxa3JNSUZqeTBIWW9VVEFMaUFkaWJo?oc=5"
         }
     }
 }
