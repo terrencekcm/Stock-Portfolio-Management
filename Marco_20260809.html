@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>機構級股票投資與入市風控策略報告</title>
+<style>
+  :root {
+    --bg-color: #0f172a;
+    --panel-bg: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --border-color: #334155;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --orange: #f97316;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+  }
+  h1 {
+    color: var(--text-primary);
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+  h2 {
+    color: var(--blue);
+    border-left: 4px solid var(--blue);
+    padding-left: 10px;
+    margin-top: 40px;
+  }
+  .dates {
+    background: var(--panel-bg);
+    padding: 15px 20px;
+    border-radius: 8px;
+    border-left: 4px solid var(--purple);
+    font-weight: 500;
+  }
+  .dates p { margin: 5px 0; }
+  
+  /* Hero Section */
+  .hero {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  .mri-box {
+    flex: 1;
+    min-width: 300px;
+    background: var(--panel-bg);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid var(--yellow);
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.15);
+  }
+  .mri-box h3 {
+    margin-top: 0;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+  }
+  .mri-box .score {
+    font-size: 4.5rem;
+    font-weight: bold;
+    color: var(--yellow);
+    line-height: 1;
+    margin: 15px 0;
+  }
+  .mri-box .score span {
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+  }
+  .mri-box .badge {
+    display: inline-block;
+    padding: 8px 20px;
+    background: rgba(234, 179, 8, 0.2);
+    color: var(--yellow);
+    border-radius: 30px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+  .penalties {
+    flex: 2;
+    min-width: 300px;
+    background: var(--panel-bg);
+    padding: 25px;
+    border-radius: 12px;
+  }
+  .penalties h3 {
+    margin-top: 0;
+    color: var(--text-primary);
+  }
+  .penalties ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  .penalties li {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid var(--red);
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+  }
+  .text-red { color: var(--red); font-weight: bold; }
+  
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background: var(--panel-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+  th {
+    background: rgba(255, 255, 255, 0.05);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255, 255, 255, 0.02); }
+  
+  /* Progress Bars */
+  .progress-container {
+    background: var(--panel-bg);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .progress-bar-bg {
+    width: 100%;
+    background: var(--border-color);
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--blue);
+    border-radius: 6px;
+  }
+  
+  /* Advice Section */
+  .advice-box {
+    background: var(--panel-bg);
+    padding: 30px;
+    border-radius: 12px;
+    border-top: 4px solid var(--yellow);
+  }
+  .advice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .advice-item {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+  .advice-item h4 {
+    margin-top: 0;
+    color: var(--yellow);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .highlight {
+    color: var(--yellow);
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>機構級股票投資與入市風控策略報告</h1>
+      <div class="dates">
+        <p>📊 <strong>數據分析週期（上一週）：</strong> 2026.08.02 – 2026.08.08</p>
+        <p>🎯 <strong>風險預測週期（下一週）：</strong> 2026.08.09 – 2026.08.15</p>
+      </div>
+    </header>
+
+    <!-- Section 1: Hero -->
+    <section class="hero">
+      <div class="mri-box">
+        <h3>Hybrid MRI (入市風險指數)</h3>
+        <div class="score">51<span>/100</span></div>
+        <div class="badge">🟡 黃色燈號 - 中度警示</div>
+      </div>
+      <div class="penalties">
+        <h3>⚠️ 雙重修正項 (Penalties) 觸發狀態：</h3>
+        <ul>
+          <li>
+            <strong>自滿修正項 (Complacency Penalty): <span class="text-red">+5分</span></strong><br>
+            觸發條件：VIX < 15 (當前 14.90) 且 Put/Call Ratio < 0.55 (當前 0.50)。<br>
+            <em>分析：大盤處於歷史高位，但散戶與機構完全缺乏下行對衝防備，市場情緒極度自滿，隱含波動率均值回歸風險極高。</em>
+          </li>
+          <li>
+            <strong>量質背離修正項 (Divergence Penalty): <span class="text-red">+5分</span></strong><br>
+            觸發條件：Quant Score < 40 (當前 30) 但 Qual Score > 60 (當前 65)。<br>
+            <em>分析：表面量化數據（如信用利差與廣度）依然平靜，但底層宏觀風險（非農收縮、Carry Trade 成本上升、地緣政治）已亮起紅燈，呈現嚴重的「量質背離」。</em>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Section 2: Quant Data Table -->
+    <section>
+      <h2>上一週真實量化數據 (截至 2026.08.07 收盤)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>維度</th>
+            <th>指標名稱</th>
+            <th>最新數值</th>
+            <th>數據源與狀態評估</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowspan="3"><strong>信貸與宏觀流動性</strong><br>(權重 40%)</td>
+            <td>ICE BofA US High Yield Index OAS</td>
+            <td>272 bps</td>
+            <td>FRED | 低於 300bps 基準，信用市場表面流動性依然充裕。</td>
+          </tr>
+          <tr>
+            <td>ICE BofA MOVE Index</td>
+            <td>76.12</td>
+            <td>FRED/CNBC | 債市波動率溫和反彈，但仍低於 100 警戒線。</td>
+          </tr>
+          <tr>
+            <td>美債 10 年期收益率</td>
+            <td>4.65%</td>
+            <td>MarketWatch | 收益率維持高位，長端資金成本壓力持續。</td>
+          </tr>
+          <tr>
+            <td rowspan="2"><strong>市場內部廣度</strong><br>(權重 35%)</td>
+            <td>S&P 500 > 50日均線 ($S5FI)</td>
+            <td>~75%</td>
+            <td>Barchart | 標普創歷史新高，中短期廣度強勁。</td>
+          </tr>
+          <tr>
+            <td>S&P 500 > 200日均線 ($S5TH)</td>
+            <td>~80%</td>
+            <td>Barchart | 長期趨勢依然由多頭掌控。</td>
+          </tr>
+          <tr>
+            <td rowspan="3"><strong>波動率與衍生品</strong><br>(權重 25%)</td>
+            <td>VIX 指數</td>
+            <td>14.90</td>
+            <td>Cboe | 跌破 15，創近期新低，顯示極端自滿。</td>
+          </tr>
+          <tr>
+            <td>VIX / VX3M 比率</td>
+            <td>< 1.0 (Contango)</td>
+            <td>Cboe | 遠期升水結構正常，未見短期恐慌擠兌。</td>
+          </tr>
+          <tr>
+            <td>CBOE Equity Put/Call Ratio</td>
+            <td>0.50</td>
+            <td>Cboe | 散戶與機構重倉 Call，看跌期權需求極低。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Section 3: Quant Score Progress Bars -->
+    <section>
+      <h2>量化細項評分 (Quant Score: 30/100 - 表面低風險)</h2>
+      <div class="progress-container">
+        <div class="progress-header">
+          <span>信貸與宏觀流動性 (內部權重 40%)</span>
+          <span>15 / 40</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: 37.5%; background: var(--green);"></div>
+        </div>
+      </div>
+      <div class="progress-container">
+        <div class="progress-header">
+          <span>市場內部廣度 (內部權重 35%)</span>
+          <span>10 / 35</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: 28.5%; background: var(--green);"></div>
+        </div>
+      </div>
+      <div class="progress-container">
+        <div class="progress-header">
+          <span>波動率與衍生品 (內部權重 25%)</span>
+          <span>5 / 25</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: 20%; background: var(--green);"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Qual Data Table -->
+    <section>
+      <h2>宏觀定性與經濟指標分析 (Qual Score: 65/100 - 潛在風險高企)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>評估面向</th>
+            <th>上一週事件與數據事實</th>
+            <th>入市風險傳導分析</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1. 核心經濟指標預期差</td>
+            <td>7月非農就業意外收縮 (-2.3萬 vs 預期+8萬)；失業率降至 4.1%；ISM 服務業 PMI 降至 50.1。</td>
+            <td>市場暫時將「壞消息視為好消息」(押注降息)，但勞動力市場實質性破裂邊緣，增長擔憂隨時反噬股市。</td>
+          </tr>
+          <tr>
+            <td>2. 匯市干預與 Carry Trade</td>
+            <td>美日罕見聯手干預匯市撐日元。</td>
+            <td>雖無序爆倉機率低，但 Carry Trade 隱藏資金成本必然上升，迫使全球流動性邊際收緊。</td>
+          </tr>
+          <tr>
+            <td>3. Fed 加息/高利率風險</td>
+            <td>弱就業數據降低了 9 月加息預期。</td>
+            <td>短期利率壓力緩解，但長期高利率 (Higher for Longer) 結構未變，企業再融資壓力猶存。</td>
+          </tr>
+          <tr>
+            <td>4. 地緣政治與二次通脹</td>
+            <td>伊朗局勢升溫，WTI 原油單週大漲逾 6%。</td>
+            <td>油價飆升直接引發二次通脹擔憂，限制了 Fed 未來救市降息的空間。</td>
+          </tr>
+          <tr>
+            <td>5. AI Capex ROI 驗證</td>
+            <td>財報季顯示：業績達標者受追捧，微小瑕疵者遭暴跌殺估值。</td>
+            <td>資金成本上升導致市場對「確定性」要求極高，AI 資本支出若無即期回報，將面臨嚴厲懲罰。</td>
+          </tr>
+          <tr>
+            <td>6. 經濟放緩與滯脹疑慮</td>
+            <td>就業收縮 + 服務業放緩 + 油價上漲。</td>
+            <td>典型的「滯脹」初期特徵，對股票估值擴張構成最致命的宏觀打擊。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Section 5: Actionable Advice -->
+    <section>
+      <h2>下一週股票入市與建倉執行建議</h2>
+      <div class="advice-box">
+        <h3>總體買入訊號：🟡 黃色 (中度警示 / 嚴格控倉)</h3>
+        <p>當前市場呈現極端的「量質背離」：期權市場與信用利差顯示出極度自滿，但宏觀經濟數據（非農收縮）與資金成本（Carry Trade 逆轉）已暗流湧動。建議採取防禦性建倉策略。</p>
+        
+        <div class="advice-grid">
+          <div class="advice-item">
+            <h4>💰 1. 預備資金動用比例</h4>
+            <p>建議新資金動用上限為 <span class="highlight">20% - 30%</span>。保留 70% 以上的現金或短期國債等價物，以應對未來 1-2 週可能出現的波動率均值回歸（VIX 飆升）帶來的黃金坑抄底機會。</p>
+          </div>
+          
+          <div class="advice-item">
+            <h4>🎯 2. 偏好與避坑板塊</h4>
+            <p><strong>✅ 偏好建倉：</strong> 具備強大定價權、自由現金流充裕的防禦性板塊（醫療保健、必需消費品），以及業績確定性極高的優質龍頭。<br>
+            <strong>❌ 嚴格避坑：</strong> 尚未驗證 AI Capex ROI 的高估值科技股、依賴短期融資的高槓桿羅素2000小盤股（極易受 Carry Trade 成本上升打擊）。</p>
+          </div>
+          
+          <div class="advice-item">
+            <h4>📉 3. 建倉下單與止損策略</h4>
+            <p>採用<strong>「金字塔式分批建倉」</strong>，切忌單次 All-in。由於當前 VIX 處於不合理的低位 (14.90)，一旦市場情緒反轉，殺跌動能將極大。必須為所有新建倉位設置 <span class="highlight">5% - 8% 的硬性止損 (Hard Stop-Loss)</span>。</p>
+          </div>
+          
+          <div class="advice-item">
+            <h4>🔄 4. 持倉 Rebalancing 門檻提示</h4>
+            <p><strong>防守觸發條件：</strong> 若下一週觀察到 <strong>VIX 突破 20</strong> 或 <strong>HY Spread 擴闊至 >350bps</strong>，請立即啟動換股防守，將高 Beta 科技股削減，轉入現金或防禦股。<br>
+            <strong>滯脹警報：</strong> 若 WTI 油價持續強勢突破，需警惕「二次通脹」發酵，適度增加抗通脹資產配置。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
