@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宏觀專題報告：美日聯合干預匯市與 Carry Trade 結構性重組分析</title>
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-green: #34d399;
+            --accent-amber: #fbbf24;
+            --accent-red: #f87171;
+            --accent-purple: #c084fc;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* Header Dashboard */
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--accent-blue);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .meta-pill {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Stat Grid */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 20px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-desc {
+            font-size: 12px;
+            color: var(--accent-green);
+            margin-top: 4px;
+        }
+
+        /* Layout Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        .col-12 { grid-column: span 12; }
+        .col-8 { grid-column: span 8; }
+        .col-4 { grid-column: span 4; }
+
+        @media (max-width: 1024px) {
+            .col-8, .col-4 { grid-column: span 12; }
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            height: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .icon-blue { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); }
+        .icon-purple { background: rgba(192, 132, 252, 0.15); color: var(--accent-purple); }
+        .icon-amber { background: rgba(251, 191, 36, 0.15); color: var(--accent-amber); }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        /* Content Styles */
+        .fact-list, .timeline-list {
+            list-style: none;
+        }
+
+        .fact-item {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+
+        .fact-item::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .highlight {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .badge-red { background: rgba(248, 113, 113, 0.15); color: var(--accent-red); }
+        .badge-amber { background: rgba(251, 191, 36, 0.15); color: var(--accent-amber); }
+        .badge-blue { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); }
+
+        /* Comparison Table */
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .custom-table th {
+            background-color: rgba(15, 23, 42, 0.5);
+            color: var(--text-secondary);
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .custom-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Special TK Opinion Box */
+        .tk-box {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(30, 41, 59, 1) 100%);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 16px;
+            padding: 28px;
+            margin-top: 24px;
+        }
+
+        .tk-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .tk-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-amber);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .opinion-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .opinion-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .opinion-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .opinion-body {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Header / Top Dashboard -->
+    <header class="header">
+        <div class="header-top">
+            <div>
+                <div class="subtitle">Macro Financial Research Report</div>
+                <h1 class="title">美日罕有聯合干預匯市與 Carry Trade 結構性重組</h1>
+            </div>
+            <div class="meta-pill">第一身宏觀研判專題</div>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-label">干預總規模</div>
+                <div class="stat-value">~$730 億美元</div>
+                <div class="stat-desc">近30年首次美日聯合行動</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">USD/JPY 干預前高位</div>
+                <div class="stat-value">163.9</div>
+                <div class="stat-desc">40年新高 / 1986年以來最弱日元</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">美日政策息差</div>
+                <div class="stat-value">2.50%</div>
+                <div class="stat-desc">美 3.50%–3.75% vs 日 1.00%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">日元套息淡倉估算</div>
+                <div class="stat-value">~$5,000 億美元</div>
+                <div class="stat-desc">淡倉總規模創 9 年新高</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-grid">
+
+        <!-- Topic 1: 事實陳述 -->
+        <div class="col-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon icon-blue">1</div>
+                    <h2 class="card-title">Topic 1: 核心事實陳述（8月1日干預事件歸納）</h2>
+                </div>
+
+                <ul class="fact-list">
+                    <li class="fact-item">
+                        <span class="highlight">歷史性美日聯手直接干預：</span>
+                        8月1日，美國聯同日本罕有地直接干預外匯市場支撐日元。這是近30年來，兩國首次透過直接買入托住日元。出手前 USD/JPY 一度衝上約 <span class="highlight">163.9</span>（40年新高），日元跌至1986年以來最弱水平。
+                    </li>
+                    <li class="fact-item">
+                        <span class="highlight">資金結構與操作細節：</span>
+                        本次干預共動用約 <span class="highlight">730億美元</span>。其中約 360億美元來自日本央行（BoJ），其餘約 370億美元由美國財政部承擔。交易由高盛（Goldman Sachs）與摩根士丹利（Morgan Stanley）執行，歐洲央行事先知情。
+                    </li>
+                    <li class="fact-item">
+                        <span class="highlight">獨特的交易路徑（未牽涉直接賣美元）：</span>
+                        紐約聯儲代表美國財政部出手時，係透過<span class="highlight">賣出歐元（EUR）以買入日元（JPY）</span>，而非賣出美元。這是美國自1998年以來首次為支撐日元而直接出手。
+                    </li>
+                    <li class="fact-item">
+                        <span class="highlight">美日息差背景：</span>
+                        日本央行於7月31日將基準利率微幅上調至 <span class="highlight">1.00%</span>，但美國利率仍維持於 <span class="highlight">3.50%–3.75%</span> 高位，顯著息差持續驅動套利資金（Carry Trade）流動。
+                    </li>
+                </ul>
+
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>干預項目</th>
+                            <th>詳細數據 / 執行細節</th>
+                            <th>戰略意圖</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>美方出資額</strong></td>
+                            <td>約 370 億美元（賣 EUR 買 JPY）</td>
+                            <td>避免直接拋售美債/美元，防止美債收益率失控</td>
+                        </tr>
+                        <tr>
+                            <td><strong>日方出資額</strong></td>
+                            <td>約 360 億美元（日本央行 BoJ）</td>
+                            <td>遏制進口通脹，穩定日元匯率底線</td>
+                        </tr>
+                        <tr>
+                            <td><strong>執行機構</strong></td>
+                            <td>紐約聯儲、高盛、摩根士丹利</td>
+                            <td>跨國央行協調，精準打擊匯市單邊投機</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Side Panel: Carry Trade 現況 -->
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon icon-purple">2</div>
+                    <h2 class="card-title">Carry Trade 倉位診斷</h2>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <span class="badge badge-amber">倉位規模</span>
+                    <p style="font-size: 14px; color: #cbd5e1; margin-top: 6px;">
+                        截至 2026年6月，日元淡倉升至<span class="highlight">九年新高</span>。純投機性倉位約 5,000億美元，連同衍生品整體規模達數萬億美元。
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <span class="badge badge-blue">結構轉變</span>
+                    <p style="font-size: 14px; color: #cbd5e1; margin-top: 6px;">
+                        交易員融資貨幣已進行分散，加入了<span class="highlight">歐元（EUR）與瑞士法郎（CHF）</span>，不再單純集中於日元。
+                    </p>
+                </div>
+
+                <div>
+                    <span class="badge badge-red">市場彈性</span>
+                    <p style="font-size: 14px; color: #cbd5e1; margin-top: 6px;">
+                        干預後新興市場套息指數僅跌 1%（對比 2024年8月暴跌 4%），顯示目前呈現<span class="highlight">有序解槓桿</span>狀態。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic 2: 事件推論 -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon icon-purple">3</div>
+                    <h2 class="card-title">Topic 2: 事件推論（美日動機、息差收窄機制與美股風險評估）</h2>
+                </div>
+
+                <div class="main-grid">
+                    <div class="col-4">
+                        <div style="background: rgba(15,23,42,0.5); padding: 18px; border-radius: 12px; border: 1px solid var(--border-color);">
+                            <h3 style="font-size: 16px; color: var(--accent-blue); margin-bottom: 8px;">1. 美國出手邏輯：「幫日本等於幫自己」</h3>
+                            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+                                日本是美國國債的最大外國持有者。若日元失控，日本央行為托日元勢必大量賣出美債，這將推高本身已處於2007年高位的美國30年期債息。美方透過動用歐元賣出買入日元，成功防禦了美債收益率飆升的風險。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <div style="background: rgba(15,23,42,0.5); padding: 18px; border-radius: 12px; border: 1px solid var(--border-color);">
+                            <h3 style="font-size: 16px; color: var(--accent-purple); margin-bottom: 8px;">2. 美降息 + 日加息 ＝ 息差加速收窄</h3>
+                            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+                                息差即兩國利率距離。當美國降息（如由 3.50% 降至 3.25%）而日本加息（由 1.00% 升至 1.25%），息差便從原本的 2.50% 雙向擠壓至 2.00%。這不僅削弱套利收益，更引發日元升值，雙重逼使 Carry Trade 投資者提前平倉。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <div style="background: rgba(15,23,42,0.5); padding: 18px; border-radius: 12px; border: 1px solid var(--border-color);">
+                            <h3 style="font-size: 16px; color: var(--accent-amber); margin-bottom: 8px;">3. 下週與中長期美股風險評估</h3>
+                            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+                                <strong>下週展望：</strong>美股預計高位震盪，VIX微升，高估值科技股因資金預防性鎖定利潤而承壓，板塊輪動至防禦股。<br>
+                                <strong>中長期情境：</strong>基準情境（65%機率）為溫和有序平倉；尾部風險（35%機率）為通脹反彈導致無序爆倉。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic 3: TK 意見 -->
+        <div class="col-12">
+            <div class="tk-box">
+                <div class="tk-header">
+                    <div class="tk-title">
+                        <span>💡</span> Topic 3: 個人意見（TK 獨家分析與市場閉環研判）
+                    </div>
+                    <span class="badge badge-amber" style="font-size: 13px; padding: 4px 12px;">Strategic Synthesis</span>
+                </div>
+
+                <div class="opinion-card">
+                    <div class="opinion-title">1. 美國債務問題為首要考量，政府干預具備絕對必然性</div>
+                    <div class="opinion-body">
+                        美國自身的債務規模與高企的再融資成本是其當前最脆弱的一環。因此，美日聯手干預外匯市場絕非偶發事件，而是完全可預期的政策防守。政策層面必須設下「防線」，防止日本單邊拋售美債引發美債收益率失控，進而威脅美國財政體系。
+                    </div>
+                </div>
+
+                <div class="opinion-card">
+                    <div class="opinion-title">2. Carry Trade 的「隱藏成本」上升已成必然</div>
+                    <div class="opinion-body">
+                        干預行動打破了過去市場對「日元單邊低成本套利」的假設。美日隨時可能再次出手，使得匯率隱性波動率與政策干預風險劇增。這直接提高了交易員的風險價值（VaR）模型門檻與保證金要求，即使名義息差仍在，套息交易的風險調整後收益（Risk-adjusted Return）已大打折扣。
+                    </div>
+                </div>
+
+                <div class="opinion-card">
+                    <div class="opinion-title">3. 資本門檻利率（Hurdle Rate）抬升，美股極度依賴「確定性」</div>
+                    <div class="opinion-body">
+                        這完美解釋了近期美股財報季的極端分化現象：背後本質是全球資金成本的隱性上升。
+                        <ul style="margin-top: 8px; margin-left: 20px;">
+                            <li><strong>低成本資金時代：</strong>容錯率高，市場願意為遠景故事與高 P/E 買單。</li>
+                            <li><strong>資金成本抬升時代：</strong>資金門檻利率被推高，投資者容忍度降至極低。業績符合預期或具強勁自由現金流（FCF）的優質企業繼續受追捧；而業績稍有瑕疵者則遭遇無情拋售，市場資金全面向「確定性（Quality Factor）」集中。</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
