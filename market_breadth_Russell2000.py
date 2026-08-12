@@ -1,46 +1,36 @@
-import urllib.request
-import re
+import os
+import pandas as pd
 import yfinance as yf
 
-def get_bulletproof_russell2000():
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/115.0'}
-    # 使用 iShares IWM 官方最新持股清單
-    url_iwm = "https://www.ishares.com/us/products/239710/ishares-russell-2000-etf/1467271812596.ajax?dataType=fund&fileName=IWM_holdings&fileType=csv"
-    
-    tickers = set()
-    exclude_words = {"TICKER", "SYMBOL", "NAME", "USD", "CASH"}
-    
+def get_russell2000_tickers():
+    russell_file = os.path.join('data', 'russell2000.csv')
+    if not os.path.exists(russell_file):
+        print(f"❌ 找不到檔案: {russell_file}")
+        return []
+        
     try:
-        req = urllib.request.Request(url_iwm, headers=headers)
-        raw_bytes = urllib.request.urlopen(req).read()
-        
-        # 暴力清除所有 NUL 空字元並解碼
-        text_data = raw_bytes.decode('utf-8', errors='ignore').replace('\x00', '')
-        
-        # 逐行解析，無視任何 Header 與 Footer
-        for line in text_data.splitlines():
-            cols = line.split(',')
-            if not cols: continue
-            
-            # 取第一欄 (通常是 Ticker)
-            sym = cols[0].strip(' "\'')
-            
-            # 嚴格正則過濾：必須是 1~6 位的全大寫字母 (允許包含 1 個點或橫線)
-            if re.match(r'^[A-Z\.\-]{1,6}$', sym) and sym not in exclude_words:
-                # 轉化點號為橫線，符合 Yahoo Finance 格式
-                tickers.add(sym.replace('.', '-'))
+        df = pd.read_csv(russell_file)
+        target_col = None
+        for col in df.columns:
+            if 'ticker' in str(col).lower() or 'symbol' in str(col).lower():
+                target_col = col
+                break
                 
-        print(f"✅ 成功透過官方 CSV 解析出 Russell 2000 成分股: {len(tickers)} 隻")
-        return list(tickers)
-        
+        if target_col is None:
+            target_col = df.columns[0]
+            
+        raw_tickers = df[target_col].dropna().astype(str).tolist()
+        cleaned = [t.strip().upper().replace('.', '-') for t in raw_tickers if t.strip()]
+        print(f"✅ 成功載入 data/russell2000.csv: {len(cleaned)} 隻股票")
+        return cleaned
     except Exception as e:
-        print(f"❌ 抓取 Russell 2000 失敗: {e}")
+        print(f"❌ 讀取 {russell_file} 失敗: {e}")
         return []
 
 def run_python2_smallcap(start_date, end_date):
-    tickers = get_bulletproof_russell2000()
+    tickers = get_russell2000_tickers()
     if not tickers:
-        print("無法取得 Russell 2000 股票清單。")
+        print("無法取得 Russell 2000 股票清單，程序終止。")
         return
         
     nh_set, nl_set = set(), set()
