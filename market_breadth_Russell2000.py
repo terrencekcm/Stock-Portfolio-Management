@@ -1,53 +1,42 @@
-import csv
 import io
 import urllib.request
 import pandas as pd
 import yfinance as yf
 
-def parse_ishares_csv_robust(url):
+def get_clean_russell2000_tickers():
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/115.0'}
-    req = urllib.request.Request(url, headers=headers)
-    raw_bytes = urllib.request.urlopen(req).read()
     
-    # 關鍵修復：使用 utf-8-sig 解碼並全面剔除 \x00 NUL 字元
-    text_data = raw_bytes.decode('utf-8-sig', errors='ignore').replace('\x00', '')
-    reader = csv.reader(io.StringIO(text_data))
+    # 使用 GitHub 乾淨的 Russell 2000 成分股資料源
+    url_iwm = "https://raw.githubusercontent.com/anon-developer/russell-2000-tickers/main/russell_2000_tickers.csv"
     
-    header_found = False
-    ticker_idx = -1
-    tickers = []
-    
-    for row in reader:
-        if not row:
-            continue
-        
-        if not header_found:
-            for idx, cell in enumerate(row):
-                if 'ticker' in str(cell).strip().lower():
-                    ticker_idx = idx
-                    header_found = True
-                    break
-            continue
-            
-        if header_found and ticker_idx < len(row):
-            symbol = str(row[ticker_idx]).strip()
-            if symbol and len(symbol) <= 5 and symbol.isalpha():
-                tickers.append(symbol)
-                
-    return list(set(tickers))
-
-def get_russell2000_tickers():
-    url = "https://www.ishares.com/us/products/239710/ishares-russell-2000-etf/1467271812596.ajax?dataType=fund&fileName=IWM_holdings&fileType=csv"
     try:
-        iwm_tickers = parse_ishares_csv_robust(url)
-        print(f"成功取得 Russell 2000 (IWM) 官方成分股: {len(iwm_tickers)} 隻")
-        return iwm_tickers
+        req = urllib.request.Request(url_iwm, headers=headers)
+        content = urllib.request.urlopen(req).read()
+        df = pd.read_csv(io.BytesIO(content))
+        
+        # 自動尋找包含 ticker / symbol 的欄位
+        col_name = [c for c in df.columns if 'ticker' in c.lower() or 'symbol' in c.lower()][0]
+        raw_tickers = df[col_name].dropna().tolist()
+        
+        cleaned_tickers = [str(t).strip().replace('.', '-') for t in raw_tickers if len(str(t).strip()) <= 5]
+        print(f"成功取得 Russell 2000 純淨成分股: {len(cleaned_tickers)} 隻")
+        return cleaned_tickers
     except Exception as e:
-        print(f"抓取 IWM 持股失敗: {e}")
-        return []
+        print(f"主要來源失敗 ({e})，啟動備用極速來源...")
+        # 備用來源
+        url_backup = "https://raw.githubusercontent.com/datasets/investor-cli/master/russell2000.csv"
+        try:
+            req = urllib.request.Request(url_backup, headers=headers)
+            df = pd.read_csv(urllib.request.urlopen(req))
+            tickers = df.iloc[:, 0].dropna().tolist()
+            print(f"備用來源成功取得 Russell 2000 成分股: {len(tickers)} 隻")
+            return [str(t).strip().replace('.', '-') for t in tickers]
+        except Exception as ex:
+            print(f"備用來源亦失敗: {ex}")
+            return []
 
 def run_python2_smallcap(start_date, end_date):
-    tickers = get_russell2000_tickers()
+    tickers = get_clean_russell2000_tickers()
     if not tickers:
         print("無法取得 Russell 2000 股票清單。")
         return
@@ -56,9 +45,8 @@ def run_python2_smallcap(start_date, end_date):
     print(f"\n[Python 2] 開始計算 Russell 2000 (共 {len(tickers)} 隻股票)...")
     
     for ticker in tickers:
-        symbol = ticker.replace('.', '-')
         try:
-            df = yf.Ticker(symbol).history(period='1y')
+            df = yf.Ticker(ticker).history(period='1y')
             if df.empty: continue
                 
             month_df = df.loc[start_date:end_date]
@@ -72,9 +60,9 @@ def run_python2_smallcap(start_date, end_date):
             prior_52w_low = prior_data['Low'].tail(252).min()
             
             if month_high >= prior_52w_high:
-                nh_set.add(symbol)
+                nh_set.add(ticker)
             if month_low <= prior_52w_low:
-                nl_set.add(symbol)
+                nl_set.add(ticker)
         except Exception:
             continue
             
