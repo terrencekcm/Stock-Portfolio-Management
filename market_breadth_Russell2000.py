@@ -1,30 +1,44 @@
+import csv
 import io
 import urllib.request
 import pandas as pd
 import yfinance as yf
 
+def parse_ishares_csv_robust(url):
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/115.0'}
+    req = urllib.request.Request(url, headers=headers)
+    raw_bytes = urllib.request.urlopen(req).read()
+    
+    text_data = raw_bytes.decode('utf-8', errors='ignore')
+    reader = csv.reader(io.StringIO(text_data))
+    
+    header_found = False
+    ticker_idx = -1
+    tickers = []
+    
+    for row in reader:
+        if not row:
+            continue
+        
+        if not header_found:
+            if 'Ticker' in row:
+                ticker_idx = row.index('Ticker')
+                header_found = True
+            continue
+            
+        if header_found and ticker_idx < len(row):
+            symbol = str(row[ticker_idx]).strip()
+            if symbol and len(symbol) <= 5 and symbol.isalpha():
+                tickers.append(symbol)
+                
+    return list(set(tickers))
+
 def get_russell2000_tickers():
     url = "https://www.ishares.com/us/products/239710/ishares-russell-2000-etf/1467271812596.ajax?dataType=fund&fileName=IWM_holdings&fileType=csv"
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/115.0'}
-    
     try:
-        req = urllib.request.Request(url, headers=headers)
-        raw_bytes = urllib.request.urlopen(req).read()
-        
-        lines = raw_bytes.decode('utf-8', errors='ignore').splitlines()
-        skip_header = 0
-        for idx, line in enumerate(lines):
-            if 'Ticker' in line:
-                skip_header = idx
-                break
-                
-        csv_data = "\n".join(lines[skip_header:])
-        df = pd.read_csv(io.StringIO(csv_data))
-        
-        tickers = df['Ticker'].dropna().unique().tolist()
-        valid_tickers = [str(t).strip() for t in tickers if isinstance(t, str) and len(str(t).strip()) <= 5 and str(t).strip().isalpha()]
-        print(f"成功取得 Russell 2000 (IWM) 官方成分股: {len(valid_tickers)} 隻")
-        return valid_tickers
+        iwm_tickers = parse_ishares_csv_robust(url)
+        print(f"成功取得 Russell 2000 (IWM) 官方成分股: {len(iwm_tickers)} 隻")
+        return iwm_tickers
     except Exception as e:
         print(f"抓取 IWM 持股失敗: {e}")
         return []
