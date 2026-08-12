@@ -1,10 +1,19 @@
-import pandas as pd
 import yfinance as yf
+import io
+import urllib.request
+import pandas as pd
+
 
 def get_monthly_market_breadth(start_date, end_date):
-    # 1. 取得 S&P 500 成分股清單 (可自行更換為其他股票池)
+    # ✅ 修復後的寫法：加入 User-Agent 避開 Wikipedia 403 封鎖
     sp500_url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
-    tickers = pd.read_html(sp500_url)[0]['Symbol'].tolist()
+    req = urllib.request.Request(
+        sp500_url, 
+        headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
+    )
+    
+    html_content = urllib.request.urlopen(req).read()
+    tickers = pd.read_html(io.BytesIO(html_content))[0]['Symbol'].tolist()
     
     monthly_nh_set = set() # 自動去重的 Set 結構
     monthly_nl_set = set()
