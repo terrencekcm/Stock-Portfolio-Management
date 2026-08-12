@@ -1,68 +1,42 @@
-import csv
-import io
+import json
 import urllib.request
 import pandas as pd
 import yfinance as yf
 
-def parse_ishares_csv_robust(url):
+def get_clean_sp500_and_ndx_tickers():
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/115.0'}
-    req = urllib.request.Request(url, headers=headers)
-    raw_bytes = urllib.request.urlopen(req).read()
-    
-    # 關鍵修復：使用 utf-8-sig 解碼並全面剔除 \x00 NUL 字元
-    text_data = raw_bytes.decode('utf-8-sig', errors='ignore').replace('\x00', '')
-    reader = csv.reader(io.StringIO(text_data))
-    
-    header_found = False
-    ticker_idx = -1
-    tickers = []
-    
-    for row in reader:
-        if not row:
-            continue
-        
-        # 不區分大小寫尋找包含 ticker 的 Header 欄位
-        if not header_found:
-            for idx, cell in enumerate(row):
-                if 'ticker' in str(cell).strip().lower():
-                    ticker_idx = idx
-                    header_found = True
-                    break
-            continue
-            
-        if header_found and ticker_idx < len(row):
-            symbol = str(row[ticker_idx]).strip()
-            # 過濾無效字元，僅留合法英文字母股票代碼
-            if symbol and len(symbol) <= 5 and symbol.isalpha():
-                tickers.append(symbol)
-                
-    return list(set(tickers))
-
-def get_official_sp500_and_ndx_tickers():
     tickers_set = set()
     
-    # 1. 抓取 S&P 500 (IVV ETF)
-    url_ivv = "https://www.ishares.com/us/products/239726/ishares-core-sp-500-etf/1467271812596.ajax?dataType=fund&fileName=IVV_holdings&fileType=csv"
+    # 1. 取得 S&P 500 (來自 GitHub 每日自動更新的純淨數據源)
+    url_sp500 = "https://raw.githubusercontent.com/datasets/s-and-p-500-companies/main/data/constituents.csv"
     try:
-        sp500_tickers = parse_ishares_csv_robust(url_ivv)
-        tickers_set.update(sp500_tickers)
-        print(f"成功取得 S&P 500 (IVV) 官方成分股: {len(sp500_tickers)} 隻")
+        req = urllib.request.Request(url_sp500, headers=headers)
+        df_sp500 = pd.read_csv(urllib.request.urlopen(req))
+        sp500_list = df_sp500['Symbol'].dropna().tolist()
+        tickers_set.update(sp500_list)
+        print(f"成功取得 S&P 500 純淨成分股: {len(sp500_list)} 隻")
     except Exception as e:
-        print(f"抓取 IVV 失敗: {e}")
+        print(f"抓取 S&P 500 失敗: {e}")
 
-    # 2. 抓取 Nasdaq 100 (IBND ETF)
-    url_ndx = "https://www.ishares.com/us/products/239702/ishares-nasdaq-100-etf/1467271812596.ajax?dataType=fund&fileName=IBND_holdings&fileType=csv"
+    # 2. 取得 Nasdaq 100 (來自 GitHub 高頻更新數據源)
+    url_ndx = "https://raw.githubusercontent.com/rreichel3/US-Stock-Symbols/main/nasdaq/nasdaq_100/nasdaq_100.json"
     try:
-        ndx_tickers = parse_ishares_csv_robust(url_ndx)
-        tickers_set.update(ndx_tickers)
-        print(f"成功併入 Nasdaq 100 官方成分股，去重後總數: {len(tickers_set)} 隻")
+        req = urllib.request.Request(url_ndx, headers=headers)
+        response = urllib.request.urlopen(req)
+        data = json.loads(response.read().decode('utf-8'))
+        # 清理 Ticker (有些 JSON 格式為 list 或 dict)
+        ndx_list = data if isinstance(data, list) else [item.get('symbol', item) for item in data]
+        tickers_set.update(ndx_list)
+        print(f"成功併入 Nasdaq 100 成分股，去重後總數: {len(tickers_set)} 隻")
     except Exception as e:
         print(f"抓取 Nasdaq 100 失敗: {e}")
 
-    return list(tickers_set)
+    # 清理格式 (例如 BRK.B 轉 BRK-B)
+    cleaned_tickers = [str(t).strip().replace('.', '-') for t in tickers_set if str(t).strip().isalpha() or '.' in str(t) or '-' in str(t)]
+    return cleaned_tickers
 
 def run_python1_largecap(start_date, end_date):
-    tickers = get_official_sp500_and_ndx_tickers()
+    tickers = get_clean_sp500_and_ndx_tickers()
     if not tickers:
         print("無法取得股票清單。")
         return
@@ -71,9 +45,8 @@ def run_python1_largecap(start_date, end_date):
     print(f"\n[Python 1] 開始計算 S&P 500 + Nasdaq 100 (去重後共 {len(tickers)} 隻股票)...")
     
     for ticker in tickers:
-        symbol = ticker.replace('.', '-')
         try:
-            df = yf.Ticker(symbol).history(period='1y')
+            df = yf.Ticker(ticker).history(period='1y')
             if df.empty: continue
                 
             month_df = df.loc[start_date:end_date]
@@ -87,9 +60,9 @@ def run_python1_largecap(start_date, end_date):
             prior_52w_low = prior_data['Low'].tail(252).min()
             
             if month_high >= prior_52w_high:
-                nh_set.add(symbol)
+                nh_set.add(ticker)
             if month_low <= prior_52w_low:
-                nl_set.add(symbol)
+                nl_set.add(ticker)
         except Exception:
             continue
             
