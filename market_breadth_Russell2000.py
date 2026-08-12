@@ -4,21 +4,29 @@ import pandas as pd
 import yfinance as yf
 
 def get_russell2000_tickers():
-    # 從 iShares IWM 官方開放數據抓取成分股列表
     url = "https://www.ishares.com/us/products/239710/ishares-russell-2000-etf/1467271812596.ajax?dataType=fund&fileName=IWM_holdings&fileType=csv"
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/115.0'}
     
     try:
         req = urllib.request.Request(url, headers=headers)
-        csv_data = urllib.request.urlopen(req).read()
-        # 跳過前 9 行非表格 Header
-        df = pd.read_csv(io.BytesIO(csv_data), skiprows=9)
+        raw_bytes = urllib.request.urlopen(req).read()
+        
+        lines = raw_bytes.decode('utf-8', errors='ignore').splitlines()
+        skip_header = 0
+        for idx, line in enumerate(lines):
+            if 'Ticker' in line:
+                skip_header = idx
+                break
+                
+        csv_data = "\n".join(lines[skip_header:])
+        df = pd.read_csv(io.StringIO(csv_data))
+        
         tickers = df['Ticker'].dropna().unique().tolist()
-        # 過濾非個股 Ticker (如 USD 泥金或未上市公司)
-        valid_tickers = [t for t in tickers if isinstance(t, str) and len(t) <= 5 and t.isalpha()]
+        valid_tickers = [str(t).strip() for t in tickers if isinstance(t, str) and len(str(t).strip()) <= 5 and str(t).strip().isalpha()]
+        print(f"成功取得 Russell 2000 (IWM) 官方成分股: {len(valid_tickers)} 隻")
         return valid_tickers
     except Exception as e:
-        print(f"抓取 IWM 持股失敗: {e}，改用備用 API/清單")
+        print(f"抓取 IWM 持股失敗: {e}")
         return []
 
 def run_python2_smallcap(start_date, end_date):
@@ -28,8 +36,7 @@ def run_python2_smallcap(start_date, end_date):
         return
         
     nh_set, nl_set = set(), set()
-    
-    print(f"[Python 2] 開始計算 Russell 2000 (共 {len(tickers)} 隻股票)...")
+    print(f"\n[Python 2] 開始計算 Russell 2000 (共 {len(tickers)} 隻股票)...")
     
     for ticker in tickers:
         symbol = ticker.replace('.', '-')
