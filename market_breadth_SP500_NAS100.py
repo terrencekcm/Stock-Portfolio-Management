@@ -39,7 +39,7 @@ def get_official_sp500_and_ndx_tickers():
     return list(tickers_set)
 
 def run_python1_largecap(start_date, end_date):
-    tickers = get_sp500_and_ndx_tickers()
+    tickers = get_official_sp500_and_ndx_tickers()
     nh_set, nl_set = set(), set()
     
     print(f"[Python 1] 開始計算 S&P 500 + Nasdaq 100 (去重後共 {len(tickers)} 隻股票)...")
