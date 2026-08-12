@@ -1,35 +1,35 @@
 name: Monthly Market Breadth Run
 
 on:
-  # 設定排程：每月 1 號 UTC 時間 00:00 (相當於香港時間早上 8:00) 自動執行
   schedule:
+    # 每月 1 號 UTC 00:00 (香港時間早上 8:00) 自動執行
     - cron: '0 0 1 * *'
-  
-  # 允許你隨時在 GitHub 網頁版手動點擊「Run workflow」測試執行
-  workflow_dispatch:
+  workflow_dispatch: # 允許網頁手動點擊執行
 
 jobs:
   run-monthly-breadth:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. 下載儲存庫程式碼
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    # 2. 設定 Python 環境
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
-    # 3. 安裝必要套件
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # 4. 執行 Python 腳本
-    - name: Run Market Breadth Script
+    # 1. 執行 Python 1 (S&P 500 + Nasdaq 100)
+    - name: Run Python 1 (Large Cap & Tech)
       run: |
-        python script.py
+        python market_breadth_SP500_NAS100.py
+
+    # 2. 執行 Python 2 (Russell 2000)
+    - name: Run Python 2 (Russell 2000 Small Cap)
+      run: |
+        python market_breadth_Russell2000.py
