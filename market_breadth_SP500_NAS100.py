@@ -9,8 +9,8 @@ def parse_ishares_csv_robust(url):
     req = urllib.request.Request(url, headers=headers)
     raw_bytes = urllib.request.urlopen(req).read()
     
-    # 使用 utf-8 解碼成純文字流
-    text_data = raw_bytes.decode('utf-8', errors='ignore')
+    # 關鍵修復：使用 utf-8-sig 解碼並全面剔除 \x00 NUL 字元
+    text_data = raw_bytes.decode('utf-8-sig', errors='ignore').replace('\x00', '')
     reader = csv.reader(io.StringIO(text_data))
     
     header_found = False
@@ -21,17 +21,18 @@ def parse_ishares_csv_robust(url):
         if not row:
             continue
         
-        # 尋找包含 Ticker 欄位的 Header 列
+        # 不區分大小寫尋找包含 ticker 的 Header 欄位
         if not header_found:
-            if 'Ticker' in row:
-                ticker_idx = row.index('Ticker')
-                header_found = True
+            for idx, cell in enumerate(row):
+                if 'ticker' in str(cell).strip().lower():
+                    ticker_idx = idx
+                    header_found = True
+                    break
             continue
             
-        # 找到 Header 後，提取對應欄位的 Ticker
         if header_found and ticker_idx < len(row):
             symbol = str(row[ticker_idx]).strip()
-            # 嚴格過濾：必須是長度 <= 5 且全為英文字母的股票代碼 (排除底部免責聲明與非個股)
+            # 過濾無效字元，僅留合法英文字母股票代碼
             if symbol and len(symbol) <= 5 and symbol.isalpha():
                 tickers.append(symbol)
                 
@@ -45,7 +46,7 @@ def get_official_sp500_and_ndx_tickers():
     try:
         sp500_tickers = parse_ishares_csv_robust(url_ivv)
         tickers_set.update(sp500_tickers)
-        print(f"成功取得 S&P 500 (IVV) 官方成分股: {len(tickers_set)} 隻")
+        print(f"成功取得 S&P 500 (IVV) 官方成分股: {len(sp500_tickers)} 隻")
     except Exception as e:
         print(f"抓取 IVV 失敗: {e}")
 
