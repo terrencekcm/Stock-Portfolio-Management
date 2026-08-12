@@ -9,7 +9,8 @@ def parse_ishares_csv_robust(url):
     req = urllib.request.Request(url, headers=headers)
     raw_bytes = urllib.request.urlopen(req).read()
     
-    text_data = raw_bytes.decode('utf-8', errors='ignore')
+    # 關鍵修復：使用 utf-8-sig 解碼並全面剔除 \x00 NUL 字元
+    text_data = raw_bytes.decode('utf-8-sig', errors='ignore').replace('\x00', '')
     reader = csv.reader(io.StringIO(text_data))
     
     header_found = False
@@ -21,9 +22,11 @@ def parse_ishares_csv_robust(url):
             continue
         
         if not header_found:
-            if 'Ticker' in row:
-                ticker_idx = row.index('Ticker')
-                header_found = True
+            for idx, cell in enumerate(row):
+                if 'ticker' in str(cell).strip().lower():
+                    ticker_idx = idx
+                    header_found = True
+                    break
             continue
             
         if header_found and ticker_idx < len(row):
