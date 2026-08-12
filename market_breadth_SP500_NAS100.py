@@ -1,31 +1,41 @@
+import csv
 import io
 import urllib.request
 import pandas as pd
 import yfinance as yf
 
-def parse_ishares_csv(url):
+def parse_ishares_csv_robust(url):
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/115.0'}
     req = urllib.request.Request(url, headers=headers)
     raw_bytes = urllib.request.urlopen(req).read()
     
-    # 將 CSV 轉為純文字行
-    lines = raw_bytes.decode('utf-8', errors='ignore').splitlines()
+    # 使用 utf-8 解碼成純文字流
+    text_data = raw_bytes.decode('utf-8', errors='ignore')
+    reader = csv.reader(io.StringIO(text_data))
     
-    # 尋找包含 Ticker 的 Header 所在行 (0-indexed)
-    skip_header = 0
-    for idx, line in enumerate(lines):
-        if 'Ticker' in line:
-            skip_header = idx
-            break
+    header_found = False
+    ticker_idx = -1
+    tickers = []
+    
+    for row in reader:
+        if not row:
+            continue
+        
+        # 尋找包含 Ticker 欄位的 Header 列
+        if not header_found:
+            if 'Ticker' in row:
+                ticker_idx = row.index('Ticker')
+                header_found = True
+            continue
             
-    # 從 Ticker 那一行開始讀取 CSV
-    csv_data = "\n".join(lines[skip_header:])
-    df = pd.read_csv(io.StringIO(csv_data))
-    
-    # 清理 Ticker 清單
-    tickers = df['Ticker'].dropna().unique().tolist()
-    valid_tickers = [str(t).strip() for t in tickers if isinstance(t, str) and len(str(t).strip()) <= 5 and str(t).strip().isalpha()]
-    return valid_tickers
+        # 找到 Header 後，提取對應欄位的 Ticker
+        if header_found and ticker_idx < len(row):
+            symbol = str(row[ticker_idx]).strip()
+            # 嚴格過濾：必須是長度 <= 5 且全為英文字母的股票代碼 (排除底部免責聲明與非個股)
+            if symbol and len(symbol) <= 5 and symbol.isalpha():
+                tickers.append(symbol)
+                
+    return list(set(tickers))
 
 def get_official_sp500_and_ndx_tickers():
     tickers_set = set()
@@ -33,16 +43,16 @@ def get_official_sp500_and_ndx_tickers():
     # 1. 抓取 S&P 500 (IVV ETF)
     url_ivv = "https://www.ishares.com/us/products/239726/ishares-core-sp-500-etf/1467271812596.ajax?dataType=fund&fileName=IVV_holdings&fileType=csv"
     try:
-        sp500_tickers = parse_ishares_csv(url_ivv)
+        sp500_tickers = parse_ishares_csv_robust(url_ivv)
         tickers_set.update(sp500_tickers)
         print(f"成功取得 S&P 500 (IVV) 官方成分股: {len(tickers_set)} 隻")
     except Exception as e:
         print(f"抓取 IVV 失敗: {e}")
 
-    # 2. 抓取 Nasdaq 100 (IBND / XNDX ETF)
+    # 2. 抓取 Nasdaq 100 (IBND ETF)
     url_ndx = "https://www.ishares.com/us/products/239702/ishares-nasdaq-100-etf/1467271812596.ajax?dataType=fund&fileName=IBND_holdings&fileType=csv"
     try:
-        ndx_tickers = parse_ishares_csv(url_ndx)
+        ndx_tickers = parse_ishares_csv_robust(url_ndx)
         tickers_set.update(ndx_tickers)
         print(f"成功併入 Nasdaq 100 官方成分股，去重後總數: {len(tickers_set)} 隻")
     except Exception as e:
