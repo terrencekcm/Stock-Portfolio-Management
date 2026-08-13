@@ -1129,28 +1129,33 @@
                 weeklyStrategies = data.weeklyStrategies || []; 
                 latestBenchmarks = data.benchmarks || { sp500: 0, nasdaq: 0 };
 
+                // 🚀 優化 1：前端接手日期格式化，支援解析 GAS 傳來的原生字串，避免時區偏移
                 const sanitizeDate = (rawStr) => {
-                    if (typeof rawStr === 'string' && rawStr.includes('T')) {
-                        let dObj = new Date(rawStr);
-                        if (!isNaN(dObj)) {
-                            const y = dObj.getFullYear();
-                            const m = String(dObj.getMonth() + 1).padStart(2, '0');
-                            const day = String(dObj.getDate()).padStart(2, '0');
-                            return `${y}-${m}-${day}`;
-                        }
-                    }
-                    return rawStr;
+                    if (!rawStr) return '---';
+                    let dObj = new Date(rawStr);
+                    if (isNaN(dObj)) return rawStr;
+                    
+                    const y = dObj.getFullYear();
+                    const m = String(dObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(dObj.getDate()).padStart(2, '0');
+                    return `${y}-${m}-${day}`;
                 };
 
+                // 遍歷所有陣列，瞬間完成格式化
                 for (const key in earningsMap) {
-                    if (earningsMap[key] && earningsMap[key].date) {
-                        earningsMap[key].date = sanitizeDate(earningsMap[key].date);
-                    }
+                    if (earningsMap[key] && earningsMap[key].date) earningsMap[key].date = sanitizeDate(earningsMap[key].date);
                 }
-                
-                stockPlan.forEach(s => {
-                    if (s.earnings_date) s.earnings_date = sanitizeDate(s.earnings_date);
+                stockPlan.forEach(s => { if (s.earnings_date) s.earnings_date = sanitizeDate(s.earnings_date); });
+                transactions.forEach(t => { if (t.date) t.date = sanitizeDate(t.date); });
+                optionsTx.forEach(o => {
+                    if (o.open_date) o.open_date = sanitizeDate(o.open_date);
+                    if (o.expiry_date) o.expiry_date = sanitizeDate(o.expiry_date);
+                    if (o.close_date) o.close_date = sanitizeDate(o.close_date);
                 });
+                tradingPlans.forEach(tp => { if (tp.date) tp.date = sanitizeDate(tp.date); });
+                valuations.forEach(v => { if (v.date) v.date = sanitizeDate(v.date); });
+                weeklyStrategies.forEach(ws => { if (ws.date) ws.date = sanitizeDate(ws.date); });
+                dailyNavData.forEach(d => { if (d.date) d.date = sanitizeDate(d.date); });
                 
                 alphaVantageApiKey = data.avApiKey || ""; 
                 if (alphaVantageApiKey.includes(',')) {
