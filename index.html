@@ -1404,9 +1404,16 @@
         // 🚀 核心計算：投資儀表板與曝險分析
         // ==========================================
         function renderComponents() {
-            const { cashBalances, positions, optionsLockedLC, optionsLockedSP, optionsLockedLP } = calculatePortfolio();
-            let assetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "OPTIONS": 0, "CASH_TOTAL": 0 };
-            let effectiveAssetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "OPTIONS": 0, "CASH_TOTAL": 0 };
+            // 1. 修正解構賦值，接收 HK 期權變數
+            const { 
+                cashBalances, positions, 
+                optionsLockedLC_US, optionsLockedSP_US, optionsLockedLP_US,
+                optionsLockedLC_HK, optionsLockedSP_HK, optionsLockedLP_HK 
+            } = calculatePortfolio();
+            
+            // 2. 補上 OPTIONS_HK 的初始值
+            let assetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "OPTIONS": 0, "OPTIONS_HK": 0, "CASH_TOTAL": 0 };
+            let effectiveAssetRealValuesUsd = { "US": 0, "HK": 0, "BOND_L": 0, "BOND_S": 0, "GOLD": 0, "OPTIONS": 0, "OPTIONS_HK": 0, "CASH_TOTAL": 0 };
             
             let computedStocks = []; 
             let totalStockMarketValueUsd = 0; let totalStockCostUsd = 0;
@@ -1646,10 +1653,14 @@
                 const deviation = rWeight - pWeight;
                 
                 let valHtml = `USD $${rVal.toLocaleString(undefined, {maximumFractionDigits:0})}`;
-                if (effVal > rVal && ac !== 'OPTIONS') valHtml += ` <span class="text-[10px] text-purple-600 block">(總曝險: $${effVal.toLocaleString(undefined, {maximumFractionDigits:0})})</span>`;
+                if (effVal > rVal && ac !== 'OPTIONS' && ac !== 'OPTIONS_HK') valHtml += ` <span class="text-[10px] text-purple-600 block">(總曝險: $${effVal.toLocaleString(undefined, {maximumFractionDigits:0})})</span>`;
                 
+                // 3. 修正這裡的 tooltip 變數名稱
                 if (ac === 'OPTIONS' && effVal > 0) {
-                    valHtml += ` <div class="text-[10px] text-purple-600 font-bold mt-0.5 tracking-tighter block leading-tight">LC/LP風險金: ${(optionsLockedLC + optionsLockedLP).toLocaleString()} | SP保證金: $${optionsLockedSP.toLocaleString()}</div>`;
+                    valHtml += ` <div class="text-[10px] text-purple-600 font-bold mt-0.5 tracking-tighter block leading-tight">LC/LP風險金: $${(optionsLockedLC_US + optionsLockedLP_US).toLocaleString()} | SP保證金: $${optionsLockedSP_US.toLocaleString()}</div>`;
+                }
+                if (ac === 'OPTIONS_HK' && effVal > 0) {
+                    valHtml += ` <div class="text-[10px] text-pink-600 font-bold mt-0.5 tracking-tighter block leading-tight">LC/LP風險金: HK$${(optionsLockedLC_HK + optionsLockedLP_HK).toLocaleString()} | SP保證金: HK$${optionsLockedSP_HK.toLocaleString()}</div>`;
                 }
             
                 assetPlanTable.innerHTML += `
@@ -1745,7 +1756,7 @@
             });
             renderHistoryRows();
         }
-
+        
         function renderOptionsTable() {
             const renderTable = (tbodyId, marketFilter) => {
                 const tbody = document.getElementById(tbodyId); tbody.innerHTML = '';
