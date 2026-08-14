@@ -3264,7 +3264,6 @@
         }
 
         // ==========================================
-        // ==========================================
         // 🚀 倉位績效圖表繪製核心 (接接 Google Sheet 數據版)
         // ==========================================
         function initPerformanceChart() {
@@ -3280,30 +3279,34 @@
             btn.innerText = "🔄 正在計算回報率...";
             btn.disabled = true;
         
-            // 1. 定義時間範圍 (Hard-coded as requested)
+            // 1. 定義時間範圍 (只限制起點，不限制終點，自動畫到最新)
             const startDate = "2026-07-01";
-            const endDate = "2026-09-30";
             
             // 2. 過濾並排序數據
             const filteredData = dailyNavData
-                .filter(d => d.date >= startDate && d.date <= endDate)
+                .filter(d => d.date >= startDate)
                 .sort((a, b) => new Date(a.date) - new Date(b.date));
         
-            // 3. 尋找基準點 (2026-07-01)
-            const baseRow = filteredData.find(d => d.date === startDate);
-            
-            if (!baseRow) {
-                alert("❌ 找不到 2026-07-01 的基準數據，請確保 __Daily_NAV__ 表中有該日紀錄。");
+            if (filteredData.length === 0) {
+                alert("❌ 找不到 2026-07-01 之後的數據，請確保 __Daily_NAV__ 表中有紀錄。");
                 btn.innerText = "🚀 生成績效對比圖表";
                 btn.disabled = false;
                 return;
             }
         
-            // 4. 計算三大序列的百分比收益率
-            // 基準值取自 2026-07-01 當天
-            const baseNav = parseFloat(baseRow.totalNav);
+            // 3. 取得大盤的基準點 (維持 7/1 作為大盤的 0% 基準)
+            const baseRow = filteredData[0];
             const baseSP = parseFloat(baseRow.sp500);
             const baseNAS = parseFloat(baseRow.nasdaq);
+
+            // 🔥 核心修改：取得設定頁面的「全倉起始本金」作為全倉計算的分母
+            const currentYear = new Date().getFullYear();
+            const yearInitial = parseFloat(perfConfig[currentYear + "_initial"]) || 0;
+            const yearAdded = parseFloat(perfConfig[currentYear + "_added"]) || 0;
+            const initialCapital = yearInitial + yearAdded;
+            
+            // 如果沒有設定起始本金，才退回使用第一天的 NAV
+            const portfolioBase = initialCapital > 0 ? initialCapital : parseFloat(baseRow.totalNav);
         
             const portfolioSeries = [];
             const sp500Series = [];
@@ -3312,12 +3315,13 @@
             filteredData.forEach(d => {
                 const time = d.date; // 格式為 yyyy-mm-dd
                 
-                // 累積回報率公式: (當前值 / 基準值 - 1) * 100
+                // 倉位回報率公式: (當前淨值 / 全倉起始本金 - 1) * 100
                 portfolioSeries.push({ 
                     time: time, 
-                    value: baseNav !== 0 ? ((parseFloat(d.totalNav) / baseNav) - 1) * 100 : 0 
+                    value: portfolioBase !== 0 ? ((parseFloat(d.totalNav) / portfolioBase) - 1) * 100 : 0 
                 });
                 
+                // 大盤回報率公式: (當前指數 / 7月1日指數 - 1) * 100
                 sp500Series.push({ 
                     time: time, 
                     value: baseSP !== 0 ? ((parseFloat(d.sp500) / baseSP) - 1) * 100 : 0 
@@ -3331,16 +3335,12 @@
         
             // 5. 執行繪圖
             if (placeholder) placeholder.classList.add('hidden');
-            
-            // 呼叫先前定義好的繪圖引擎 (確保 renderPerformanceLineChart 函數已存在)
             renderPerformanceLineChart(portfolioSeries, sp500Series, nasdaqSeries);
         
             // 6. 更新 UI 狀態
             btn.innerText = "✅ 已更新";
             btn.className = "px-4 py-2 bg-gray-600 text-white text-xs font-bold rounded-lg shadow-inner transition cursor-not-allowed";
-            btn.disabled = true; // 生成後禁用，若要刷新需重新進入頁面或另設重置邏輯
-        
-            console.log("Chart Rendered with " + filteredData.length + " data points.");
+            btn.disabled = true; 
         }
 
         function renderPerformanceLineChart(portData, spData, nasData) {
