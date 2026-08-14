@@ -146,6 +146,12 @@
                         <p class="text-sm text-gray-500 font-medium">📊 持倉總賺蝕 (%)</p>
                         <p id="headerPerfYearlyPl" class="text-3xl font-bold text-gray-950 mt-1">0.00%</p>
                         <p class="text-[10px] text-gray-400 font-semibold mt-0.5 tracking-wider uppercase">📈 今年度全倉資產回報率</p>
+                        
+                        <!-- 🔥 新增：驗證計算的數值顯示區 -->
+                        <div class="text-[10px] text-gray-500 font-mono mt-2 bg-gray-50 p-1.5 rounded border border-gray-100 leading-tight space-y-0.5">
+                            <div class="flex justify-between"><span>淨值(分子):</span> <span id="debugTotalAsset" class="text-emerald-600 font-bold">---</span></div>
+                            <div class="flex justify-between"><span>本金(分母):</span> <span id="debugYearlyBase" class="text-blue-600 font-bold">---</span></div>
+                        </div>
                     </div>
                     <div class="text-[11px] text-gray-500 mt-2 pt-1.5 border-t border-dashed border-gray-100 flex justify-between gap-1">
                         <span>🇺🇸 S&P500 YTD: <span id="benchSP500" class="font-extrabold text-gray-700">0.00%</span></span>
@@ -1618,6 +1624,12 @@
             const histInitialAmount = parseFloat(perfConfig[histStartYear + "_initial"]) || yearInitial;
             let histPerfPlPct = 0; if (histInitialAmount > 0) { histPerfPlPct = ((totalAssetUsd / histInitialAmount) - 1) * 100; }
         
+            // 🔥 將驗證數值寫入畫面
+            const debugTotalAssetEl = document.getElementById('debugTotalAsset');
+            const debugYearlyBaseEl = document.getElementById('debugYearlyBase');
+            if (debugTotalAssetEl) debugTotalAssetEl.innerText = `USD $${totalAssetUsd.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}`;
+            if (debugYearlyBaseEl) debugYearlyBaseEl.innerText = `USD $${yearlyCapitalDenominator.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}`;
+
             document.getElementById('headerPerfYearlyPl').innerText = `${yearlyPerfPlPct >= 0 ? '+' : ''}${yearlyPerfPlPct.toFixed(2)}%`;
             document.getElementById('headerPerfYearlyPl').className = `text-3xl font-black mt-1 ${yearlyPerfPlPct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
             document.getElementById('headerPerfHistPlDetail').innerHTML = `歷來總賺蝕 (%): <span class="font-extrabold ${histPerfPlPct >= 0 ? 'text-emerald-600':'text-rose-600'}">${histPerfPlPct >= 0 ? '+' : ''}${histPerfPlPct.toFixed(2)}%</span> <span class="text-[10px] text-gray-400 font-normal">(基準年: ${histStartYear})</span>`;
