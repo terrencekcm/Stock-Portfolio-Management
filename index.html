@@ -3299,14 +3299,13 @@
             const baseSP = parseFloat(baseRow.sp500);
             const baseNAS = parseFloat(baseRow.nasdaq);
 
-            // 🔥 核心修改：取得設定頁面的「全倉起始本金」作為全倉計算的分母
+            // 🔥 核心修改：嚴格對齊儀表板邏輯，取得設定頁面的「全倉起始本金」作為全倉計算的分母
             const currentYear = new Date().getFullYear();
             const yearInitial = parseFloat(perfConfig[currentYear + "_initial"]) || 0;
             const yearAdded = parseFloat(perfConfig[currentYear + "_added"]) || 0;
-            const initialCapital = yearInitial + yearAdded;
             
-            // 如果沒有設定起始本金，才退回使用第一天的 NAV
-            const portfolioBase = initialCapital > 0 ? initialCapital : parseFloat(baseRow.totalNav);
+            // 移除 Fallback 機制，強制使用設定的本金 (若未設定則為 0)
+            const portfolioBase = yearInitial + yearAdded;
         
             const portfolioSeries = [];
             const sp500Series = [];
@@ -3316,20 +3315,21 @@
                 const time = d.date; // 格式為 yyyy-mm-dd
                 
                 // 倉位回報率公式: (當前淨值 / 全倉起始本金 - 1) * 100
+                // 若 portfolioBase 為 0 (未設定)，則安全回傳 0 避免 Infinity 錯誤
                 portfolioSeries.push({ 
                     time: time, 
-                    value: portfolioBase !== 0 ? ((parseFloat(d.totalNav) / portfolioBase) - 1) * 100 : 0 
+                    value: portfolioBase > 0 ? ((parseFloat(d.totalNav) / portfolioBase) - 1) * 100 : 0 
                 });
                 
                 // 大盤回報率公式: (當前指數 / 7月1日指數 - 1) * 100
                 sp500Series.push({ 
                     time: time, 
-                    value: baseSP !== 0 ? ((parseFloat(d.sp500) / baseSP) - 1) * 100 : 0 
+                    value: baseSP > 0 ? ((parseFloat(d.sp500) / baseSP) - 1) * 100 : 0 
                 });
                 
                 nasdaqSeries.push({ 
                     time: time, 
-                    value: baseNAS !== 0 ? ((parseFloat(d.nasdaq) / baseNAS) - 1) * 100 : 0 
+                    value: baseNAS > 0 ? ((parseFloat(d.nasdaq) / baseNAS) - 1) * 100 : 0 
                 });
             });
         
