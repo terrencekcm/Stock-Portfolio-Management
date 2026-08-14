@@ -223,7 +223,8 @@
                     <div class="flex flex-wrap justify-between items-center border-b border-gray-200 mb-4 pb-2 gap-3">
                         <div class="flex gap-2">
                             <button id="btn-view-stocks" onclick="togglePosView('STOCKS')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-blue-600 text-blue-600 transition">💼 證券持倉</button>
-                            <button id="btn-view-options" onclick="togglePosView('OPTIONS')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-purple-600 transition">📜 期權持倉 (US)</button>
+                            <button id="btn-view-options-us" onclick="togglePosView('OPTIONS_US')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-purple-600 transition">📜 期權持倉 (US)</button>
+                            <button id="btn-view-options-hk" onclick="togglePosView('OPTIONS_HK')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-pink-600 transition">📜 期權持倉 (HK)</button>
                         </div>
                         <button id="btn-add-tx" onclick="openTxModal()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded shadow-md transition flex items-center gap-1 cursor-pointer">
                             ➕ 新增資產交易 / 流水
@@ -278,23 +279,42 @@
                         </div>
                     </div>
 
-                    <!-- 期權持倉 View -->
-                    <div id="view-options" class="hidden">
+                    <!-- 期權持倉 View (US) -->
+                    <div id="view-options-us" class="hidden">
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-left text-xs">
                                 <thead class="bg-purple-50 text-purple-800 font-bold uppercase">
                                     <tr>
-                                        <th class="px-2 py-3">開倉日</th><th class="px-2 py-3">標的</th><th class="px-2 py-3">策略</th>
+                                        <th class="px-2 py-3">開倉日</th><th class="px-2 py-3">標的/策略名稱</th><th class="px-2 py-3">策略</th>
                                         <th class="px-2 py-3 text-center">張數</th><th class="px-2 py-3">行使價</th><th class="px-2 py-3 text-rose-600">到期日</th>
                                         <th class="px-2 py-3 text-blue-600">開倉單價</th>
-                                        <!-- 🔥 新增兩列：最新單價與浮動損益 -->
                                         <th class="px-2 py-3 text-emerald-600">最新單價</th>
                                         <th class="px-2 py-3">浮動損益</th>
                                         <th class="px-2 py-3 text-indigo-600">佔用保證金</th>
                                         <th class="px-2 py-3 text-center">操作</th>
                                     </tr>
                                 </thead>
-                                <tbody id="optionsTableBody" class="divide-y divide-gray-200 text-gray-900"></tbody>
+                                <tbody id="optionsTableBodyUS" class="divide-y divide-gray-200 text-gray-900"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 期權持倉 View (HK) -->
+                    <div id="view-options-hk" class="hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-left text-xs">
+                                <thead class="bg-pink-50 text-pink-800 font-bold uppercase">
+                                    <tr>
+                                        <th class="px-2 py-3">開倉日</th><th class="px-2 py-3">標的/策略名稱</th><th class="px-2 py-3">策略</th>
+                                        <th class="px-2 py-3 text-center">張數</th><th class="px-2 py-3">行使價</th><th class="px-2 py-3 text-rose-600">到期日</th>
+                                        <th class="px-2 py-3 text-blue-600">開倉單價</th>
+                                        <th class="px-2 py-3 text-emerald-600">最新單價</th>
+                                        <th class="px-2 py-3">浮動損益</th>
+                                        <th class="px-2 py-3 text-indigo-600">佔用保證金</th>
+                                        <th class="px-2 py-3 text-center">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="optionsTableBodyHK" class="divide-y divide-gray-200 text-gray-900"></tbody>
                             </table>
                         </div>
                     </div>
@@ -450,7 +470,8 @@
             <!-- 內部頁籤導覽列 (Sub-tabs) -->
             <div class="flex gap-2 border-b border-gray-200 pb-2">
                 <button id="btn-sub-port-perf" onclick="switchReportSubTab('port')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-blue-600 text-blue-600 transition">📈 倉位績效走勢 (YTD)</button>
-                <button id="btn-sub-opt-perf" onclick="switchReportSubTab('opt')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-purple-600 transition">📜 期權績效分析</button>
+                <button id="btn-sub-opt-perf-us" onclick="switchReportSubTab('opt_us')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-purple-600 transition">📜 US期權績效分析</button>
+                <button id="btn-sub-opt-perf-hk" onclick="switchReportSubTab('opt_hk')" class="px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-pink-600 transition">📜 HK期權績效分析</button>
             </div>
 
             <!-- 視圖 1：倉位績效 (圖表) -->
@@ -740,7 +761,8 @@
                     <select id="txCategory" onchange="toggleFormFields()" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 text-sm focus:outline-blue-500 font-bold text-gray-800">
                         <option value="STOCK">📈 證券交易 (股票/債券/金)</option>
                         <option value="CASH">💵 現金存取 (美金/港幣本金)</option>
-                        <option value="OPTIONS" class="text-purple-700">📜 期權交易 (US Options)</option>
+                        <option value="OPTIONS_US" class="text-purple-700">📜 期權交易 (US)</option>
+                        <option value="OPTIONS_HK" class="text-pink-700">📜 期權交易 (HK)</option>
                     </select>
                 </div>
                 <form id="txForm" class="space-y-4 text-sm">
@@ -783,21 +805,24 @@
             
                     <div id="optionsFields" class="space-y-4 hidden border border-purple-200 bg-purple-50/30 p-3 rounded-lg">
                         <div class="grid grid-cols-2 gap-3">
-                            <div><label class="block text-sm font-medium text-gray-700">正股代號 (Ticker)</label><input type="text" id="optTicker" placeholder="e.g. NVDA" class="mt-1 block w-full rounded border-purple-200 p-2 uppercase font-bold focus:outline-purple-500"></div>
+                            <div class="col-span-2 sm:col-span-1"><label class="block text-sm font-medium text-gray-700">組合策略名稱 (選填)</label><input type="text" id="optComboName" placeholder="例如: 鐵鷹策略" class="mt-1 block w-full rounded border-gray-300 p-2 focus:outline-purple-500"></div>
+                            <div class="col-span-2 sm:col-span-1"><label class="block text-sm font-medium text-gray-700">期權名稱 (選填)</label><input type="text" id="optName" placeholder="例如: 騰訊 400 Call" class="mt-1 block w-full rounded border-gray-300 p-2 focus:outline-purple-500"></div>
+                            
+                            <div><label class="block text-sm font-medium text-gray-700">正股代號 (Ticker)</label><input type="text" id="optTicker" placeholder="e.g. NVDA / 0700" class="mt-1 block w-full rounded border-gray-300 p-2 uppercase font-bold focus:outline-purple-500"></div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">策略 (Strategy)</label>
-                                <select id="optStrategy" class="mt-1 block w-full rounded border-purple-200 p-2 focus:outline-purple-500 font-bold">
+                                <select id="optStrategy" class="mt-1 block w-full rounded border-gray-300 p-2 focus:outline-purple-500 font-bold">
                                     <option value="Long Call">📈 Long Call</option>
                                     <option value="Long Put">📉 Long Put</option>
                                     <option value="Short Put">📉 Short Put</option>
                                 </select>
                             </div>
-                            <div><label class="block text-sm font-medium text-gray-700">行使價 (Strike)</label><input type="number" id="optStrike" step="any" placeholder="e.g. 50" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
-                            <div><label class="block text-sm font-medium text-gray-700">到期日 (Expiry)</label><input type="date" id="optExpiry" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
-                            <div><label class="block text-sm font-medium text-gray-700">合約張數</label><input type="number" id="optQty" step="1" placeholder="e.g. 1" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
-                            <div><label class="block text-sm font-medium text-gray-700">開倉單價</label><input type="number" id="optPremium" step="any" placeholder="e.g. 100" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
+                            <div><label class="block text-sm font-medium text-gray-700">行使價 (Strike)</label><input type="number" id="optStrike" step="any" placeholder="e.g. 50" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-white focus:outline-blue-500"></div>
+                            <div><label class="block text-sm font-medium text-gray-700">到期日 (Expiry)</label><input type="date" id="optExpiry" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-white focus:outline-blue-500"></div>
+                            <div><label class="block text-sm font-medium text-gray-700">合約張數</label><input type="number" id="optQty" step="1" placeholder="e.g. 1" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-white focus:outline-blue-500"></div>
+                            <div><label class="block text-sm font-medium text-gray-700">開倉單價</label><input type="number" id="optPremium" step="any" placeholder="e.g. 100" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-white focus:outline-blue-500"></div>
+                            <div class="col-span-2"><label class="block text-sm font-medium text-gray-700">每張股數 (Multiplier)</label><input type="number" id="optMultiplier" step="1" placeholder="100" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-white focus:outline-blue-500"></div>
                         </div>
-                        <p class="text-[10px] text-purple-600 font-medium tracking-wide">💡 系統預設 1 張合約 = 100 股。</p>
                     </div>
             
                     <div><label class="block text-sm font-medium text-gray-700">交易日期</label><input type="date" id="txDate" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500" required></div>
@@ -879,7 +904,7 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbzsDE79EEEn1EpdYYTg44A8HeXzIEXs1hpV4JSjQUXeWo8uzeucaKndIm-RWce_l3Gy/exec";
 
         const assetLabels = {
-            "US": "美股", "HK": "港股", "BOND_L": "US 長債", "BOND_S": "US 短債", "GOLD": "金", "OPTIONS": "期權", "CASH_TOTAL": "現金"
+            "US": "美股", "HK": "港股", "BOND_L": "US 長債", "BOND_S": "US 短債", "GOLD": "金", "OPTIONS": "US期權", "OPTIONS_HK": "HK期權", "CASH_TOTAL": "現金"
         };
 
         // 🔥 排序狀態追蹤
@@ -887,8 +912,8 @@
         
         let userGoogleToken = ""; let userRole = "Visitor"; 
         let transactions = []; let prices = {}; let changes = {}; let exchangeRate = 7.82;
-        let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "OPTIONS": 0, "CASH_TOTAL": 0 }; 
-        let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "OPTIONS": false, "CASH_TOTAL": false };
+        let assetPlan = { "US": 70, "HK": 0, "BOND_L": 0, "BOND_S": 25, "GOLD": 5, "OPTIONS": 0, "OPTIONS_HK": 0, "CASH_TOTAL": 0 }; 
+        let assetHidden = { "US": false, "HK": false, "BOND_L": false, "BOND_S": false, "GOLD": false, "OPTIONS": false, "OPTIONS_HK": false, "CASH_TOTAL": false };
         let optionsTx = []; // 🔥 存放期權紀錄
         let stockPlan = []; let pdfMap = {}; let earningsMap = {}; let perfConfig = {};
         let tradingPlans = []; let valuations = []; // 🔥 新增 valuations 陣列 
@@ -973,26 +998,48 @@
             } else if (category === 'CASH') {
                 document.getElementById('cashFields').classList.remove('hidden');
                 document.getElementById('basicMarketFields').classList.remove('hidden');
-            } else if (category === 'OPTIONS') {
+            } else if (category === 'OPTIONS_US' || category === 'OPTIONS_HK') {
                 document.getElementById('optionsFields').classList.remove('hidden');
-                // 期權固定綁定 US Market，所以不顯示基礎 Market 選單
+                // 根據市場切換預設股數與顏色
+                const isHK = category === 'OPTIONS_HK';
+                document.getElementById('optMultiplier').value = isHK ? "" : "100";
+                document.getElementById('optMultiplier').placeholder = isHK ? "例如: 500" : "100";
+                const optWrap = document.getElementById('optionsFields');
+                if (isHK) {
+                    optWrap.className = "space-y-4 border border-pink-200 bg-pink-50/30 p-3 rounded-lg";
+                } else {
+                    optWrap.className = "space-y-4 border border-purple-200 bg-purple-50/30 p-3 rounded-lg";
+                }
             }
         }
         
         function togglePosView(view) {
             const btnStocks = document.getElementById('btn-view-stocks');
-            const btnOptions = document.getElementById('btn-view-options');
+            const btnOptionsUS = document.getElementById('btn-view-options-us');
+            const btnOptionsHK = document.getElementById('btn-view-options-hk');
             const viewStocks = document.getElementById('view-stocks');
-            const viewOptions = document.getElementById('view-options');
+            const viewOptionsUS = document.getElementById('view-options-us');
+            const viewOptionsHK = document.getElementById('view-options-hk');
         
+            // Reset all buttons
+            btnStocks.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-blue-600 transition";
+            btnOptionsUS.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-purple-600 transition";
+            btnOptionsHK.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-pink-600 transition";
+            
+            // Hide all views
+            viewStocks.classList.add('hidden');
+            viewOptionsUS.classList.add('hidden');
+            viewOptionsHK.classList.add('hidden');
+
             if (view === 'STOCKS') {
                 btnStocks.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-blue-600 text-blue-600 transition";
-                btnOptions.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-purple-600 transition";
-                viewStocks.classList.remove('hidden'); viewOptions.classList.add('hidden');
-            } else {
-                btnOptions.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-purple-600 text-purple-600 transition";
-                btnStocks.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-transparent text-gray-500 hover:text-blue-600 transition";
-                viewOptions.classList.remove('hidden'); viewStocks.classList.add('hidden');
+                viewStocks.classList.remove('hidden');
+            } else if (view === 'OPTIONS_US') {
+                btnOptionsUS.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-purple-600 text-purple-600 transition";
+                viewOptionsUS.classList.remove('hidden');
+            } else if (view === 'OPTIONS_HK') {
+                btnOptionsHK.className = "px-4 py-1.5 text-sm font-bold rounded-t-lg border-b-2 border-pink-600 text-pink-600 transition";
+                viewOptionsHK.classList.remove('hidden');
             }
         }
 
@@ -1231,35 +1278,50 @@
                 }
             });
         
-            // 🔥 計算期權金現金流與凍結保證金 (加入 Long Put)
-            let optionsLockedLC = 0; let optionsLockedSP = 0; let optionsLockedLP = 0;
+            // 🔥 計算期權金現金流與凍結保證金 (區分 US 與 HK)
+            let optionsLockedLC_US = 0; let optionsLockedSP_US = 0; let optionsLockedLP_US = 0;
+            let optionsLockedLC_HK = 0; let optionsLockedSP_HK = 0; let optionsLockedLP_HK = 0;
+            
             optionsTx.forEach(opt => {
-                let multiplier = 100 * Number(opt.qty);
+                let mkt = opt.market ? opt.market.toUpperCase() : 'US';
+                let multi = opt.multiplier ? Number(opt.multiplier) : 100;
+                let multiplier = multi * Number(opt.qty);
+                
                 let openVal = Number(opt.open_premium) * multiplier;
                 let closeVal = Number(opt.close_premium) * multiplier;
                 let strikeVal = Number(opt.strike) * multiplier;
         
                 if (opt.status === 'OPEN') {
                     if (opt.strategy === 'Long Call' || opt.strategy === 'Long Put') {
-                        cashBalances['US'] -= openVal; // 付出期權金
-                        if (opt.strategy === 'Long Call') optionsLockedLC += openVal;
-                        if (opt.strategy === 'Long Put') optionsLockedLP += openVal;
+                        cashBalances[mkt] -= openVal; // 付出期權金
+                        if (mkt === 'US') {
+                            if (opt.strategy === 'Long Call') optionsLockedLC_US += openVal;
+                            if (opt.strategy === 'Long Put') optionsLockedLP_US += openVal;
+                        } else {
+                            if (opt.strategy === 'Long Call') optionsLockedLC_HK += openVal;
+                            if (opt.strategy === 'Long Put') optionsLockedLP_HK += openVal;
+                        }
                     } else if (opt.strategy === 'Short Put') {
-                        cashBalances['US'] += openVal; // 收入期權金
-                        optionsLockedSP += strikeVal;  // SP 鎖定的是全額保證金 (Cash Secured Put)
+                        cashBalances[mkt] += openVal; // 收入期權金
+                        if (mkt === 'US') optionsLockedSP_US += strikeVal;
+                        else optionsLockedSP_HK += strikeVal;
                     }
                 } else if (opt.status === 'CLOSED') {
                     if (opt.strategy === 'Long Call' || opt.strategy === 'Long Put') {
-                        cashBalances['US'] -= openVal; 
-                        cashBalances['US'] += closeVal; // 賣出拿回
+                        cashBalances[mkt] -= openVal; 
+                        cashBalances[mkt] += closeVal; // 賣出拿回
                     } else if (opt.strategy === 'Short Put') {
-                        cashBalances['US'] += openVal; 
-                        cashBalances['US'] -= closeVal; // 買回付出
+                        cashBalances[mkt] += openVal; 
+                        cashBalances[mkt] -= closeVal; // 買回付出
                     }
                 }
             });
         
-            return { cashBalances, positions, optionsLockedLC, optionsLockedSP, optionsLockedLP };
+            return { 
+                cashBalances, positions, 
+                optionsLockedLC_US, optionsLockedSP_US, optionsLockedLP_US,
+                optionsLockedLC_HK, optionsLockedSP_HK, optionsLockedLP_HK
+            };
         }
 
         function applyPositionSort() {
@@ -1431,22 +1493,37 @@
             effectiveAssetRealValuesUsd["CASH_TOTAL"] = totalCashUsd; 
         
             // 🔥 計算期權真實浮動淨值 (NLV)
-            let optionsNLV = 0;
+            let optionsNLV_US = 0;
+            let optionsNLV_HK = 0;
+            
             optionsTx.forEach(opt => {
                 if (opt.status === 'OPEN') {
+                    let mkt = opt.market ? opt.market.toUpperCase() : 'US';
+                    let multi = opt.multiplier ? Number(opt.multiplier) : 100;
                     let currPrem = opt.current_premium !== undefined && opt.current_premium !== "" ? Number(opt.current_premium) : Number(opt.open_premium);
-                    let multi = Number(opt.qty) * 100;
-                    if (opt.strategy === 'Long Call' || opt.strategy === 'Long Put') optionsNLV += (currPrem * multi);
-                    else if (opt.strategy === 'Short Put') optionsNLV -= (currPrem * multi); // 負債
+                    let totalContracts = Number(opt.qty) * multi;
+                    
+                    let val = 0;
+                    if (opt.strategy === 'Long Call' || opt.strategy === 'Long Put') val = (currPrem * totalContracts);
+                    else if (opt.strategy === 'Short Put') val = -(currPrem * totalContracts); // 負債
+                    
+                    if (mkt === 'US') optionsNLV_US += val;
+                    else optionsNLV_HK += val;
                 }
             });
         
-            let totalOptionsLockedUsd = optionsLockedLC + optionsLockedSP + optionsLockedLP;
-            assetRealValuesUsd["OPTIONS"] = optionsNLV; 
+            let totalOptionsLockedUsd = optionsLockedLC_US + optionsLockedSP_US + optionsLockedLP_US;
+            let totalOptionsLockedHkd = optionsLockedLC_HK + optionsLockedSP_HK + optionsLockedLP_HK;
+            
+            assetRealValuesUsd["OPTIONS"] = optionsNLV_US; 
             effectiveAssetRealValuesUsd["OPTIONS"] = totalOptionsLockedUsd; 
+            
+            // HK 期權轉換為 USD
+            assetRealValuesUsd["OPTIONS_HK"] = optionsNLV_HK / exchangeRate; 
+            effectiveAssetRealValuesUsd["OPTIONS_HK"] = totalOptionsLockedHkd / exchangeRate; 
                         
-            const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd + optionsNLV; 
-            const totalEffectiveAssetUsd = totalEffectiveStockMarketValueUsd + totalCashUsd + totalOptionsLockedUsd;
+            const totalAssetUsd = totalStockMarketValueUsd + totalCashUsd + optionsNLV_US + (optionsNLV_HK / exchangeRate); 
+            const totalEffectiveAssetUsd = totalEffectiveStockMarketValueUsd + totalCashUsd + totalOptionsLockedUsd + (totalOptionsLockedHkd / exchangeRate);
         
             const currentYear = new Date().getFullYear();
             const yearInitial = parseFloat(perfConfig[currentYear + "_initial"]) || 0;
@@ -1670,64 +1747,72 @@
         }
 
         function renderOptionsTable() {
-            const tbody = document.getElementById('optionsTableBody'); tbody.innerHTML = '';
-            let activeOpts = optionsTx.filter(o => o.status === 'OPEN').sort((a,b) => new Date(b.open_date) - new Date(a.open_date));
+            const renderTable = (tbodyId, marketFilter) => {
+                const tbody = document.getElementById(tbodyId); tbody.innerHTML = '';
+                let activeOpts = optionsTx.filter(o => o.status === 'OPEN' && (o.market || 'US') === marketFilter).sort((a,b) => new Date(b.open_date) - new Date(a.open_date));
+                
+                if (activeOpts.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="12" class="px-4 py-6 text-center text-gray-400 font-medium bg-white">目前無未平倉合約。</td></tr>`;
+                    return;
+                }
+                
+                activeOpts.forEach(o => {
+                    let isLC = o.strategy === 'Long Call';
+                    let isLP = o.strategy === 'Long Put';
+                    let stratBadge = isLC ? `<span class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[10px] border border-blue-200">📈 Long Call</span>` : 
+                                     isLP ? `<span class="bg-pink-100 text-pink-800 px-1.5 py-0.5 rounded text-[10px] border border-pink-200">📉 Long Put</span>` :
+                                            `<span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[10px] border border-amber-200">📉 Short Put</span>`;
+                    
+                    let multi = o.multiplier ? Number(o.multiplier) : 100;
+                    let lockVal = (isLC || isLP) ? (o.open_premium * o.qty * multi) : (o.strike * o.qty * multi);
+                    let cleanOpen = o.open_date ? String(o.open_date).split('T')[0] : '';
+                    let cleanExp = o.expiry_date ? String(o.expiry_date).split('T')[0] : '';
+                    
+                    let currPrem = o.current_premium !== undefined && o.current_premium !== "" ? Number(o.current_premium) : Number(o.open_premium);
+                    let pnl = 0;
+                    if (isLC || isLP) pnl = (currPrem - o.open_premium) * o.qty * multi;      
+                    else pnl = (o.open_premium - currPrem) * o.qty * multi;                   
+                    
+                    let pnlSign = pnl > 0 ? '+' : '';
+                    let pnlColor = pnl >= 0 ? 'text-emerald-600' : 'text-rose-600';
+                    let currencySign = marketFilter === 'HK' ? 'HK$' : '$';
+                    
+                    let updateBtn = (userRole === 'PM' || userRole === 'Trader') 
+                        ? `<button onclick="promptUpdateOptionPremium('${o.id}', '${currPrem}')" class="ml-1 text-gray-400 hover:text-blue-600 font-bold" title="手動更新現價">✏️</button>` 
+                        : '';
             
-            if (activeOpts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="px-4 py-6 text-center text-gray-400 font-medium bg-white">目前無未平倉合約。</td></tr>`;
-                return;
-            }
-            
-            activeOpts.forEach(o => {
-                let isLC = o.strategy === 'Long Call';
-                let isLP = o.strategy === 'Long Put';
-                let stratBadge = isLC ? `<span class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[10px] border border-blue-200">📈 Long Call</span>` : 
-                                 isLP ? `<span class="bg-pink-100 text-pink-800 px-1.5 py-0.5 rounded text-[10px] border border-pink-200">📉 Long Put</span>` :
-                                        `<span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[10px] border border-amber-200">📉 Short Put</span>`;
-                let lockVal = (isLC || isLP) ? (o.open_premium * o.qty * 100) : (o.strike * o.qty * 100);
-                let cleanOpen = o.open_date ? String(o.open_date).split('T')[0] : '';
-                let cleanExp = o.expiry_date ? String(o.expiry_date).split('T')[0] : '';
-                
-                // 🔥 新增：浮動賺蝕計算邏輯
-                let currPrem = o.current_premium !== undefined && o.current_premium !== "" ? Number(o.current_premium) : Number(o.open_premium);
-                let pnl = 0;
-                if (isLC || isLP) pnl = (currPrem - o.open_premium) * o.qty * 100;      // Long Call / Long Put: 漲了賺錢 (期權金變貴)
-                else pnl = (o.open_premium - currPrem) * o.qty * 100;                   // Short Put: 跌了虧錢 (買回成本變高)
-                
-                let pnlSign = pnl > 0 ? '+' : '';
-                let pnlColor = pnl >= 0 ? 'text-emerald-600' : 'text-rose-600';
-                
-                // 鉛筆編輯按鈕
-                let updateBtn = (userRole === 'PM' || userRole === 'Trader') 
-                    ? `<button onclick="promptUpdateOptionPremium('${o.id}', '${currPrem}')" class="ml-1 text-gray-400 hover:text-blue-600 font-bold" title="手動更新現價">✏️</button>` 
-                    : '';
-        
-                tbody.innerHTML += `
-                    <tr class="hover:bg-purple-50/20 border-b border-gray-100 font-bold bg-white">
-                        <td class="px-2 py-3 text-gray-500">${cleanOpen}</td>
-                        <td class="px-2 py-3 text-gray-800 text-sm tracking-wide">${o.ticker}</td>
-                        <td class="px-2 py-3">${stratBadge}</td>
-                        <td class="px-2 py-3 text-center text-gray-700">${o.qty}</td>
-                        <td class="px-2 py-3 text-gray-800">$${Number(o.strike).toFixed(2)}</td>
-                        <td class="px-2 py-3 text-rose-600">${cleanExp}</td>
-                        <td class="px-2 py-3 text-blue-600">$${Number(o.open_premium).toFixed(2)}</td>
-                        
-                        <!-- 🔥 新增：最新期權金與浮動損益 -->
-                        <td class="px-2 py-3 text-emerald-600 flex items-center gap-1">$${currPrem.toFixed(2)} ${updateBtn}</td>
-                        <td class="px-2 py-3 font-black bg-gray-50 ${pnlColor}">${pnlSign}$${pnl.toLocaleString()}</td>
-                        
-                        <td class="px-2 py-3 text-indigo-700">$${lockVal.toLocaleString()} <span class="text-[9px] text-gray-400 block font-normal">${(isLC||isLP)?'風險金':'保證金'}</span></td>
-                        <td class="px-2 py-3 text-center flex justify-center items-center gap-2 mt-1">
-                            ${(userRole === 'PM' || userRole === 'Trader') ? `
-                                <button onclick="openCloseOptionModal('${o.id}', '${o.strategy}')" class="bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-3 py-1 rounded-md shadow text-[11px]">平倉</button>
-                                <button onclick="deleteOption('${o.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-sm" title="刪除此紀錄">🗑️</button>
-                            ` : `<span class="text-gray-300">唯讀</span>`}
-                        </td>
-                    </tr>
-                `;
-            });
-        }
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50 border-b border-gray-100 font-bold bg-white">
+                            <td class="px-2 py-3 text-gray-500">${cleanOpen}</td>
+                            <td class="px-2 py-3 text-gray-800 text-sm tracking-wide">
+                                ${o.ticker}
+                                ${o.combo_name ? `<span class="block text-[9px] text-indigo-500 font-normal">${o.combo_name}</span>` : ''}
+                                ${o.option_name ? `<span class="block text-[9px] text-gray-400 font-normal">${o.option_name}</span>` : ''}
+                            </td>
+                            <td class="px-2 py-3">${stratBadge}</td>
+                            <td class="px-2 py-3 text-center text-gray-700">${o.qty} <span class="text-[9px] text-gray-400 block">(x${multi})</span></td>
+                            <td class="px-2 py-3 text-gray-800">${currencySign}${Number(o.strike).toFixed(2)}</td>
+                            <td class="px-2 py-3 text-rose-600">${cleanExp}</td>
+                            <td class="px-2 py-3 text-blue-600">${currencySign}${Number(o.open_premium).toFixed(2)}</td>
+                            
+                            <td class="px-2 py-3 text-emerald-600 flex items-center gap-1">${currencySign}${currPrem.toFixed(2)} ${updateBtn}</td>
+                            <td class="px-2 py-3 font-black bg-gray-50 ${pnlColor}">${pnlSign}${currencySign}${pnl.toLocaleString()}</td>
+                            
+                            <td class="px-2 py-3 text-indigo-700">${currencySign}${lockVal.toLocaleString()} <span class="text-[9px] text-gray-400 block font-normal">${(isLC||isLP)?'風險金':'保證金'}</span></td>
+                            <td class="px-2 py-3 text-center flex justify-center items-center gap-2 mt-1">
+                                ${(userRole === 'PM' || userRole === 'Trader') ? `
+                                    <button onclick="openCloseOptionModal('${o.id}', '${o.strategy}')" class="bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-3 py-1 rounded-md shadow text-[11px]">平倉</button>
+                                    <button onclick="deleteOption('${o.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-sm" title="刪除此紀錄">🗑️</button>
+                                ` : `<span class="text-gray-300">唯讀</span>`}
+                            </td>
+                        </tr>
+                    `;
+                });
+            };
 
+            renderTable('optionsTableBodyUS', 'US');
+            renderTable('optionsTableBodyHK', 'HK');
+        }
         // ==========================================
         // 🚀 手動更新期權浮動現價
         // ==========================================
@@ -2699,10 +2784,10 @@
             }
         }
 
-        function addPerfYearRow(year = '', initial = 0, added = 0, usInitial = 0, exOptInitial = 0) {
+        function addPerfYearRow(year = '', initial = 0, added = 0, usInitial = 0, exOptInitial = 0, hkOptInitial = 0) {
             const container = document.getElementById('perfYearRowsContainer');
             container.insertAdjacentHTML('beforeend', `
-                <div class="perf-year-row grid grid-cols-5 gap-1.5 bg-white p-2 rounded border border-gray-200 shadow-sm mb-2">
+                <div class="perf-year-row grid grid-cols-6 gap-1.5 bg-white p-2 rounded border border-gray-200 shadow-sm mb-2">
                     <div>
                         <label class="block text-[9px] text-gray-400 mb-0.5">年份</label>
                         <input type="number" value="${year}" class="w-full text-center rounded border border-gray-300 font-bold py-1 sp-perf-year text-xs">
@@ -2716,8 +2801,12 @@
                         <input type="number" value="${usInitial}" class="w-full text-right rounded border border-gray-300 font-semibold text-indigo-600 py-1 sp-perf-us-initial text-xs">
                     </div>
                     <div>
-                        <label class="block text-[9px] text-amber-600 mb-0.5">敝除期權起始</label>
+                        <label class="block text-[9px] text-amber-600 mb-0.5">US期權起始</label>
                         <input type="number" value="${exOptInitial}" class="w-full text-right rounded border border-gray-300 font-semibold text-amber-600 py-1 sp-perf-exopt-initial text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] text-pink-600 mb-0.5">HK期權起始</label>
+                        <input type="number" value="${hkOptInitial}" class="w-full text-right rounded border border-gray-300 font-semibold text-pink-600 py-1 sp-perf-hkopt-initial text-xs">
                     </div>
                     <div>
                         <label class="block text-[9px] text-blue-600 mb-0.5">年度新增資金</label>
@@ -2761,13 +2850,13 @@
             let sortedYears = Array.from(uniqueYears).sort((a, b) => b - a);
             
             sortedYears.forEach(y => { 
-                // 讀取五種數據
                 addPerfYearRow(
                     y, 
                     perfConfig[y + "_initial"] || 0, 
                     perfConfig[y + "_added"] || 0,
                     perfConfig[y + "_us_initial"] || 0,
-                    perfConfig[y + "_ex_opt_initial"] || 0
+                    perfConfig[y + "_ex_opt_initial"] || 0,
+                    perfConfig[y + "_hk_opt_initial"] || 0
                 ); 
             });
 
@@ -2873,12 +2962,14 @@
                 const addVal = parseFloat(row.querySelector('.sp-perf-added').value) || 0;
                 const usInitVal = parseFloat(row.querySelector('.sp-perf-us-initial').value) || 0;
                 const exOptInitVal = parseFloat(row.querySelector('.sp-perf-exopt-initial').value) || 0;
+                const hkOptInitVal = parseFloat(row.querySelector('.sp-perf-hkopt-initial').value) || 0;
                 
                 if (y) { 
                     newPerfConfig[y + "_initial"] = initVal; 
                     newPerfConfig[y + "_added"] = addVal; 
                     newPerfConfig[y + "_us_initial"] = usInitVal;
                     newPerfConfig[y + "_ex_opt_initial"] = exOptInitVal;
+                    newPerfConfig[y + "_hk_opt_initial"] = hkOptInitVal;
                 }
             });
         
@@ -2901,8 +2992,8 @@
             
             const category = document.getElementById('txCategory').value;
             
-            // 🔥 如果是期權
-            if (category === 'OPTIONS') {
+            if (category === 'OPTIONS_US' || category === 'OPTIONS_HK') {
+                const optMarket = category === 'OPTIONS_HK' ? 'HK' : 'US';
                 const payload = {
                     action: 'ADD_OPTION_OPEN', token: userGoogleToken, id: Date.now().toString(),
                     date: document.getElementById('txDate').value,
@@ -2911,7 +3002,11 @@
                     strike: document.getElementById('optStrike').value,
                     expiry: document.getElementById('optExpiry').value,
                     qty: document.getElementById('optQty').value,
-                    premium: document.getElementById('optPremium').value
+                    premium: document.getElementById('optPremium').value,
+                    market: optMarket,
+                    combo_name: document.getElementById('optComboName').value.trim(),
+                    option_name: document.getElementById('optName').value.trim(),
+                    multiplier: document.getElementById('optMultiplier').value || (optMarket === 'HK' ? 1 : 100)
                 };
                 try {
                     await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
@@ -2919,7 +3014,7 @@
                     optionsTx.unshift(payload); 
                     renderComponents(); updateStatus("✅ 期權開倉成功！", "success");
                     document.getElementById('txForm').reset(); document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
-                    closeTxModal(); // 🔥 寫入成功後關閉彈窗
+                    closeTxModal(); 
                 } catch(e) { updateStatus("❌ 寫入失敗", "error"); } finally { submitBtn.disabled = false; }
                 return;
             }
@@ -2934,7 +3029,7 @@
                 await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(tx) });
                 transactions.unshift(tx); renderComponents(); updateStatus("✅ 交易寫入成功！", "success");
                 document.getElementById('stockCode').value = ''; document.getElementById('txPrice').value = ''; document.getElementById('txQty').value = ''; document.getElementById('cashAmount').value = '';
-                closeTxModal(); // 🔥 寫入成功後關閉彈窗
+                closeTxModal(); 
             } catch (error) { updateStatus("❌ 寫入失敗", "error"); } finally { submitBtn.disabled = false; }
         });
 
@@ -2980,107 +3075,111 @@
         }
 
         function renderPerformanceReport() {
-            let closedOps = optionsTx.filter(o => o.status && String(o.status).trim().toUpperCase() === 'CLOSED');
+            const renderReportForMarket = (marketFilter, prefix) => {
+                let closedOps = optionsTx.filter(o => o.status && String(o.status).trim().toUpperCase() === 'CLOSED' && (o.market || 'US') === marketFilter);
+                
+                let totalPnl = 0; let wins = 0; let premPaid = 0; let premRecv = 0;
+                let lcData = { pnl: 0, wins: 0, count: 0, holdDays: [], maxProf: {val:0, desc:''}, maxLoss: {val:0, desc:''} };
+                let lpData = { pnl: 0, wins: 0, count: 0, holdDays: [], maxProf: {val:0, desc:''}, maxLoss: {val:0, desc:''} };
+                let spData = { pnl: 0, wins: 0, count: 0, zeroCount: 0, maxProf: {val:0, desc:''}, maxLoss: {val:0, desc:''} };
             
-            let totalPnl = 0; let wins = 0; let premPaid = 0; let premRecv = 0;
-            let lcData = { pnl: 0, wins: 0, count: 0, holdDays: [], maxProf: {val:0, desc:''}, maxLoss: {val:0, desc:''} };
-            let lpData = { pnl: 0, wins: 0, count: 0, holdDays: [], maxProf: {val:0, desc:''}, maxLoss: {val:0, desc:''} };
-            let spData = { pnl: 0, wins: 0, count: 0, zeroCount: 0, maxProf: {val:0, desc:''}, maxLoss: {val:0, desc:''} };
-        
-            const tradeTable = document.getElementById('tradeLogTable'); 
-            tradeTable.innerHTML = '';
-        
-            closedOps.sort((a,b) => new Date(b.close_date) - new Date(a.close_date)).forEach(o => {
-                let isLC = String(o.strategy).trim() === 'Long Call';
-                let isLP = String(o.strategy).trim() === 'Long Put';
-                let multi = (Number(o.qty) || 1) * 100;
-                let pnl = 0;
-                let days = Math.floor((new Date(o.close_date) - new Date(o.open_date)) / (1000 * 60 * 60 * 24));
-                if(days < 0) days = 0;
-        
-                if (isLC || isLP) {
-                    pnl = (Number(o.close_premium) - Number(o.open_premium)) * multi;
-                    premPaid += Number(o.open_premium) * multi;
-                    if (isLC) {
-                        lcData.count++; lcData.pnl += pnl; lcData.holdDays.push(days);
-                        if(pnl > 0) { wins++; lcData.wins++; }
-                        if(pnl > lcData.maxProf.val) { lcData.maxProf.val = pnl; lcData.maxProf.desc = `${o.ticker} (+$${pnl})`; }
-                        if(pnl < lcData.maxLoss.val) { lcData.maxLoss.val = pnl; lcData.maxLoss.desc = `${o.ticker} (-$${Math.abs(pnl)})`; }
+                const tradeTable = document.getElementById(`tradeLogTable${prefix}`); 
+                tradeTable.innerHTML = '';
+                let currencySign = marketFilter === 'HK' ? 'HK$' : '$';
+            
+                closedOps.sort((a,b) => new Date(b.close_date) - new Date(a.close_date)).forEach(o => {
+                    let isLC = String(o.strategy).trim() === 'Long Call';
+                    let isLP = String(o.strategy).trim() === 'Long Put';
+                    let multi = o.multiplier ? Number(o.multiplier) : 100;
+                    let multiplier = multi * (Number(o.qty) || 1);
+                    let pnl = 0;
+                    let days = Math.floor((new Date(o.close_date) - new Date(o.open_date)) / (1000 * 60 * 60 * 24));
+                    if(days < 0) days = 0;
+            
+                    if (isLC || isLP) {
+                        pnl = (Number(o.close_premium) - Number(o.open_premium)) * multiplier;
+                        premPaid += Number(o.open_premium) * multiplier;
+                        if (isLC) {
+                            lcData.count++; lcData.pnl += pnl; lcData.holdDays.push(days);
+                            if(pnl > 0) { wins++; lcData.wins++; }
+                            if(pnl > lcData.maxProf.val) { lcData.maxProf.val = pnl; lcData.maxProf.desc = `${o.ticker} (+${currencySign}${pnl})`; }
+                            if(pnl < lcData.maxLoss.val) { lcData.maxLoss.val = pnl; lcData.maxLoss.desc = `${o.ticker} (-${currencySign}${Math.abs(pnl)})`; }
+                        } else {
+                            lpData.count++; lpData.pnl += pnl; lpData.holdDays.push(days);
+                            if(pnl > 0) { wins++; lpData.wins++; }
+                            if(pnl > lpData.maxProf.val) { lpData.maxProf.val = pnl; lpData.maxProf.desc = `${o.ticker} (+${currencySign}${pnl})`; }
+                            if(pnl < lpData.maxLoss.val) { lpData.maxLoss.val = pnl; lpData.maxLoss.desc = `${o.ticker} (-${currencySign}${Math.abs(pnl)})`; }
+                        }
                     } else {
-                        lpData.count++; lpData.pnl += pnl; lpData.holdDays.push(days);
-                        if(pnl > 0) { wins++; lpData.wins++; }
-                        if(pnl > lpData.maxProf.val) { lpData.maxProf.val = pnl; lpData.maxProf.desc = `${o.ticker} (+$${pnl})`; }
-                        if(pnl < lpData.maxLoss.val) { lpData.maxLoss.val = pnl; lpData.maxLoss.desc = `${o.ticker} (-$${Math.abs(pnl)})`; }
+                        pnl = (Number(o.open_premium) - Number(o.close_premium)) * multiplier;
+                        premRecv += Number(o.open_premium) * multiplier;
+                        spData.count++; spData.pnl += pnl;
+                        if(pnl > 0) { wins++; spData.wins++; }
+                        if(Number(o.close_premium) === 0) spData.zeroCount++;
+                        if(pnl > spData.maxProf.val) { spData.maxProf.val = pnl; spData.maxProf.desc = `${o.ticker} (+${currencySign}${pnl})`; }
+                        if(pnl < spData.maxLoss.val) { spData.maxLoss.val = pnl; spData.maxLoss.desc = `${o.ticker} (-${currencySign}${Math.abs(pnl)})`; }
                     }
-                } else {
-                    pnl = (Number(o.open_premium) - Number(o.close_premium)) * multi;
-                    premRecv += Number(o.open_premium) * multi;
-                    spData.count++; spData.pnl += pnl;
-                    if(pnl > 0) { wins++; spData.wins++; }
-                    if(Number(o.close_premium) === 0) spData.zeroCount++;
-                    if(pnl > spData.maxProf.val) { spData.maxProf.val = pnl; spData.maxProf.desc = `${o.ticker} (+$${pnl})`; }
-                    if(pnl < spData.maxLoss.val) { spData.maxLoss.val = pnl; spData.maxLoss.desc = `${o.ticker} (-$${Math.abs(pnl)})`; }
+                    totalPnl += pnl;
+            
+                    let cleanOpen = o.open_date ? String(o.open_date).split('T')[0] : '---';
+                    let cleanClose = o.close_date ? String(o.close_date).split('T')[0] : '---';
+            
+                    tradeTable.innerHTML += `
+                        <tr class="hover:bg-gray-50 border-b border-gray-100 font-medium">
+                            <td class="px-3 py-2 text-gray-800"><span class="font-bold">${o.ticker}</span> <span class="text-[10px] text-gray-500 block">${o.strategy} (行使: ${currencySign}${o.strike})</span></td>
+                            <td class="px-3 py-2 text-gray-500 text-[10px]">${cleanOpen} ➔ ${cleanClose}</td>
+                            <td class="px-3 py-2 text-blue-600">${currencySign}${Number(o.open_premium).toFixed(2)}</td>
+                            <td class="px-3 py-2 text-purple-600">${currencySign}${Number(o.close_premium).toFixed(2)}</td>
+                            <td class="px-3 py-2 font-black ${pnl >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${pnl >= 0 ? '+':''}${currencySign}${pnl.toLocaleString()}</td>
+                            <td class="px-3 py-2 text-gray-500">${days} 天</td>
+                            <td class="px-3 py-2 text-center">
+                                ${(userRole === 'PM' || userRole === 'Trader') ? `<button onclick="deleteOption('${o.id}')" class="text-rose-500 hover:text-rose-700 font-bold hover:underline text-xs">刪除</button>` : `<span class="text-gray-300 text-xs">唯讀</span>`}
+                            </td>
+                        </tr>
+                    `;
+                });
+            
+                if (closedOps.length === 0) {
+                    tradeTable.innerHTML = `<tr><td colspan="7" class="px-4 py-6 text-center text-gray-400">尚無平倉歷史紀錄。</td></tr>`;
                 }
-                totalPnl += pnl;
-        
-                let cleanOpen = o.open_date ? String(o.open_date).split('T')[0] : '---';
-                let cleanClose = o.close_date ? String(o.close_date).split('T')[0] : '---';
-        
-                tradeTable.innerHTML += `
-                    <tr class="hover:bg-gray-50 border-b border-gray-100 font-medium">
-                        <td class="px-3 py-2 text-gray-800"><span class="font-bold">${o.ticker}</span> <span class="text-[10px] text-gray-500 block">${o.strategy} (行使: $${o.strike})</span></td>
-                        <td class="px-3 py-2 text-gray-500 text-[10px]">${cleanOpen} ➔ ${cleanClose}</td>
-                        <td class="px-3 py-2 text-blue-600">$${Number(o.open_premium).toFixed(2)}</td>
-                        <td class="px-3 py-2 text-purple-600">$${Number(o.close_premium).toFixed(2)}</td>
-                        <td class="px-3 py-2 font-black ${pnl >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${pnl >= 0 ? '+':''}$${pnl.toLocaleString()}</td>
-                        <td class="px-3 py-2 text-gray-500">${days} 天</td>
-                        <td class="px-3 py-2 text-center">
-                            ${(userRole === 'PM' || userRole === 'Trader') ? `<button onclick="deleteOption('${o.id}')" class="text-rose-500 hover:text-rose-700 font-bold hover:underline text-xs">刪除</button>` : `<span class="text-gray-300 text-xs">唯讀</span>`}
-                        </td>
-                    </tr>
+            
+                let totalCount = closedOps.length;
+                document.getElementById(`reportNetPl${prefix}`).innerText = `${currencySign}${totalPnl.toLocaleString()}`;
+                document.getElementById(`reportNetPl${prefix}`).className = `text-3xl font-black mt-2 ${totalPnl >= 0 ? 'text-indigo-600' : 'text-rose-600'}`;
+                document.getElementById(`reportWinRate${prefix}`).innerText = `${totalCount > 0 ? ((wins/totalCount)*100).toFixed(1) : 0.0}%`;
+                document.getElementById(`reportTradeCount${prefix}`).innerText = `${wins} 勝 / ${totalCount} 總單數`;
+                document.getElementById(`reportPremPaid${prefix}`).innerText = `${currencySign}${premPaid.toLocaleString()}`;
+                document.getElementById(`reportPremRecv${prefix}`).innerText = `${currencySign}${premRecv.toLocaleString()}`;
+            
+                let avgDaysLC = lcData.count > 0 ? (lcData.holdDays.reduce((a,b)=>a+b,0) / lcData.count).toFixed(1) : 0;
+                document.getElementById(`reportLongCallBody${prefix}`).innerHTML = `
+                    <div class="flex justify-between border-b pb-1"><span>總淨損益</span><span class="font-bold ${lcData.pnl>=0?'text-emerald-600':'text-rose-600'}">${lcData.pnl>=0?'+':''}${currencySign}${lcData.pnl.toLocaleString()}</span></div>
+                    <div class="flex justify-between border-b pb-1"><span>勝率</span><span class="font-bold">${lcData.count>0?((lcData.wins/lcData.count)*100).toFixed(1):0}%</span></div>
+                    <div class="flex justify-between border-b pb-1"><span>平均持倉天數</span><span class="font-bold">${avgDaysLC} 天</span></div>
+                    <div class="flex justify-between border-b pb-1"><span>最大盈利單</span><span class="font-bold text-emerald-600">${lcData.maxProf.desc || '無'}</span></div>
+                    <div class="flex justify-between"><span>最大虧損單</span><span class="font-bold text-rose-600">${lcData.maxLoss.desc || '無'}</span></div>
                 `;
-            });
-        
-            if (closedOps.length === 0) {
-                tradeTable.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-gray-400">尚無平倉歷史紀錄。</td></tr>`;
-            }
-        
-            let totalCount = closedOps.length;
-            document.getElementById('reportNetPl').innerText = `USD $${totalPnl.toLocaleString()}`;
-            document.getElementById('reportNetPl').className = `text-3xl font-black mt-2 ${totalPnl >= 0 ? 'text-indigo-600' : 'text-rose-600'}`;
-            document.getElementById('reportWinRate').innerText = `${totalCount > 0 ? ((wins/totalCount)*100).toFixed(1) : 0.0}%`;
-            document.getElementById('reportTradeCount').innerText = `${wins} 勝 / ${totalCount} 總單數`;
-            document.getElementById('reportPremPaid').innerText = `$${premPaid.toLocaleString()}`;
-            document.getElementById('reportPremRecv').innerText = `$${premRecv.toLocaleString()}`;
-        
-            // LC Body
-            let avgDaysLC = lcData.count > 0 ? (lcData.holdDays.reduce((a,b)=>a+b,0) / lcData.count).toFixed(1) : 0;
-            document.getElementById('reportLongCallBody').innerHTML = `
-                <div class="flex justify-between border-b pb-1"><span>總淨損益</span><span class="font-bold ${lcData.pnl>=0?'text-emerald-600':'text-rose-600'}">${lcData.pnl>=0?'+':''}$${lcData.pnl.toLocaleString()}</span></div>
-                <div class="flex justify-between border-b pb-1"><span>勝率</span><span class="font-bold">${lcData.count>0?((lcData.wins/lcData.count)*100).toFixed(1):0}%</span></div>
-                <div class="flex justify-between border-b pb-1"><span>平均持倉天數</span><span class="font-bold">${avgDaysLC} 天</span></div>
-                <div class="flex justify-between border-b pb-1"><span>最大盈利單</span><span class="font-bold text-emerald-600">${lcData.maxProf.desc || '無'}</span></div>
-                <div class="flex justify-between"><span>最大虧損單</span><span class="font-bold text-rose-600">${lcData.maxLoss.desc || '無'}</span></div>
-            `;
-        
-            // LP Body
-            let avgDaysLP = lpData.count > 0 ? (lpData.holdDays.reduce((a,b)=>a+b,0) / lpData.count).toFixed(1) : 0;
-            document.getElementById('reportLongPutBody').innerHTML = `
-                <div class="flex justify-between border-b pb-1"><span>總淨損益</span><span class="font-bold ${lpData.pnl>=0?'text-emerald-600':'text-rose-600'}">${lpData.pnl>=0?'+':''}$${lpData.pnl.toLocaleString()}</span></div>
-                <div class="flex justify-between border-b pb-1"><span>勝率</span><span class="font-bold">${lpData.count>0?((lpData.wins/lpData.count)*100).toFixed(1):0}%</span></div>
-                <div class="flex justify-between border-b pb-1"><span>平均持倉天數</span><span class="font-bold">${avgDaysLP} 天</span></div>
-                <div class="flex justify-between border-b pb-1"><span>最大盈利單</span><span class="font-bold text-emerald-600">${lpData.maxProf.desc || '無'}</span></div>
-                <div class="flex justify-between"><span>最大虧損單</span><span class="font-bold text-rose-600">${lpData.maxLoss.desc || '無'}</span></div>
-            `;
-        
-            // SP Body
-            document.getElementById('reportShortPutBody').innerHTML = `
-                <div class="flex justify-between border-b pb-1"><span>總淨損益</span><span class="font-bold ${spData.pnl>=0?'text-emerald-600':'text-rose-600'}">${spData.pnl>=0?'+':''}$${spData.pnl.toLocaleString()}</span></div>
-                <div class="flex justify-between border-b pb-1"><span>勝率</span><span class="font-bold">${spData.count>0?((spData.wins/spData.count)*100).toFixed(1):0}%</span></div>
-                <div class="flex justify-between border-b pb-1"><span>收乾歸零比例 (Premium=0)</span><span class="font-bold text-emerald-600">${spData.count>0?((spData.zeroCount/spData.count)*100).toFixed(1):0}%</span></div>
-                <div class="flex justify-between border-b pb-1"><span>最大盈利單</span><span class="font-bold text-emerald-600">${spData.maxProf.desc || '無'}</span></div>
-                <div class="flex justify-between"><span>最大虧損單</span><span class="font-bold text-rose-600">${spData.maxLoss.desc || '無'}</span></div>
-            `;
+            
+                let avgDaysLP = lpData.count > 0 ? (lpData.holdDays.reduce((a,b)=>a+b,0) / lpData.count).toFixed(1) : 0;
+                document.getElementById(`reportLongPutBody${prefix}`).innerHTML = `
+                    <div class="flex justify-between border-b pb-1"><span>總淨損益</span><span class="font-bold ${lpData.pnl>=0?'text-emerald-600':'text-rose-600'}">${lpData.pnl>=0?'+':''}${currencySign}${lpData.pnl.toLocaleString()}</span></div>
+                    <div class="flex justify-between border-b pb-1"><span>勝率</span><span class="font-bold">${lpData.count>0?((lpData.wins/lpData.count)*100).toFixed(1):0}%</span></div>
+                    <div class="flex justify-between border-b pb-1"><span>平均持倉天數</span><span class="font-bold">${avgDaysLP} 天</span></div>
+                    <div class="flex justify-between border-b pb-1"><span>最大盈利單</span><span class="font-bold text-emerald-600">${lpData.maxProf.desc || '無'}</span></div>
+                    <div class="flex justify-between"><span>最大虧損單</span><span class="font-bold text-rose-600">${lpData.maxLoss.desc || '無'}</span></div>
+                `;
+            
+                document.getElementById(`reportShortPutBody${prefix}`).innerHTML = `
+                    <div class="flex justify-between border-b pb-1"><span>總淨損益</span><span class="font-bold ${spData.pnl>=0?'text-emerald-600':'text-rose-600'}">${spData.pnl>=0?'+':''}${currencySign}${spData.pnl.toLocaleString()}</span></div>
+                    <div class="flex justify-between border-b pb-1"><span>勝率</span><span class="font-bold">${spData.count>0?((spData.wins/spData.count)*100).toFixed(1):0}%</span></div>
+                    <div class="flex justify-between border-b pb-1"><span>收乾歸零比例 (Premium=0)</span><span class="font-bold text-emerald-600">${spData.count>0?((spData.zeroCount/spData.count)*100).toFixed(1):0}%</span></div>
+                    <div class="flex justify-between border-b pb-1"><span>最大盈利單</span><span class="font-bold text-emerald-600">${spData.maxProf.desc || '無'}</span></div>
+                    <div class="flex justify-between"><span>最大虧損單</span><span class="font-bold text-rose-600">${spData.maxLoss.desc || '無'}</span></div>
+                `;
+            };
+
+            renderReportForMarket('US', '_US');
+            renderReportForMarket('HK', '_HK');
         }
 
         // ==========================================
