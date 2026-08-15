@@ -130,4 +130,4 @@ def run_python1_largecap(start_date, end_date):
     print("==================================================\n")
 
 if __name__ == '__main__':
-    run_python1_largecap('2026-07-01', '2026-07-31')
+    run_python1_largecap('2026-08-10', '2026-08-14')
