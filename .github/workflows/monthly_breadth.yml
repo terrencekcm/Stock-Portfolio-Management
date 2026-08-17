@@ -1,13 +1,24 @@
-name: Monthly Market Breadth Run
+name: Market Breadth Run
 
 on:
+  # 1. 手動觸發：允許在 GitHub 網頁版自訂開始與結束日期
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: '開始日期 (YYYY-MM-DD，留空則自動計算上一週)'
+        required: false
+        default: ''
+      end_date:
+        description: '結束日期 (YYYY-MM-DD，留空則自動計算上一週)'
+        required: false
+        default: ''
+
+  # 2. 自動排程：每週六 00:00 UTC (香港時間週六 08:00，美股週五收盤後)
   schedule:
-    # 每月 1 號 UTC 00:00 (香港時間早上 8:00) 自動執行
-    - cron: '0 0 1 * *'
-  workflow_dispatch: # 允許網頁手動點擊執行
+    - cron: '0 0 * * 6'
 
 jobs:
-  run-monthly-breadth:
+  run-market-breadth:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,12 +35,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # 1. 執行 Python 1 (S&P 500 + Nasdaq 100)
+    # 執行 Python 1，並傳入網頁輸入的 start_date 與 end_date 變數
     - name: Run Python 1 (Large Cap & Tech)
       run: |
-        python market_breadth_SP500_NAS100.py
+        python market_breadth_SP500_NAS100.py --start "${{ inputs.start_date }}" --end "${{ inputs.end_date }}"
 
-    # 2. 執行 Python 2 (Russell 2000)
-    - name: Run Python 2 (Russell 2000 Small Cap)
+    # 執行 Python 2，並傳入網頁輸入的 start_date 與 end_date 變數
+    - name: Run Python 2 (Russell 2000)
       run: |
-        python market_breadth_Russell2000.py
+        python market_breadth_Russell2000.py --start "${{ inputs.start_date }}" --end "${{ inputs.end_date }}"
