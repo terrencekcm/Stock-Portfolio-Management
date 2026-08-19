@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>持股入市決策週報 | 2026.08.16 – 08.22</title>
+<style>
+  :root{
+    --bg:#0A0E17;
+    --surface:#12161f;
+    --surface-2:#161b26;
+    --border:#232938;
+    --text:#e7ebf3;
+    --text-dim:#9aa4b8;
+    --text-faint:#5a6272;
+    --green:#3ecf8e;
+    --green-bg:rgba(62,207,142,.10);
+    --green-border:rgba(62,207,142,.35);
+    --red:#e5626b;
+    --red-bg:rgba(229,98,107,.10);
+    --red-border:rgba(229,98,107,.35);
+    --amber:#d8a94b;
+    --amber-bg:rgba(216,169,75,.10);
+    --amber-border:rgba(216,169,75,.35);
+    --accent:#6c8cff;
+    --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 500px at 10% -10%, rgba(108,140,255,.10), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, rgba(216,169,75,.08), transparent 55%),
+      var(--bg);
+    color:var(--text); font-family:var(--sans); line-height:1.65; padding-bottom:80px;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px;}
+
+  header.hero{padding:50px 20px 30px;text-align:center;border-bottom:1px solid var(--border);margin-bottom:36px;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--accent);
+    background:rgba(108,140,255,.1);border:1px solid rgba(108,140,255,.3);padding:6px 14px;border-radius:999px;text-transform:uppercase;margin-bottom:16px;}
+  h1{font-size:clamp(24px,3.6vw,34px);margin:0 0 10px;background:linear-gradient(90deg,#fff,#c9d3f2 60%,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .subtitle{color:var(--text-dim);font-size:14px;max-width:680px;margin:0 auto;}
+  .period-badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+  .badge{border:1px solid var(--border);background:var(--surface);border-radius:6px;padding:7px 14px;font-family:var(--mono);font-size:11.5px;color:var(--text-dim);}
+  .badge b{color:var(--text);}
+
+  .section{margin:44px 0;}
+  .section-title{display:flex;align-items:center;gap:10px;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:16px;}
+  .section-title::before{content:"";width:22px;height:2px;background:var(--accent);display:inline-block;}
+  h2.h{font-size:20px;margin:0 0 4px;color:#fff;}
+
+  .card{background:linear-gradient(180deg,var(--surface),var(--surface-2));border:1px solid var(--border);border-radius:14px;padding:22px 24px;}
+  .card p{font-size:13.6px;color:#cbd2e3;margin-bottom:10px;}
+  .card p:last-child{margin-bottom:0;}
+  .card p b{color:#fff;}
+
+  .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media(max-width:900px){.summary-grid{grid-template-columns:1fr;}}
+  .summary-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+  .summary-card h3{font-size:12.5px;color:var(--amber);margin-bottom:8px;letter-spacing:.02em;}
+  .summary-card p{font-size:12.8px;color:var(--text-dim);margin-bottom:6px;}
+  .summary-card .score{font-family:var(--mono);font-size:20px;font-weight:700;color:#fff;}
+
+  /* Relative strength table */
+  .rs-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;}
+  table.rs{border-collapse:collapse;width:100%;min-width:640px;font-family:var(--mono);font-size:12.5px;}
+  table.rs th{background:var(--surface-2);color:var(--text-dim);font-weight:600;text-align:right;padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  table.rs th:first-child{text-align:left;}
+  table.rs td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--border);color:var(--text);}
+  table.rs td:first-child{text-align:left;font-family:var(--sans);font-weight:700;color:#fff;}
+  table.rs tr:last-child td{border-bottom:none;}
+  .pos{color:var(--green);} .neg{color:var(--red);}
+
+  /* Decision cards */
+  .rank-group{margin-bottom:34px;}
+  .rank-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .rank-num{font-family:var(--mono);font-size:22px;font-weight:800;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .rank-head h3{font-size:17px;color:#fff;}
+  .rank-head .desc{font-size:12.5px;color:var(--text-dim);margin-left:auto;text-align:right;}
+
+  .rank-1 .rank-num{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+  .rank-2 .rank-num{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);}
+  .rank-3 .rank-num{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+
+  .stock-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+  @media(max-width:800px){.stock-grid{grid-template-columns:1fr;}}
+
+  .stock-card{border-radius:12px;padding:16px 18px;border:1px solid var(--border);background:var(--surface);position:relative;overflow:hidden;}
+  .stock-card::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;}
+  .stock-card.green::before{background:var(--green);}
+  .stock-card.amber::before{background:var(--amber);}
+  .stock-card.red::before{background:var(--red);}
+
+  .stock-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:10px;}
+  .stock-name{font-size:15px;font-weight:800;color:#fff;}
+  .stock-sub{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);margin-top:2px;}
+  .stock-tag{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:20px;white-space:nowrap;flex:0 0 auto;}
+  .stock-tag.green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+  .stock-tag.amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);}
+  .stock-tag.red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+
+  .stock-metrics{display:flex;gap:14px;margin:10px 0;font-family:var(--mono);font-size:11.5px;}
+  .stock-metrics span{color:var(--text-dim);}
+  .stock-metrics b{color:var(--text);}
+
+  .stock-reason{font-size:12.8px;color:#cbd2e3;line-height:1.6;}
+
+  /* two column outlook */
+  .outlook-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:720px){.outlook-grid{grid-template-columns:1fr;}}
+  .outlook-col{border-radius:14px;padding:20px 22px;border:1px solid var(--border);}
+  .outlook-col.good{background:linear-gradient(180deg, rgba(62,207,142,.07), transparent 60%),var(--surface);}
+  .outlook-col.bad{background:linear-gradient(180deg, rgba(229,98,107,.07), transparent 60%),var(--surface);}
+  .outlook-col h3{margin:0 0 12px;font-size:15px;color:#fff;}
+  .outlook-col ul{margin:0;padding-left:18px;}
+  .outlook-col li{margin-bottom:8px;font-size:13px;color:#cbd2e3;}
+
+  footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10.5px;color:var(--text-faint);line-height:1.9;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">Portfolio Deployment Desk · Weekly Sync</div>
+    <h1>持股入市決策週報</h1>
+    <p class="subtitle">整合美股宏觀事件、市場內部廣度與信用流動性、板塊／行業輪動三份週報，交叉 IXIC 相對強弱數據，對 18 檔持股給出下週入市優先序建議。</p>
+    <div class="period-badges">
+      <div class="badge">數據分析週期 <b>2026.08.09 – 08.15</b></div>
+      <div class="badge">入市決策週期 <b>2026.08.16 – 08.22</b></div>
+    </div>
+  </header>
+
+  <!-- ============ 宏觀底色摘要 ============ -->
+  <div class="section">
+    <div class="section-title">三份報告核心結論</div>
+    <h2 class="h">宏觀底色：風險偏好上升，但結構性風險未同步下降</h2>
+    <div class="summary-grid" style="margin-top:16px;">
+      <div class="summary-card">
+        <h3>① 宏觀事件週報</h3>
+        <div class="score">62 / 100</div>
+        <p style="margin-top:8px;">CPI/PPI 降溫、S&amp;P 500 創高並擴散至小型股，但美債標售利率創近20年新高、9月FOMC鷹派尾部風險未解、霍爾木茲海峽對峙未消除。Nvidia 算力融資平台是雙面刃，CDS 利差已走闊。</p>
+      </div>
+      <div class="summary-card">
+        <h3>② 市場廣度與信用流動性</h3>
+        <div class="score" style="color:var(--amber);">73 / 100</div>
+        <p style="margin-top:8px;">大型股與中小盤 NH Ratio 均逾九成，廣度健康擴散；但突破留存率僅約51%，「量強質弱」，高檔追價效率轉弱。信用利差極窄、MOVE降溫，屬「安逸但脆弱」結構。</p>
+      </div>
+      <div class="summary-card">
+        <h3>③ 板塊／行業輪動</h3>
+        <div class="score" style="color:var(--accent);">降頻整理</div>
+        <p style="margin-top:8px;">全樣本量能集體退潮，非個別出貨。資金分裂為兩路：低調承接深跌超賣名單（NASA/AIPO/ICLN），對高基期擁擠板塊（CIBR/SMH）按兵不動。XLF 趨勢延續乾淨，XLY 結構性熊市。</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <p><b>綜合研判：</b>三份報告共同指向同一個訊號——「指數創高、廣度尚可，但『質』的面向（突破留存率、板塊量能）正在同步走弱」。這是典型多頭趨勢中段的「消化期」，尚不足以轉空，但也不是無腦全面加碼的時點。入市策略應<b>聚焦於個股／子產業層級有獨立強勢確認訊號的標的</b>（尤其是量價同步、相對 IXIC 持續跑贏者），對僅靠指數/板塊 beta 推動、缺乏個股獨立確認的持股則應降低優先序，等待下週量能與 08/19 FOMC 會議紀要、08/26 Nvidia 財報等關鍵事件驗證。</p>
+    </div>
+  </div>
+
+  <!-- ============ IXIC 相對強弱表 ============ -->
+  <div class="section">
+    <div class="section-title">持股對 IXIC 相對強弱（08/09–08/15）</div>
+    <h2 class="h">Last Friday (07/14) → 07/29 前底 → 08/07 → 上星期初比較</h2>
+    <p style="color:var(--text-dim);font-size:13px;margin:8px 0 16px;">「比 IXIC 前底」= 個股自 2026/07/29（前波低點）以來的漲幅相對定位；「比上星期初」= 本週（08/09–08/15）相對於週初的變化，用以判斷短線動能方向。</p>
+    <div class="rs-table-wrap">
+      <table class="rs">
+        <thead>
+          <tr><th>股票</th><th>07/14</th><th>07/29</th><th>比IXIC前底</th><th>08/07</th><th>比上星期初</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>PLTR</td><td>174.04</td><td>123</td><td class="pos">+41.50%</td><td>172.01</td><td class="pos">+1.18%</td></tr>
+          <tr><td>BE</td><td>229.94</td><td>163.75</td><td class="pos">+40.42%</td><td>219.34</td><td class="pos">+4.83%</td></tr>
+          <tr><td>MSFT</td><td>495.4</td><td>390.54</td><td class="pos">+26.85%</td><td>499.99</td><td class="neg">-0.92%</td></tr>
+          <tr><td>RMBS</td><td>100.85</td><td>82.81</td><td class="pos">+21.78%</td><td>101.52</td><td class="neg">-0.66%</td></tr>
+          <tr><td>VRT</td><td>293.84</td><td>223.04</td><td class="pos">+31.74%</td><td>272.4</td><td class="pos">+7.87%</td></tr>
+          <tr><td>MU</td><td>971.66</td><td>739</td><td class="pos">+31.48%</td><td>877.57</td><td class="pos">+10.72%</td></tr>
+          <tr><td>NVDA</td><td>225.16</td><td>190.01</td><td class="pos">+18.50%</td><td>223.96</td><td class="pos">+0.54%</td></tr>
+          <tr><td>PANW</td><td>384.27</td><td>314.15</td><td class="pos">+22.32%</td><td>363.86</td><td class="pos">+5.61%</td></tr>
+          <tr><td>AVGO</td><td>392.99</td><td>370.32</td><td class="pos">+6.12%</td><td>427.76</td><td class="neg">-8.13%</td></tr>
+          <tr><td>TSM</td><td>426.35</td><td>374.67</td><td class="pos">+13.79%</td><td>420.04</td><td class="pos">+1.50%</td></tr>
+          <tr><td>ISRG</td><td>394.51</td><td>353.1</td><td class="pos">+11.73%</td><td>378.81</td><td class="pos">+4.14%</td></tr>
+          <tr><td>GRMN</td><td>310.2</td><td>294.83</td><td class="pos">+5.21%</td><td>310.89</td><td class="neg">-0.22%</td></tr>
+          <tr><td>GOOG</td><td>343.54</td><td>335.76</td><td class="pos">+2.32%</td><td>353.47</td><td class="neg">-2.81%</td></tr>
+          <tr><td>MCD</td><td>272.83</td><td>271.52</td><td class="pos">+0.48%</td><td>274.48</td><td class="neg">-0.60%</td></tr>
+          <tr><td>KO</td><td>87.71</td><td>89.08</td><td class="neg">-1.54%</td><td>87.05</td><td class="pos">+0.76%</td></tr>
+          <tr><td>AAPL</td><td>305.93</td><td>338.19</td><td class="neg">-9.54%</td><td>313.33</td><td class="neg">-2.36%</td></tr>
+          <tr><td>NBIX</td><td>152.72</td><td>180.79</td><td class="neg">-15.53%</td><td>163.41</td><td class="neg">-6.54%</td></tr>
+          <tr><td>GEV</td><td>1063.25</td><td>900.28</td><td class="pos">+18.10%</td><td>990.32</td><td class="pos">+7.36%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ 決策矩陣 ============ -->
+  <div class="section">
+    <div class="section-title">下週入市優先序決策</div>
+    <h2 class="h">18 檔持股排序與部署建議</h2>
+
+    <!-- Priority 1 -->
+    <div class="rank-group" style="margin-top:24px;">
+      <div class="rank-head rank-1">
+        <div class="rank-num">1</div>
+        <h3>非常優先入市（綠色・建議部署）</h3>
+        <div class="desc">個股獨立強勢確認 + 子產業/板塊訊號同向</div>
+      </div>
+      <div class="stock-grid">
+
+        <div class="stock-card green">
+          <div class="stock-top"><div><div class="stock-name">MU · Micron</div><div class="stock-sub">半導體 / SMH</div></div><div class="stock-tag green">綠燈</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+31.48%</b></span><span>比週初 <b class="pos">+10.72%</b></span></div>
+          <div class="stock-reason">本週漲幅為全持股最強，明顯跑贏 SMH ETF 本身（SMH 1M -17.62%、量能沉默方向未明）。這代表 MU 走勢已脫離半導體 ETF 的普遍疲弱，屬個股獨立催化（記憶體/HBM 漲價敘事）。建議優先部署，但因 SMH 板塊量能尚未確認，倉位宜分批，並留意 SMH 是否放量止穩作為加碼驗證。</div>
+        </div>
+
+        <div class="stock-card green">
+          <div class="stock-top"><div><div class="stock-name">PLTR · Palantir</div><div class="stock-sub">AI 軟體 / IGV</div></div><div class="stock-tag green">綠燈</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+41.50%</b></span><span>比週初 <b class="pos">+1.18%</b></span></div>
+          <div class="stock-reason">全持股中自前底以來相對強度最高，且本週持續正向推進而非透支回落。所屬 IGV（系統軟件/AI軟件）板塊呈「良性回調消化」，屬 AI 資本開支「軟體變現」端，訂閱制現金流敘事具韌性，與 SMH 硬體端的疲弱形成正向對比。</div>
+        </div>
+
+        <div class="stock-card green">
+          <div class="stock-top"><div><div class="stock-name">GEV · GE Vernova</div><div class="stock-sub">電網 / 電力設備</div></div><div class="stock-tag green">綠燈</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+18.10%</b></span><span>比週初 <b class="pos">+7.36%</b></span></div>
+          <div class="stock-reason">本週動能第二強，與 VRT、BE 同屬「AI 電力基建」主題，呼應板塊報告中 XLU 表面弱勢但細分行業 AIPO 已率先翻正的「底層邏輯重構」訊號——電網資產正被重新定價為 AI 基礎設施用電剛需標的。</div>
+        </div>
+
+        <div class="stock-card green">
+          <div class="stock-top"><div><div class="stock-name">BE · Bloom Energy</div><div class="stock-sub">電網 / AIPO</div></div><div class="stock-tag green">綠燈</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+40.42%</b></span><span>比週初 <b class="pos">+4.83%</b></span></div>
+          <div class="stock-reason">板塊輪動報告「個股與戰術部署」明確將 AIPO（AI電力基建，BE/VRT 相關）列入「強烈看多關注」，判定為「拋壓衰竭型築底」；個股相對強度自前底以來為全持股第二強，訊號一致性高。</div>
+        </div>
+
+        <div class="stock-card green">
+          <div class="stock-top"><div><div class="stock-name">VRT · Vertiv</div><div class="stock-sub">電網 / AIPO / GRID</div></div><div class="stock-tag green">綠燈</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+31.74%</b></span><span>比週初 <b class="pos">+7.87%</b></span></div>
+          <div class="stock-reason">同屬 AIPO「強烈看多關注」名單，本週動能第三強；GRID（智能電網基礎設施）屬「高波動築底」，波動雖大但方向與 BE/GEV 一致，三檔電網股同步走強是本週最具確認力的族群訊號。</div>
+        </div>
+
+        <div class="stock-card green">
+          <div class="stock-top"><div><div class="stock-name">ISRG · Intuitive Surgical</div><div class="stock-sub">醫療手術機器人 / IHI</div></div><div class="stock-tag green">綠燈</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+11.73%</b></span><span>比週初 <b class="pos">+4.14%</b></span></div>
+          <div class="stock-reason">所屬 IHI（醫療手術機器人）子產業被判定「動能轉強」，是消費/醫療組中唯一同時具備板塊確認與個股正向動能的標的，且 XLV 大板塊本身也屬溫和整理格局，無逆風。</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Priority 2 -->
+    <div class="rank-group">
+      <div class="rank-head rank-2">
+        <div class="rank-num">2</div>
+        <h3>次一優先（黃色・中性觀望）</h3>
+        <div class="desc">結構性強度尚可，但短線動能轉弱或子產業訊號未明</div>
+      </div>
+      <div class="stock-grid">
+
+        <div class="stock-card amber">
+          <div class="stock-top"><div><div class="stock-name">NVDA</div><div class="stock-sub">半導體 / SMH</div></div><div class="stock-tag amber">中性</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+18.50%</b></span><span>比週初 <b class="pos">+0.54%</b></span></div>
+          <div class="stock-reason">結構性相對強度仍佳，但本週動能明顯轉弱，SMH 板塊「量能沉默、方向未明」。加上宏觀報告點名 Nvidia 算力融資平台的或有負債疑慮、CDS 利差走闊，8/26 財報前波動風險上升，建議暫緩加碼、等財報與 SMH 量能確認。</div>
+        </div>
+
+        <div class="stock-card amber">
+          <div class="stock-top"><div><div class="stock-name">TSM</div><div class="stock-sub">半導體 / SMH</div></div><div class="stock-tag amber">中性</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+13.79%</b></span><span>比週初 <b class="pos">+1.50%</b></span></div>
+          <div class="stock-reason">動能溫和正向，優於 SMH 板塊整體表現，但漲幅不足以視為獨立確認訊號，且 SMH 尚未放量確認方向。維持持有／小幅加碼可接受，非優先部署對象。</div>
+        </div>
+
+        <div class="stock-card amber">
+          <div class="stock-top"><div><div class="stock-name">PANW · Palo Alto</div><div class="stock-sub">網路安全 / CIBR</div></div><div class="stock-tag amber">中性</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+22.32%</b></span><span>比週初 <b class="pos">+5.61%</b></span></div>
+          <div class="stock-reason">個股本週動能其實不弱，但所屬 CIBR 為全樣本基期最擁擠板塊（3M +30.97%），板塊報告明確歸類為「高位震盪分歧」並警示「忌追高」，戰術建議以區間思路操作。故降級為中性觀望，等回落至區間下沿再考慮加碼。</div>
+        </div>
+
+        <div class="stock-card amber">
+          <div class="stock-top"><div><div class="stock-name">MSFT</div><div class="stock-sub">科技巨頭 / XLK / IGV</div></div><div class="stock-tag amber">中性</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+26.85%</b></span><span>比週初 <b class="neg">-0.92%</b></span></div>
+          <div class="stock-reason">中期相對強度佳，且受惠於 IGV（軟體）「良性回調消化」的正向敘事，但本週轉為小幅回落，XLK 大板塊 1M -7.99% 偏弱。建議持有觀望，暫不加碼，等待短線企穩訊號。</div>
+        </div>
+
+        <div class="stock-card amber">
+          <div class="stock-top"><div><div class="stock-name">RMBS</div><div class="stock-sub">半導體 / SMHX</div></div><div class="stock-tag amber">中性</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+21.78%</b></span><span>比週初 <b class="neg">-0.66%</b></span></div>
+          <div class="stock-reason">中期相對強度尚可，但本週轉弱，且所屬 SMHX 細分半導體判定「弱勢待確認」，缺乏板塊面支撐。建議按兵不動，等 SMH/SMHX 量能回補後再評估加碼。</div>
+        </div>
+
+        <div class="stock-card amber">
+          <div class="stock-top"><div><div class="stock-name">GOOG · Alphabet</div><div class="stock-sub">科技巨頭 / XLC / FDN</div></div><div class="stock-tag amber">中性</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+2.32%</b></span><span>比週初 <b class="neg">-2.81%</b></span></div>
+          <div class="stock-reason">自前底以來的相對強度是科技巨頭中最弱者，本週跌幅也是三大巨頭中最深；所屬 XLC「弱基期築底嘗試」、FDN「縮量整理」，皆屬中性偏弱格局，暫不建議加碼，觀察是否止穩。</div>
+        </div>
+
+        <div class="stock-card amber">
+          <div class="stock-top"><div><div class="stock-name">KO · Coca-Cola</div><div class="stock-sub">防禦消費 / XLP</div></div><div class="stock-tag amber">中性</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="neg">-1.54%</b></span><span>比週初 <b class="pos">+0.76%</b></span></div>
+          <div class="stock-reason">典型防禦股波動小，本週小幅回升但自前底以來仍落後，XLP「防禦性築底」量縮但屬良性換手。在當前風險偏好上升（risk-on）環境中非進攻首選，維持中性持有作為組合緩衝角色。</div>
+        </div>
+
+        <div class="stock-card amber">
+          <div class="stock-top"><div><div class="stock-name">MCD · McDonald's</div><div class="stock-sub">防禦消費 / XLP</div></div><div class="stock-tag amber">中性</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+0.48%</b></span><span>比週初 <b class="neg">-0.60%</b></span></div>
+          <div class="stock-reason">與 KO 同屬 XLP 防禦性築底格局，波動平淡、無明確方向。宏觀報告提及實質工資落後通膨、消費者購買力承壓，對日常消費類股構成中期隱憂，維持中性觀望為宜。</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Priority 3 -->
+    <div class="rank-group">
+      <div class="rank-head rank-3">
+        <div class="rank-num">3</div>
+        <h3>再次優先（紅色・不建議部署）</h3>
+        <div class="desc">本週動能明顯轉弱、結構性落後或所屬板塊被判定偏空</div>
+      </div>
+      <div class="stock-grid">
+
+        <div class="stock-card red">
+          <div class="stock-top"><div><div class="stock-name">AVGO · Broadcom</div><div class="stock-sub">半導體 / SMH</div></div><div class="stock-tag red">紅燈</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+6.12%</b></span><span>比週初 <b class="neg">-8.13%</b></span></div>
+          <div class="stock-reason">本週單週跌幅為全持股 18 檔中最深，且自前底以來的相對強度是半導體族群中最弱者，同時是宏觀報告點名的「AI 循環融資」爭議公司之一（與 Nvidia/Meta 類似的融資安排交織）。個股與板塊訊號同步轉弱，本週不建議部署，觀察止穩訊號再議。</div>
+        </div>
+
+        <div class="stock-card red">
+          <div class="stock-top"><div><div class="stock-name">AAPL</div><div class="stock-sub">科技巨頭 / IYW</div></div><div class="stock-tag red">紅燈</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="neg">-9.54%</b></span><span>比週初 <b class="neg">-2.36%</b></span></div>
+          <div class="stock-reason">自 07/29 前底以來為唯一（連同 NBIX）RS 為負值的科技巨頭，且本週持續下跌，結構性落後大盤與 IXIC。雖然 IYW 板塊本身標示「中性整理」，但個股層級的持續弱勢已是明確警訊，不建議本週加碼。</div>
+        </div>
+
+        <div class="stock-card red">
+          <div class="stock-top"><div><div class="stock-name">GRMN · Garmin</div><div class="stock-sub">非必需消費 / XLY</div></div><div class="stock-tag red">紅燈</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="pos">+5.21%</b></span><span>比週初 <b class="neg">-0.22%</b></span></div>
+          <div class="stock-reason">所屬 XLY 非必需消費板塊被板塊報告明確判定為本週唯一「結構性熊市」樣板（3M/1M/W-1 三線全負），並列入「長期迴避候選」戰術名單；個股本週動能亦轉弱，板塊逆風明確，不建議部署。</div>
+        </div>
+
+        <div class="stock-card red">
+          <div class="stock-top"><div><div class="stock-name">NBIX · Neurocrine</div><div class="stock-sub">生物科技 / XBI</div></div><div class="stock-tag red">紅燈</div></div>
+          <div class="stock-metrics"><span>比前底 <b class="neg">-15.53%</b></span><span>比週初 <b class="neg">-6.54%</b></span></div>
+          <div class="stock-reason">全持股 18 檔中結構性相對強度最弱者，自前底以來落後 IXIC 逾 15 個百分點，本週跌幅亦為全組第二深。所屬 XBI 僅「中性整理」，缺乏板塊面支撐個股反彈，是本週優先序最低的持股。</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 下週關鍵觀察 ============ -->
+  <div class="section">
+    <div class="section-title">下週關鍵驗證事件（2026.08.16–08.22）</div>
+    <h2 class="h">影響本決策矩陣的核心變數</h2>
+    <div class="outlook-grid" style="margin-top:16px;">
+      <div class="outlook-col good">
+        <h3>🟢 有利部署的觸發訊號</h3>
+        <ul>
+          <li>08/19 FOMC 會議紀要若釋出「暫停」共識大於「加息」急迫性，有助全面提升科技/半導體持股優先序。</li>
+          <li>電網三雄（GEV/BE/VRT）若持續放量走強，可作為 AIPO 主題「深跌反轉」升級為「趨勢確認」的驗證。</li>
+          <li>SMH／SMHX 若出現放量止穩，NVDA/TSM/RMBS 可由中性上調至優先部署。</li>
+          <li>零售巨頭財報（HD/TGT/LOW/WMT）優於預期，將支撐消費類股（KO/MCD/GRMN）的軟著陸敘事。</li>
+        </ul>
+      </div>
+      <div class="outlook-col bad">
+        <h3>🔴 需要降級或迴避的風險訊號</h3>
+        <ul>
+          <li>08/26 Nvidia 財報前，若 CDS 利差持續走闊或出現循環融資負面報導，NVDA/AVGO 應維持觀望甚至進一步降級。</li>
+          <li>突破留存率若跌破 45%（目前約51%），代表廣度轉弱早期警示，屆時應全面下修優先序。</li>
+          <li>霍爾木茲海峽談判若再度破局，油價急升將透過通膨/利率路徑對成長股（尤其 AAPL、GOOG）形成額外壓力。</li>
+          <li>CIBR 若跌破區間下沿且伴隨放量，PANW 應由中性降級為不建議部署。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    本報告整合使用者提供之三份週報（美股宏觀事件、市場內部廣度與信用流動性、板塊/行業輪動）及持股對 IXIC 相對強弱數據自動生成，所有排序與顏色判讀均為主觀權重下的框架性分析，僅供研究與決策參考，不構成任何投資建議或買賣邀約。市場數據具時效性，實際部署請結合自身倉位結構、風險承受度與最新市場狀況綜合判斷。<br>
+    GENERATED 2026-08-16 ｜ 資料來源：使用者提供之三份週報 (2026.08.09–08.15) 及持股相對強弱表
+  </footer>
+
+</div>
+</body>
+</html>

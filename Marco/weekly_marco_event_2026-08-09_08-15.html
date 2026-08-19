@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美股宏觀週報 | 2026.08.09 – 08.15</title>
+<style>
+  :root{
+    --bg:#0b0e14;
+    --panel:#12161f;
+    --panel2:#161b26;
+    --line:#232938;
+    --ink:#e7ebf3;
+    --ink-dim:#9aa4b8;
+    --bull:#2dd4a7;
+    --bull-bg:rgba(45,212,167,.12);
+    --bear:#ff6b6b;
+    --bear-bg:rgba(255,107,107,.12);
+    --neutral:#f5c561;
+    --neutral-bg:rgba(245,197,97,.12);
+    --accent:#6c8cff;
+    --accent2:#b98bff;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,sans-serif;
+    background:
+      radial-gradient(1200px 500px at 10% -10%, rgba(108,140,255,.15), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, rgba(185,139,255,.12), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    line-height:1.7;
+    padding:0 0 80px;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px;}
+  header.hero{
+    padding:56px 20px 34px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+    margin-bottom:36px;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12.5px;letter-spacing:.12em;color:var(--accent);
+    background:rgba(108,140,255,.1);
+    border:1px solid rgba(108,140,255,.3);
+    padding:6px 14px;border-radius:999px;
+    text-transform:uppercase;
+    margin-bottom:18px;
+  }
+  h1{
+    font-size:clamp(26px,4vw,38px);
+    margin:0 0 12px;
+    letter-spacing:.01em;
+    background:linear-gradient(90deg,#fff,#c9d3f2 60%,var(--accent));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .subtitle{color:var(--ink-dim);font-size:15px;max-width:640px;margin:0 auto;}
+  .section{margin:44px 0;}
+  .section-title{
+    display:flex;align-items:center;gap:10px;
+    font-size:13px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-dim);margin-bottom:18px;
+  }
+  .section-title::before{
+    content:"";width:22px;height:2px;background:var(--accent);display:inline-block;
+  }
+  h2.title-main{font-size:22px;margin:0 0 4px;color:var(--ink);}
+  .card{
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px 26px;
+  }
+
+  /* Tags */
+  .tag{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12.5px;font-weight:600;
+    padding:4px 12px;border-radius:999px;
+    white-space:nowrap;
+  }
+  .tag.bull{color:var(--bull);background:var(--bull-bg);border:1px solid rgba(45,212,167,.35);}
+  .tag.bear{color:var(--bear);background:var(--bear-bg);border:1px solid rgba(255,107,107,.35);}
+  .tag.neutral{color:var(--neutral);background:var(--neutral-bg);border:1px solid rgba(245,197,97,.35);}
+  .tag.mixed{color:var(--accent2);background:rgba(185,139,255,.12);border:1px solid rgba(185,139,255,.35);}
+
+  /* Event cards */
+  .event{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 24px;
+    margin-bottom:18px;
+    background:var(--panel);
+    position:relative;
+  }
+  .event-head{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    gap:14px;flex-wrap:wrap;margin-bottom:10px;
+  }
+  .event-title{font-size:16.5px;font-weight:700;color:var(--ink);}
+  .event-date{font-size:12px;color:var(--ink-dim);margin-top:3px;}
+  .event-tags{display:flex;gap:8px;flex-wrap:wrap;}
+  .event-body p{margin:8px 0;color:#cbd2e3;font-size:14.5px;}
+  .event-body .label{color:var(--ink-dim);font-weight:600;font-size:13px;}
+
+  /* Score dashboard */
+  .score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
+  .score-item{
+    border:1px solid var(--line);border-radius:14px;padding:18px 20px;background:var(--panel);
+  }
+  .score-item-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .score-item-head .name{font-size:14px;font-weight:700;}
+  .score-item-head .val{font-size:15px;font-weight:800;}
+  .bar-track{height:9px;border-radius:99px;background:#20263533;background:#1c2230;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:99px;}
+  .score-note{font-size:12.5px;color:var(--ink-dim);margin-top:9px;}
+
+  .fill-1{background:linear-gradient(90deg,var(--bear),#ffb26b);}
+  .fill-2{background:linear-gradient(90deg,#ffb26b,var(--neutral));}
+  .fill-3{background:linear-gradient(90deg,var(--accent),var(--bull));}
+  .fill-4{background:linear-gradient(90deg,var(--bear),#ff9d6b);}
+  .fill-5{background:linear-gradient(90deg,#ffb26b,#ffd76b);}
+
+  /* Total score dial */
+  .total-wrap{
+    display:flex;align-items:center;gap:32px;flex-wrap:wrap;
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 30px;
+    background:radial-gradient(600px 260px at 20% 0%, rgba(108,140,255,.12), transparent 70%), var(--panel);
+  }
+  .dial{
+    position:relative;width:150px;height:150px;flex:0 0 auto;
+  }
+  .dial svg{transform:rotate(-90deg);}
+  .dial-label{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .dial-label .num{font-size:34px;font-weight:800;color:var(--ink);}
+  .dial-label .max{font-size:12px;color:var(--ink-dim);}
+  .total-desc h3{margin:0 0 8px;font-size:19px;}
+  .total-desc p{margin:0;color:#cbd2e3;font-size:14.5px;max-width:520px;}
+  .verdict-badge{
+    display:inline-block;margin-top:12px;
+    padding:6px 16px;border-radius:999px;font-weight:700;font-size:13px;
+    color:var(--neutral);background:var(--neutral-bg);border:1px solid rgba(245,197,97,.35);
+  }
+
+  /* two column outlook */
+  .outlook-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media (max-width:720px){.outlook-grid{grid-template-columns:1fr;}}
+  .outlook-col{
+    border-radius:var(--radius);padding:22px 24px;border:1px solid var(--line);
+  }
+  .outlook-col.good{background:linear-gradient(180deg, rgba(45,212,167,.08), transparent 60%),var(--panel);}
+  .outlook-col.bad{background:linear-gradient(180deg, rgba(255,107,107,.08), transparent 60%),var(--panel);}
+  .outlook-col h3{margin:0 0 14px;font-size:16px;display:flex;align-items:center;gap:8px;}
+  .outlook-col ul{margin:0;padding-left:20px;}
+  .outlook-col li{margin-bottom:10px;font-size:14px;color:#cbd2e3;}
+
+  /* prompt box */
+  .prompt-box{
+    background:#0a0d13;border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 24px;position:relative;
+  }
+  .prompt-box pre{
+    white-space:pre-wrap;word-wrap:break-word;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.8px;line-height:1.75;color:#c3d0ee;margin:0;max-height:640px;overflow-y:auto;
+  }
+  .copy-btn{
+    position:absolute;top:16px;right:16px;
+    background:var(--accent);color:#fff;border:none;
+    padding:7px 14px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;
+  }
+  .copy-btn:active{transform:scale(.97);}
+
+  .divider{height:1px;background:var(--line);margin:44px 0;}
+  .footnote{color:var(--ink-dim);font-size:12px;text-align:center;margin-top:50px;}
+  .source-tag{font-size:11px;color:var(--ink-dim);}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Macro Strategy Desk · Weekly Read</span>
+    <h1>美股宏觀環境週報</h1>
+    <p class="subtitle">回顧期間：2026年8月9日 – 8月15日　|　展望期間：2026年8月17日 – 8月22日<br>機構視角 × 市場敏銳度：判讀風險偏好正在變好還是變差</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ 總評分 ============ -->
+  <div class="section">
+    <div class="section-title">綜合評分 Verdict</div>
+    <div class="total-wrap">
+      <div class="dial">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          <circle cx="75" cy="75" r="64" stroke="#1c2230" stroke-width="14" fill="none"/>
+          <circle cx="75" cy="75" r="64" stroke="url(#grad)" stroke-width="14" fill="none"
+                  stroke-linecap="round"
+                  stroke-dasharray="402.1" stroke-dashoffset="152.8"/>
+          <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#6c8cff"/>
+              <stop offset="100%" stop-color="#2dd4a7"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="dial-label">
+          <div class="num">62</div>
+          <div class="max">/ 100</div>
+        </div>
+      </div>
+      <div class="total-desc">
+        <h3>審慎樂觀（溫和偏多）</h3>
+        <p>市場表面風險偏好強勁——S&P 500、Nasdaq、Russell 2000 同步創高，顯示「軟著陸 + AI 資本開支循環」的敘事仍是主導力量。但拆解五個維度後，地緣政治（伊朗/霍爾木茲海峽）與美債供給/需求結構仍是明顯拖累項，而利率政策的「鷹派少數派」風險尚未解除。屬於「表面亮麗、底層仍有裂縫」的格局，不宜視為全面樂觀訊號。</p>
+        <span class="verdict-badge">62分區間 → 溫和看多／保持部位但控制槓桿與尾部風險對沖</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 事件回顧 ============ -->
+  <div class="section">
+    <div class="section-title">上週事件回顧與定性（2026.08.09–08.15）</div>
+
+    <div class="event">
+      <div class="event-head">
+        <div>
+          <div class="event-title">① Nvidia 攜六大華爾街巨頭建立 5,000億美元「算力融資平台」</div>
+          <div class="event-date">8月10日　Apollo / BlackRock / Blackstone / Brookfield / Goldman Sachs / KKR</div>
+        </div>
+        <div class="event-tags">
+          <span class="tag mixed">利好 + 利淡（雙重性質）</span>
+        </div>
+      </div>
+      <div class="event-body">
+        <p><span class="label">事件本質：</span>Nvidia 並非賣方也非借款人，而是透過簽署 MOU，讓六家機構把「Nvidia 算力」包裝成可投資資產類別（類似商業地產、收費公路），撬動第三方長期資本（保險、退休金、主權基金）流入 AI 基礎建設，藉此把資本開支從自家與客戶的資產負債表移出。核心機制是 Nvidia 提供「最高 25% 殘值支持」，逐案審核，角色類似保險/擔保方，而非傳統貸款人。</p>
+        <p><span class="label">利好面：</span>此舉延長 AI 資本開支週期的資金可持續性，降低「AI 泡沫因融資枯竭而破裂」的短期風險，並被部分分析視為變相「降價」（用自身利潤補貼客戶的融資成本），有利於延續 AI 資本開支敘事、支撐科技權值股與 AI 供應鏈估值。</p>
+        <p><span class="label">利淡／風險面：</span>25% 殘值擔保若按 5,000億目標線性推算，Nvidia 的潛在或有負債（contingent liability）上看約 1,250億美元；市場開始質疑晶片實際使用壽命假設（Amazon 已將伺服器折舊年限從6年下修至5年）。這種「供應商反向為自家產品融資背書」的結構，與 Meta、Broadcom 近期類似的循環融資安排相呼應，強化了外界對「AI 循環融資」與底層需求真實性的疑慮；Nvidia 五年期 CDS 利差已從6月低點的42bp 一度上升至83.7bp，顯示信用市場已在計價風險溢價。</p>
+      </div>
+    </div>
+
+    <div class="event">
+      <div class="event-head">
+        <div>
+          <div class="event-title">② 7月CPI／PPI雙雙降溫，S&P 500首次收在7,800上方創歷史新高</div>
+          <div class="event-date">8月12–14日　CPI年增3.4%（前值3.5%）／核心CPI年增2.5%／PPI月增持平</div>
+        </div>
+        <div class="event-tags"><span class="tag bull">利好</span></div>
+      </div>
+      <div class="event-body">
+        <p><span class="label">數據內容：</span>7月CPI月增僅0.1%，年增率降至3.4%；核心CPI月增0.2%、年增2.5%，符合市場預期；隨後公布的PPI亦持平，低於預期，強化「通膨降溫但未失控」的敘事。</p>
+        <p><span class="label">市場反應：</span>S&P 500盤中觸及7,814.88歷史高點並收在7,800上方；Nasdaq、Russell 2000同步走強，小型股同步創高，顯示這波行情已從「Mag 7集中領漲」擴散為「全面性風險偏好回升」，是相對健康的廣度訊號。</p>
+        <p><span class="label">隱憂：</span>NBC等媒體同時指出，實質工資成長（3.2%）持續落後於通膨，過去四個月薪資增幅已被通膨侵蝕，對中低收入消費者的購買力構成壓力，此為7月CPI報告中容易被市場忽略的「利淡」子訊息。</p>
+      </div>
+    </div>
+
+    <div class="event">
+      <div class="event-head">
+        <div>
+          <div class="event-title">③ 美國財政部連兩日標售10年期與30年期公債，得標利率創近20年新高</div>
+          <div class="event-date">8月12日（10Y：4.683%）／8月13日（30Y：5.216%）</div>
+        </div>
+        <div class="event-tags"><span class="tag bear">利淡</span></div>
+      </div>
+      <div class="event-body">
+        <p><span class="label">數據解讀：</span>10年期得標利率4.683%為2007年金融海嘯前以來最高；30年期5.216%為2001年以來最高。10年期認購倍數2.532倍（高於六次均值2.47倍），但出現5月以來首次「tail」（得標利率高於截標前市場報價），顯示買方要求的風險溢酬臨時上升；30年期認購倍數2.39倍，與均值2.36倍相近，但同樣要求略高於市場水平的殖利率。</p>
+        <p><span class="label">結構性警訊：</span>10年期標售中，外國投資者承接比重達76.73%（高於近期均值71.33%），而美國本土交易商（Primary Dealer）僅承接8.6%，處於歷史低位。這代表美國財政赤字融資越來越依賴海外買盤支撐，一旦地緣政治或美元資產吸引力生變，長端殖利率的波動風險將被放大。</p>
+        <p><span class="label">結論：</span>整體而言，兩場標售「賣得出去」，並非失敗，但買家開價變貴（要求更高殖利率補償），且結構上愈發依賴外資與二級市場需求，反映市場對美國財政赤字擴張與供給壓力的定價正在提高，是壓抑長端殖利率下行、間接抬高股票貼現率的中期利淡因素。</p>
+      </div>
+    </div>
+
+    <div class="event">
+      <div class="event-head">
+        <div>
+          <div class="event-title">④ Fed政策背景：7月FOMC九比三鷹派分歧，9月會議加息機率仍具爭議</div>
+          <div class="event-date">7月28–29日會議（背景延續影響本週）　主席：Kevin Warsh</div>
+        </div>
+        <div class="event-tags"><span class="tag mixed">利好 + 利淡</span></div>
+      </div>
+      <div class="event-body">
+        <p><span class="label">背景：</span>7月FOMC以9比3維持利率於3.50%–3.75%不變，三位地區聯準銀總裁（Hammack、Kashkari、Logan）罕見聯合投下「加息」反對票，為2016年9月以來首見的鷹派聯合異議。會後CME FedWatch一度將9月加息機率推升至60%以上，隨後隨CPI/PPI降溫而略為回落。</p>
+        <p><span class="label">利好面：</span>本週CPI/PPI降溫的數據，一定程度緩解了「Fed被迫在9月加息」的市場焦慮，是股市創高的直接催化劑之一。</p>
+        <p><span class="label">利淡／風險面：</span>新任主席Warsh治理風格強調「減少前瞻指引、給市場更少訊號」，加上川普政府持續向Fed施壓要求降息，市場對Fed獨立性與抗通膨可信度的疑慮並未消除；只要8月CPI／PPI稍有反覆，9月加息的鷹派敘事隨時可能捲土重來，形成股債同步承壓的尾部風險。</p>
+      </div>
+    </div>
+
+    <div class="event">
+      <div class="event-head">
+        <div>
+          <div class="event-title">⑤ 油價高位震盪回落：霍爾木茲海峽（Strait of Hormuz）美伊對峙持續</div>
+          <div class="event-date">當週 WTI 約 $80–83／桶，週跌約2%；美國原油庫存單週暴增1,740萬桶</div>
+        </div>
+        <div class="event-tags"><span class="tag mixed">利好 + 利淡</span></div>
+      </div>
+      <div class="event-body">
+        <p><span class="label">背景：</span>美伊在霍爾木茲海峽通行權問題上僵持已逾數月，伊朗堅持美方須先解除海軍封鎖，雙方6月簽署的MOU已破局；美國原油戰略儲備已降至1983年以來最低水位。IEA同時警告2026年全球供給缺口為五年最寬。</p>
+        <p><span class="label">利好面：</span>本週油價自高點回落，主因當週美國商業原油庫存暴增1,740萬桶（近三年最大單週增幅），加上部分油輪恢復通行的訊號，緩解了通膨與消費者荷包的短期壓力，是CPI降溫、股市創高的助攻因素之一。</p>
+        <p><span class="label">利淡／尾部風險：</span>回落僅是「地緣政治溢價」的暫時性消退，而非危機解除。海峽實質仍處於高度緊張狀態，且SPR彈藥所剩無幾，一旦談判破局或再度爆發衝突（伊朗革命衛隊此前已多次攻擊油輪），油價可能在數日內重新噴發至90美元甚至以上，對通膨/利率/風險偏好形成三重打擊。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ============ 綜合分析 ============ -->
+  <div class="section">
+    <div class="section-title">綜合分析</div>
+    <div class="card">
+      <p>上週市場呈現「指數屢創新高、但底層結構仍有裂縫」的典型晚週期特徵。表層敘事非常正面：通膨連續降溫、Fed 9月加息急迫性下降、AI 資本開支透過 Nvidia 的機構融資平台獲得更長期限的資金支持、股市漲勢從七巨頭擴散至小型股（Russell 2000同步創高），這是相對健康的「廣度確認」訊號，通常被視為多頭格局延續的正面佐證。</p>
+      <p>然而，若把鏡頭拉遠，至少三條線索值得留意：第一，<strong>美債供需結構正在惡化</strong>——10年期與30年期標售利率雙雙創下十幾二十年新高，且本土交易商承接比重降至歷史低位，代表財政赤字融資對外資依賴度上升，這是壓抑長端殖利率下行、抬高股票估值貼現率的結構性逆風，也是judging美國「債務因素」評分偏低的主因。第二，<strong>Fed政策仍存在真實的鷹派尾部風險</strong>——7月FOMC罕見出現三票鷹派聯合異議，9月會議加息機率一度衝上60%，即便本週CPI/PPI降溫暫時壓低了機率，但只要8月數據稍有反覆，市場敘事可能急轉。第三，<strong>地緣政治風險並未解除，只是階段性緩和</strong>——霍爾木茲海峽的美伊對峙仍是「活火山」，油價本週回落主因是庫存暴增等技術性因素，而非衝突根源解決，SPR庫存見底更削弱了美國緩衝突發衝擊的能力。</p>
+      <p>Nvidia的算力融資平台則是一把雙面刃：短期是強力的流動性與敘事催化劑，延續AI資本開支週期並提振風險偏好；但中期看，Nvidia自我擔保25%殘值的結構，本質上是把「晶片折舊風險」重新攬回自身資產負債表，與Meta、Broadcom等同業的類似操作交織成一張越來越複雜的「循環融資」網路，一旦AI變現力道不如預期，這些擔保條款可能從「信心表態」轉為「實質虧損」，是留給下半年的重要觀察點（尤其Nvidia將於8月26日公布財報）。</p>
+      <p><strong>總結：</strong>當前環境屬於「風險偏好上升但風險本身並未同步下降」的階段——指數創高更多反映的是「壞消息（伊朗、通膨）階段性變好」而非「結構性問題被解決」。建議維持偏多部位參與趨勢，但需對美債殖利率、9月FOMC與霍爾木茲海峽三條線索保持高度敏感，並適度配置波動率/尾部風險對沖。</p>
+    </div>
+  </div>
+
+  <!-- ============ 五維度評分 ============ -->
+  <div class="section">
+    <div class="section-title">五維度評分（滿分各20分，總計100分）</div>
+    <div class="score-grid">
+
+      <div class="score-item">
+        <div class="score-item-head"><span class="name">① 利率與貨幣政策</span><span class="val">12 / 20</span></div>
+        <div class="bar-track"><div class="bar-fill fill-1" style="width:60%"></div></div>
+        <p class="score-note">CPI/PPI降溫暫時壓低9月加息急迫性，但7月FOMC三票鷹派異議、Warsh「減少前瞻指引」風格，使9月加息仍是活生生的尾部風險，未完全解除。</p>
+      </div>
+
+      <div class="score-item">
+        <div class="score-item-head"><span class="name">② 通貨膨脹因素</span><span class="val">15 / 20</span></div>
+        <div class="bar-track"><div class="bar-fill fill-2" style="width:75%"></div></div>
+        <p class="score-note">CPI年增3.4%、核心2.5%，趨勢向下且符合預期，屬正面訊號；惟仍高於2%目標，且實質工資持續落後通膨，消費者購買力承壓。</p>
+      </div>
+
+      <div class="score-item">
+        <div class="score-item-head"><span class="name">③ 經濟基本面</span><span class="val">15 / 20</span></div>
+        <div class="bar-track"><div class="bar-fill fill-3" style="width:75%"></div></div>
+        <p class="score-note">Q2財報約86%優於預期、2026年全年獲利成長預估達30%，AI資本開支循環延續；但7月零售銷售大幅下滑、消費者信心走弱，下週零售巨頭財報（HD/TGT/WMT/LOW）將是關鍵驗證。</p>
+      </div>
+
+      <div class="score-item">
+        <div class="score-item-head"><span class="name">④ 地緣政治風險</span><span class="val">9 / 20</span></div>
+        <div class="bar-track"><div class="bar-fill fill-4" style="width:45%"></div></div>
+        <p class="score-note">美伊霍爾木茲海峽對峙未解，MOU已破局，SPR降至逾40年低位；本週油價回落屬技術性緩解（庫存暴增），而非風險源頭消除，仍是最大單一尾部風險來源。</p>
+      </div>
+
+      <div class="score-item">
+        <div class="score-item-head"><span class="name">⑤ 美國債務因素</span><span class="val">11 / 20</span></div>
+        <div class="bar-track"><div class="bar-fill fill-5" style="width:55%"></div></div>
+        <p class="score-note">10年期／30年期標售利率創近20年新高，10年期出現罕見tail且本土交易商承接比重歷史低位；標售「有人買」但「買家要價更高」，反映財政赤字融資成本結構性上升。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ============ 下週展望 ============ -->
+  <div class="section">
+    <div class="section-title">下週展望（2026.08.17–08.22）</div>
+    <div class="outlook-grid">
+      <div class="outlook-col good">
+        <h3><span class="tag bull">利好因素</span></h3>
+        <ul>
+          <li>若FOMC會議紀要（週三公布，7月28–29日會議）釋出的訊息偏向「暫停」共識大於「加息」急迫性，有助進一步壓低9月加息機率。</li>
+          <li>零售巨頭財報（Home Depot週二、Target/Lowe's週三、Walmart週四）若優於預期，將驗證消費韌性，支撐「軟著陸」敘事。</li>
+          <li>若美伊就霍爾木茲海峽通行權出現實質性談判進展，油價有望進一步回落，強化通膨降溫趨勢。</li>
+          <li>市場持續為8月26日Nvidia財報預熱，AI資本開支敘事若獲得更多正面消息（如更多客戶簽約算力融資平台）可延續科技股動能。</li>
+          <li>Reddit本週正式納入S&P 500指數，帶來被動資金配置的技術性買盤。</li>
+        </ul>
+      </div>
+      <div class="outlook-col bad">
+        <h3><span class="tag bear">利淡因素</span></h3>
+        <ul>
+          <li>FOMC會議紀要若曝露鷹派討論比市場預期更深入（尤其三位總裁的加息論據細節），可能重新推升9月加息機率，衝擊股債估值。</li>
+          <li>零售財報若顯示消費疲弱加劇（延續7月零售銷售驟降、消費者信心下滑的趨勢），將動搖「經濟軟著陸」的核心假設。</li>
+          <li>霍爾木茲海峽談判若再度破局或發生新一輪油輪攻擊事件，油價可能重新急升，SPR庫存見底將放大衝擊力道。</li>
+          <li>本週為公債發行相對「數據空窗期」但供給壓力延續（9月企業稅期前的票券發行規模調整），長端殖利率若因拍賣需求疲弱而走高，將壓抑估值倍數。</li>
+          <li>市場正在為8月27–29日Warsh首場Jackson Hole演說預先定位，若演說前市場過度押注鴿派解讀，任何偏鷹訊號都可能引發較大波動。</li>
+          <li>Nvidia的25%殘值擔保結構持續受信用市場檢視（CDS利差走勢），任何關於AI變現力道、循環融資的負面報導都可能重燃估值疑慮。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  
+  <div class="section">
+    
+
+  <p class="footnote">本報告僅供研究參考，所有評分與判讀均為主觀權重下的框架性分析，不構成任何投資建議或買賣邀約。市場數據具時效性，請以官方發布為準。<br>資料來源：NVIDIA Newsroom、CNBC、Bloomberg、NBC News、Fox Business、U.S. Department of the Treasury、EIA、J.P. Morgan Wealth Management、Chase、Capital Street FX 等公開報導與官方數據，截至 2026年8月15日。</p>
+
+</div>
+</body>
+</html>
