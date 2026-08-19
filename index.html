@@ -822,6 +822,8 @@
                     <select id="txCategory" onchange="toggleFormFields()" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 text-sm focus:outline-blue-500 font-bold text-gray-800">
                         <option value="STOCK">📈 證券交易 (股票/債券/金)</option>
                         <option value="CASH">💵 現金存取 (美金/港幣本金)</option>
+                        <!-- 🔥 新增：股票派息選項 -->
+                        <option value="DIVIDEND_US" class="text-blue-700">💰 股票派息 (US)</option>
                         <option value="OPTIONS_US" class="text-purple-700">📜 期權交易 (US)</option>
                         <option value="OPTIONS_HK" class="text-pink-700">📜 期權交易 (HK)</option>
                     </select>
@@ -864,6 +866,16 @@
                         <div><label class="block text-sm font-medium text-gray-700">流動金額 (市場本幣)</label><input type="number" id="cashAmount" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-gray-50 focus:outline-blue-500"></div>
                     </div>
             
+                    <!-- 🔥 新增：派息專屬輸入區塊 -->
+                    <div id="dividendFields" class="space-y-4 hidden border border-blue-200 bg-blue-50/30 p-3 rounded-lg">
+                        <div><label class="block text-sm font-medium text-gray-700">派息股票 (Ticker)</label><input type="text" id="divTicker" placeholder="例如: AAPL" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-white focus:outline-blue-500 uppercase font-bold"></div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="block text-sm font-medium text-gray-700">除權日期 (Ex-Date)</label><input type="date" id="divExDate" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-white focus:outline-blue-500"></div>
+                            <div><label class="block text-sm font-medium text-gray-700">派息總金額 (USD)</label><input type="number" id="divAmount" step="any" placeholder="0.00" class="mt-1 block w-full rounded-md border-gray-300 p-2 bg-white focus:outline-blue-500"></div>
+                        </div>
+                        <p class="text-[10px] text-gray-500 mt-1">💡 提示：下方的「交易日期」請填寫實際的<b>派息入帳日期 (Payment Date)</b>。</p>
+                    </div>
+
                     <div id="optionsFields" class="space-y-4 hidden border border-purple-200 bg-purple-50/30 p-3 rounded-lg">
                         <div class="grid grid-cols-2 gap-3">
                             <div class="col-span-2 sm:col-span-1"><label class="block text-sm font-medium text-gray-700">組合策略名稱 (選填)</label><input type="text" id="optComboName" placeholder="例如: 鐵鷹策略" class="mt-1 block w-full rounded border-gray-300 p-2 focus:outline-purple-500"></div>
@@ -1051,6 +1063,7 @@
             document.getElementById('stockFields').classList.add('hidden');
             document.getElementById('cashFields').classList.add('hidden');
             document.getElementById('optionsFields').classList.add('hidden');
+            document.getElementById('dividendFields').classList.add('hidden');
             document.getElementById('basicMarketFields').classList.add('hidden');
         
             if (category === 'STOCK') {
@@ -1059,6 +1072,8 @@
             } else if (category === 'CASH') {
                 document.getElementById('cashFields').classList.remove('hidden');
                 document.getElementById('basicMarketFields').classList.remove('hidden');
+            } else if (category === 'DIVIDEND_US') {
+                document.getElementById('dividendFields').classList.remove('hidden');
             } else if (category === 'OPTIONS_US' || category === 'OPTIONS_HK') {
                 document.getElementById('optionsFields').classList.remove('hidden');
                 // 根據市場切換預設股數與顏色
@@ -1346,6 +1361,9 @@
                         pos.shares -= qty; cashBalances[marketStr] += amt;
                         if (pos.shares <= 0) delete positions[codeStr];
                         else pos.totalCost = pos.shares * (pos.totalCost / (pos.shares + qty));
+                    } else if (typeStr === 'DIVIDEND') {
+                        // 🔥 派息只增加現金，不影響持倉股數與成本
+                        cashBalances[marketStr] += amt;
                     }
                 }
             });
@@ -1361,7 +1379,7 @@
                 }
             });
         
-            // 🔥 計算期權金現金流與凍結保證金 (區分 US 與 HK)
+            // 計算期權金現金流與凍結保證金 (區分 US 與 HK)
             let optionsLockedLC_US = 0; let optionsLockedSP_US = 0; let optionsLockedLP_US = 0;
             let optionsLockedLC_HK = 0; let optionsLockedSP_HK = 0; let optionsLockedLP_HK = 0;
             
@@ -2801,7 +2819,8 @@
                     source: 'TX', id: t.id,
                     date: t.date ? String(t.date).split('T')[0] : '---',
                     code: t.code, market: t.market, type: t.type,
-                    price: Number(t.price), qty: Number(t.qty)
+                    price: Number(t.price), qty: Number(t.qty),
+                    ex_div_date: t.ex_div_date ? String(t.ex_div_date).split('T')[0] : '' // 🔥 讀取除權日
                 });
             });
         
@@ -2844,7 +2863,10 @@
                     if(item.type === 'SELL') badge = 'bg-red-100 text-red-800';
                     if(item.type === 'DEPOSIT') badge = 'bg-emerald-100 text-emerald-800';
                     if(item.type === 'WITHDRAW') badge = 'bg-orange-100 text-orange-800';
+                    if(item.type === 'DIVIDEND') badge = 'bg-blue-100 text-blue-800'; // 🔥 派息專屬標籤
+                    
                     if(item.code === 'CASH') codeDisplay = '💵 現金流水';
+                    if(item.type === 'DIVIDEND') codeDisplay = `💰 ${item.code} <span class="text-[9px] text-gray-400 block mt-0.5">除權日: ${item.ex_div_date || '---'}</span>`; // 🔥 顯示除權日
                 } else {
                     // 期權專屬 Badge
                     if(item.type.includes('Long Call')) badge = 'bg-blue-100 text-blue-800';
@@ -3119,16 +3141,28 @@
                 return;
             }
         
-            // 原本股票或現金的處理...
             let tx = { id: Date.now().toString(), token: userGoogleToken, date: document.getElementById('txDate').value, market: document.getElementById('txMarket').value };
+            
             if (category === 'STOCK') {
                 tx.code = document.getElementById('stockCode').value.trim().toUpperCase(); tx.type = document.getElementById('stockType').value;
                 tx.price = document.getElementById('txPrice').value; tx.qty = document.getElementById('txQty').value;
-            } else { tx.code = 'CASH'; tx.type = document.getElementById('cashType').value; tx.price = '1'; tx.qty = document.getElementById('cashAmount').value; }
+            } else if (category === 'CASH') { 
+                tx.code = 'CASH'; tx.type = document.getElementById('cashType').value; tx.price = '1'; tx.qty = document.getElementById('cashAmount').value; 
+            } else if (category === 'DIVIDEND_US') {
+                tx.code = document.getElementById('divTicker').value.trim().toUpperCase();
+                tx.type = 'DIVIDEND';
+                tx.price = document.getElementById('divAmount').value;
+                tx.qty = '1';
+                tx.market = 'US';
+                tx.ex_div_date = document.getElementById('divExDate').value; // 寫入除權日
+            }
+            
             try {
                 await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(tx) });
                 transactions.unshift(tx); renderComponents(); updateStatus("✅ 交易寫入成功！", "success");
                 document.getElementById('stockCode').value = ''; document.getElementById('txPrice').value = ''; document.getElementById('txQty').value = ''; document.getElementById('cashAmount').value = '';
+                if(document.getElementById('divTicker')) document.getElementById('divTicker').value = '';
+                if(document.getElementById('divAmount')) document.getElementById('divAmount').value = '';
                 closeTxModal(); 
             } catch (error) { updateStatus("❌ 寫入失敗", "error"); } finally { submitBtn.disabled = false; }
         });
