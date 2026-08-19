@@ -50,6 +50,8 @@
                     <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-lg shadow-inner border border-gray-200">
                         <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-widest px-2 select-none">計劃</span>
                         <button id="btn-trading-tab" onclick="switchTab('trading-tab')" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 text-sm font-medium whitespace-nowrap transition">🎯 出入市計劃</button>
+                        <!-- 🔥 新增：週部署按鈕 -->
+                        <button id="btn-weekly-deployment-tab" onclick="switchTab('weekly-deployment-tab')" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 text-sm font-medium whitespace-nowrap transition">📅 週部署</button>
                         <button id="btn-settings-tab" onclick="switchTab('settings-tab')" class="px-3 py-1.5 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-200 text-sm font-medium whitespace-nowrap hidden transition">⚙️ 配置計劃設定</button>
                     </div>
 
@@ -449,6 +451,55 @@
                 </div>
             </div>
         </div>
+
+        <!-- 頁籤六：週部署 (Weekly Deployment) -->
+        <div id="tab-weekly-deployment" class="space-y-6 hidden">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <div class="border-b pb-3 mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">📅 週部署 (Weekly Deployment)</h2>
+                    <p class="text-sm text-gray-500">市場廣度、宏觀事件與持股入市決策分析報告</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Box 1: 市場內部廣度與信用流動性分析 -->
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                        <h3 class="font-bold text-gray-700 text-sm mb-4 border-b border-gray-200 pb-2">📊 市場內部廣度與信用流動性分析</h3>
+                        <div class="space-y-3 flex-1">
+                            <!-- Hardcoded Record 1 -->
+                            <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm flex flex-col xl:flex-row justify-between items-start xl:items-center gap-2 hover:shadow-md transition">
+                                <span class="text-xs font-bold text-gray-600">2026.08.16-2026.08.22</span>
+                                <button onclick="openIframeModal('https://terrencekcm.github.io/Stock-Portfolio-Management/Marco/weekly_market_breadth_2026-08-09_08-15.html', '市場內部廣度與信用流動性分析')" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded text-xs font-bold transition cursor-pointer w-full xl:w-auto text-center">檢視報告</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Box 2: 宏觀事件分析 -->
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                        <h3 class="font-bold text-gray-700 text-sm mb-4 border-b border-gray-200 pb-2">🌍 宏觀事件分析</h3>
+                        <div class="space-y-3 flex-1">
+                            <!-- Hardcoded Record 1 -->
+                            <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm flex flex-col xl:flex-row justify-between items-start xl:items-center gap-2 hover:shadow-md transition">
+                                <span class="text-xs font-bold text-gray-600">2026.08.16-2026.08.22</span>
+                                <button onclick="openIframeModal('https://terrencekcm.github.io/Stock-Portfolio-Management/Marco/weekly_marco_event_2026-08-09_08-15.html', '宏觀事件分析')" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded text-xs font-bold transition cursor-pointer w-full xl:w-auto text-center">檢視報告</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Box 3: 持股入市決策 -->
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                        <h3 class="font-bold text-gray-700 text-sm mb-4 border-b border-gray-200 pb-2">🎯 持股入市決策</h3>
+                        <div class="space-y-3 flex-1">
+                            <!-- Hardcoded Record 1 -->
+                            <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm flex flex-col xl:flex-row justify-between items-start xl:items-center gap-2 hover:shadow-md transition">
+                                <span class="text-xs font-bold text-gray-600">2026.08.16-2026.08.22</span>
+                                <button onclick="openIframeModal('https://terrencekcm.github.io/Stock-Portfolio-Management/Marco/weekly_stock_plan_2026-08-16_08-22.html', '持股入市決策')" class="px-3 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded text-xs font-bold transition cursor-pointer w-full xl:w-auto text-center">檢視報告</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- 頁籤三：估值模型頁面 -->
         <div id="tab-valuation" class="space-y-6 hidden">
             <div class="bg-white p-6 rounded-xl shadow-md">
@@ -727,6 +778,23 @@
                     </div>
                     <!-- iframe 載入完畢後自動隱藏 Loader -->
                     <iframe id="sectorIframe" src="" class="w-full h-full border-0 relative z-10 hidden" onload="document.getElementById('sectorIframeLoader').classList.add('hidden'); this.classList.remove('hidden');"></iframe>
+                </div>
+            </div>
+        </div>
+        <!-- 彈窗八：通用 Iframe 報告 Modal (用於週部署) -->
+        <div id="genericIframeModal" class="fixed inset-0 bg-gray-900/85 flex items-center justify-center z-[60] p-2 sm:p-4 hidden" onclick="closeGenericIframeModal()">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-7xl h-[95vh] flex flex-col overflow-hidden relative" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-center bg-gray-50 border-b border-gray-200 p-3">
+                    <h3 id="genericIframeTitle" class="text-base font-black text-gray-800">📄 報告檢視</h3>
+                    <button onclick="closeGenericIframeModal()" class="text-gray-400 hover:text-gray-700 font-bold text-xl cursor-pointer w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 transition">✕</button>
+                </div>
+                <div class="flex-1 w-full relative bg-gray-900">
+                    <!-- Loading 指示器 -->
+                    <div id="genericIframeLoader" class="absolute inset-0 flex items-center justify-center text-emerald-400 font-bold text-sm bg-gray-900">
+                        <span class="animate-pulse">🔄 正在載入報告，請稍候...</span>
+                    </div>
+                    <!-- iframe 載入完畢後自動隱藏 Loader -->
+                    <iframe id="genericIframe" src="" class="w-full h-full border-0 relative z-10 hidden" onload="document.getElementById('genericIframeLoader').classList.add('hidden'); this.classList.remove('hidden');"></iframe>
                 </div>
             </div>
         </div>
@@ -1015,8 +1083,8 @@
         function switchTab(tabId) {
             if (tabId === 'settings-tab' && userRole !== 'PM') { alert("❌ 權限被拒絕"); return; }
             
-            // 所有支援的按鈕 ID 陣列 (不包含板塊輪動，因其為彈窗)
-            const allTabs = ['dashboard-tab', 'transactions-tab', 'reports-tab', 'trading-tab', 'settings-tab', 'valuation-tab'];
+            // 🔥 新增 'weekly-deployment-tab' 到陣列中
+            const allTabs = ['dashboard-tab', 'transactions-tab', 'reports-tab', 'trading-tab', 'settings-tab', 'valuation-tab', 'weekly-deployment-tab'];
             
             // 1. 初始化所有按鈕的樣式 (灰底)
             allTabs.forEach(id => {
@@ -1035,13 +1103,13 @@
             document.getElementById('tab-trading-plan').classList.add('hidden');
             document.getElementById('tab-settings').classList.add('hidden');
             document.getElementById('tab-valuation').classList.add('hidden');
+            document.getElementById('tab-weekly-deployment').classList.add('hidden'); // 🔥 隱藏週部署
         
             // 4. 顯示對應的頁籤內容並執行對應的渲染函數
             if (tabId === 'dashboard-tab') {
                 document.getElementById('tab-dashboard').classList.remove('hidden');
             } else if (tabId === 'transactions-tab') {
                 document.getElementById('tab-transactions').classList.remove('hidden');
-                // 🔥 修復關鍵：切換到流水帳頁籤時，必須呼叫此函數來繪製期權已平倉清單！
                 renderPerformanceReport(); 
             } else if (tabId === 'reports-tab') {
                 document.getElementById('tab-reports').classList.remove('hidden');
@@ -1055,6 +1123,8 @@
             } else if (tabId === 'valuation-tab') {
                 document.getElementById('tab-valuation').classList.remove('hidden');
                 renderValuationPage(); 
+            } else if (tabId === 'weekly-deployment-tab') {
+                document.getElementById('tab-weekly-deployment').classList.remove('hidden'); // 🔥 顯示週部署
             }
         }
         
@@ -3674,7 +3744,38 @@
         function closeSectorRotationModal() {
             // 隱藏彈窗 (保留 src 狀態，下次點擊同一個網址可秒開)
             document.getElementById('sectorRotationModal').classList.add('hidden');
-        }        
+        }
+        // ==========================================
+        // 🚀 通用 Iframe 報告彈窗控制邏輯 (用於週部署)
+        // ==========================================
+        function openIframeModal(targetUrl, title) {
+            const modal = document.getElementById('genericIframeModal');
+            const iframe = document.getElementById('genericIframe');
+            const loader = document.getElementById('genericIframeLoader');
+            const titleEl = document.getElementById('genericIframeTitle');
+            
+            // 動態設定彈窗標題
+            titleEl.innerText = "📄 " + title;
+            
+            // 抓取目前 iframe 設定的路徑
+            const currentPath = iframe.getAttribute('src');
+            
+            // 如果點擊的路徑跟目前 iframe 載入的路徑不同，才重新載入並顯示 Loading
+            if (currentPath !== targetUrl) {
+                loader.classList.remove('hidden');
+                iframe.classList.add('hidden');
+                // 更新 src 載入新網頁
+                iframe.setAttribute('src', targetUrl);
+            }
+            
+            // 顯示彈窗
+            modal.classList.remove('hidden');
+        }
+
+        function closeGenericIframeModal() {
+            // 隱藏彈窗 (保留 src 狀態，下次點擊同一個網址可秒開)
+            document.getElementById('genericIframeModal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
