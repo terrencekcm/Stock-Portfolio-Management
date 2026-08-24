@@ -68,8 +68,11 @@
                             <div class="absolute left-0 top-full pt-1 w-36 hidden group-hover:block z-50">
                                 <!-- 實際的白色選單框 -->
                                 <div class="bg-white border border-gray-200 rounded-md shadow-xl flex flex-col overflow-hidden">
-                                    <button onclick="openSectorRotationModal('sector_260809.html')" class="px-4 py-2 text-left text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition border-b border-gray-100 cursor-pointer">
-                                        📍 260809 週分析 (本週分析)
+                                    <button onclick="openSectorRotationModal('sector_260816.html')" class="px-4 py-2 text-left text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition border-b border-gray-100 cursor-pointer">
+                                        📍 260816 週分析 (本週分析)
+                                    </button>
+                                    <button onclick="openSectorRotationModal('sector_260809.html')" class="px-4 py-2 text-left text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer">
+                                        📅 260809 週分析
                                     </button>
                                     <button onclick="openSectorRotationModal('sector.html')" class="px-4 py-2 text-left text-xs font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition cursor-pointer">
                                         📅 260802 週分析
@@ -460,6 +463,44 @@
                 <div class="border-b pb-3 mb-6">
                     <h2 class="text-xl font-bold text-gray-800">📅 週部署 (Weekly Deployment)</h2>
                     <p class="text-sm text-gray-500">市場廣度、宏觀事件與持股入市決策分析報告</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Box 1: 市場內部廣度與信用流動性分析 -->
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                        <h3 class="font-bold text-gray-700 text-sm mb-4 border-b border-gray-200 pb-2">📊 市場內部廣度與信用流動性分析</h3>
+                        <div class="space-y-3 flex-1">
+                            <!-- Hardcoded Record 1 -->
+                            <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm flex flex-col xl:flex-row justify-between items-start xl:items-center gap-2 hover:shadow-md transition">
+                                <span class="text-xs font-bold text-gray-600">2026.08.23-2026.08.29</span>
+                                <button onclick="openIframeModal('https://terrencekcm.github.io/Stock-Portfolio-Management/Marco/weekly_market_breadth_2026-08-23_08-29.html', '市場內部廣度與信用流動性分析')" class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded text-xs font-bold transition cursor-pointer w-full xl:w-auto text-center">檢視報告</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Box 2: 宏觀事件分析 -->
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                        <h3 class="font-bold text-gray-700 text-sm mb-4 border-b border-gray-200 pb-2">🌍 宏觀事件分析</h3>
+                        <div class="space-y-3 flex-1">
+                            <!-- Hardcoded Record 1 -->
+                            <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm flex flex-col xl:flex-row justify-between items-start xl:items-center gap-2 hover:shadow-md transition">
+                                <span class="text-xs font-bold text-gray-600">2026.08.23-2026.08.29</span>
+                                <button onclick="openIframeModal('https://terrencekcm.github.io/Stock-Portfolio-Management/Marco/weekly_marco_event_2026-08-23_08-29.html', '宏觀事件分析')" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded text-xs font-bold transition cursor-pointer w-full xl:w-auto text-center">檢視報告</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Box 3: 持股入市決策 -->
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                        <h3 class="font-bold text-gray-700 text-sm mb-4 border-b border-gray-200 pb-2">🎯 持股入市決策</h3>
+                        <div class="space-y-3 flex-1">
+                            <!-- Hardcoded Record 1 -->
+                            <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm flex flex-col xl:flex-row justify-between items-start xl:items-center gap-2 hover:shadow-md transition">
+                                <span class="text-xs font-bold text-gray-600">2026.08.23-2026.08.29</span>
+                                <button onclick="openIframeModal('https://terrencekcm.github.io/Stock-Portfolio-Management/Marco/weekly_stock_plan_2026-08-23_08-29.html', '持股入市決策')" class="px-3 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded text-xs font-bold transition cursor-pointer w-full xl:w-auto text-center">檢視報告</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
