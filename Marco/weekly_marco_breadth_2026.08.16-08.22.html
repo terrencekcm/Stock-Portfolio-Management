@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>週度市場量化風險報告 | 2026.08.16–08.22</title>
+<style>
+:root{
+  --bg-0:#05070a;
+  --bg-1:#0a0e14;
+  --bg-2:#0f141c;
+  --panel:#111823;
+  --panel-2:#141c28;
+  --line:#1f2b3a;
+  --line-soft:#182231;
+  --text-hi:#e8edf4;
+  --text-mid:#93a3b8;
+  --text-dim:#5b6b80;
+  --green:#33e6a0;
+  --green-dim:#1a5c46;
+  --red:#ff5c6e;
+  --red-dim:#5c2430;
+  --amber:#ffb648;
+  --amber-dim:#5c4620;
+  --cyan:#3fd0ff;
+  --violet:#a78bfa;
+  --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  --sans: "Segoe UI", Avenir, "Helvetica Neue", Arial, sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg-0);color:var(--text-hi);font-family:var(--mono);}
+body{
+  background:
+    radial-gradient(1200px 600px at 12% -10%, rgba(63,208,255,0.06), transparent 60%),
+    radial-gradient(1000px 500px at 100% 0%, rgba(167,139,250,0.05), transparent 55%),
+    var(--bg-0);
+  padding:28px 18px 80px;
+}
+.wrap{max-width:1180px;margin:0 auto;}
+
+/* ---------- header ---------- */
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:22px;
+  font-size:11px;letter-spacing:.12em;color:var(--text-dim);text-transform:uppercase;
+}
+.topbar .dot{color:var(--green);}
+.masthead{margin-bottom:26px;}
+.masthead h1{
+  font-family:var(--sans);font-weight:800;font-size:clamp(24px,4vw,38px);
+  letter-spacing:-0.01em;margin:0 0 6px;color:var(--text-hi);
+}
+.masthead .sub{color:var(--text-mid);font-size:13px;letter-spacing:.02em;margin-bottom:16px;}
+.badges{display:flex;gap:10px;flex-wrap:wrap;}
+.badge{
+  border:1px solid var(--line);background:var(--panel);border-radius:3px;
+  padding:9px 14px;font-size:12px;display:flex;flex-direction:column;gap:3px;min-width:210px;
+}
+.badge .lbl{color:var(--text-dim);font-size:10px;letter-spacing:.1em;text-transform:uppercase;}
+.badge .val{color:var(--text-hi);font-weight:600;font-size:13.5px;}
+.badge.analysis{border-left:3px solid var(--cyan);}
+.badge.forecast{border-left:3px solid var(--violet);}
+
+/* ---------- section shell ---------- */
+section{margin-bottom:40px;}
+.sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;}
+.sec-num{font-size:11px;color:var(--text-dim);letter-spacing:.1em;}
+.sec-title{font-family:var(--sans);font-weight:700;font-size:16px;color:var(--text-hi);letter-spacing:.01em;}
+.sec-title::before{content:"▍";color:var(--cyan);margin-right:2px;}
+.sec-desc{color:var(--text-dim);font-size:11.5px;margin:-6px 0 14px 0;line-height:1.6;}
+
+/* ---------- grid / cards ---------- */
+.grid{display:grid;gap:12px;}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+.grid-5{grid-template-columns:repeat(5,1fr);}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+@media(max-width:900px){.grid-4,.grid-5,.grid-3{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.grid-4,.grid-5,.grid-3,.grid-2{grid-template-columns:1fr;}}
+
+.card{
+  background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  border:1px solid var(--line);border-radius:4px;padding:14px 15px;
+  position:relative;overflow:hidden;
+}
+.card::after{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line-soft);}
+.card.up::after{background:var(--green);}
+.card.down::after{background:var(--red);}
+.idx-name{font-family:var(--sans);font-size:11.5px;color:var(--text-mid);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;}
+.idx-val{font-size:22px;font-weight:700;color:var(--text-hi);letter-spacing:-0.01em;}
+.idx-chg{font-size:13px;margin-top:3px;font-weight:600;}
+.idx-chg.up{color:var(--green);}
+.idx-chg.down{color:var(--red);}
+.src-badge{
+  margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);
+  font-size:9.5px;color:var(--text-dim);letter-spacing:.02em;line-height:1.5;
+}
+.src-badge b{color:var(--text-mid);font-weight:600;}
+
+/* macro cards */
+.macro-card .idx-val{font-size:19px;}
+.macro-card .unit{font-size:11px;color:var(--text-dim);font-weight:400;margin-left:2px;}
+
+/* ---------- chart panels ---------- */
+.chart-panel{
+  background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  padding:16px 16px 10px;
+}
+.chart-panel h3{
+  font-family:var(--sans);font-size:12.5px;color:var(--text-hi);margin:0 0 2px;
+  display:flex;justify-content:space-between;align-items:center;font-weight:700;
+}
+.chart-panel .chart-note{font-size:10px;color:var(--text-dim);margin-bottom:8px;}
+.legend{display:flex;gap:14px;font-size:10px;color:var(--text-mid);margin-top:6px;}
+.legend span{display:inline-flex;align-items:center;gap:5px;}
+.legend i{width:10px;height:2px;display:inline-block;border-radius:2px;}
+
+/* ---------- breadth tables ---------- */
+.breadth-block{border:1px solid var(--line);border-radius:4px;background:var(--panel);padding:16px;margin-bottom:14px;}
+.breadth-title{font-family:var(--sans);font-weight:700;font-size:13px;color:var(--text-hi);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.breadth-title .tag{font-size:9.5px;background:var(--panel-2);border:1px solid var(--line);color:var(--text-mid);padding:2px 7px;border-radius:20px;letter-spacing:.05em;}
+table.datatbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;}
+table.datatbl th{
+  text-align:right;color:var(--text-dim);font-weight:600;font-size:10px;
+  text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid var(--line);
+}
+table.datatbl th:first-child,table.datatbl td:first-child{text-align:left;}
+table.datatbl td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line-soft);color:var(--text-hi);}
+table.datatbl tr:last-child td{border-bottom:none;}
+.mono-pos{color:var(--green);}
+.mono-neg{color:var(--red);}
+.analysis-txt{font-size:12.5px;line-height:1.85;color:var(--text-mid);}
+.analysis-txt b{color:var(--text-hi);}
+.combined{border-left:3px solid var(--cyan);background:var(--panel-2);}
+
+/* ---------- credit cards ---------- */
+.credit-card{
+  background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.credit-head{display:flex;justify-content:space-between;align-items:flex-start;}
+.credit-name{font-family:var(--sans);font-weight:700;font-size:12.5px;color:var(--text-hi);}
+.credit-latest{font-size:18px;font-weight:700;}
+.status-pill{font-size:10px;padding:2px 9px;border-radius:20px;font-weight:700;letter-spacing:.03em;white-space:nowrap;}
+.status-green{background:var(--green-dim);color:var(--green);}
+.status-amber{background:var(--amber-dim);color:var(--amber);}
+.status-red{background:var(--red-dim);color:var(--red);}
+.credit-desc{font-size:11.5px;color:var(--text-mid);line-height:1.7;}
+.spark-wrap{margin:2px 0;}
+
+/* ---------- score section ---------- */
+.score-wrap{display:grid;grid-template-columns:340px 1fr;gap:22px;}
+@media(max-width:800px){.score-wrap{grid-template-columns:1fr;}}
+.gauge-card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:20px;text-align:center;}
+.gauge-score{font-size:46px;font-weight:800;font-family:var(--sans);margin-top:-6px;}
+.gauge-label{font-size:11px;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
+.gauge-verdict{margin-top:10px;font-size:13px;font-weight:700;padding:6px 12px;border-radius:20px;display:inline-block;}
+
+.subscore-list{display:flex;flex-direction:column;gap:10px;}
+.subscore-row{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;}
+.subscore-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;}
+.subscore-top .w{color:var(--text-dim);font-size:10.5px;}
+.bar-bg{height:8px;background:var(--bg-2);border-radius:4px;overflow:hidden;border:1px solid var(--line-soft);}
+.bar-fill{height:100%;border-radius:4px;}
+
+.methodology{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:16px;margin-top:16px;font-size:12px;color:var(--text-mid);line-height:1.9;}
+.methodology h4{font-family:var(--sans);color:var(--text-hi);font-size:12.5px;margin:0 0 8px;}
+.methodology table{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:8px;}
+.methodology table th{text-align:left;color:var(--text-dim);padding:5px 8px;border-bottom:1px solid var(--line);font-size:10px;text-transform:uppercase;letter-spacing:.05em;}
+.methodology table td{padding:6px 8px;border-bottom:1px solid var(--line-soft);}
+
+/* ---------- conclusion ---------- */
+.concl-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+@media(max-width:900px){.concl-grid{grid-template-columns:1fr;}}
+.concl-col{border:1px solid var(--line);border-radius:4px;background:var(--panel);padding:16px;}
+.concl-col h4{font-family:var(--sans);font-size:12.5px;margin:0 0 10px;display:flex;align-items:center;gap:7px;}
+.concl-col ul{margin:0;padding-left:18px;font-size:12px;color:var(--text-mid);line-height:1.9;}
+.concl-col.bull h4{color:var(--green);}
+.concl-col.risk h4{color:var(--red);}
+.concl-col.watch h4{color:var(--cyan);}
+.dotlbl{width:8px;height:8px;border-radius:50%;display:inline-block;}
+
+footer{margin-top:50px;padding-top:16px;border-top:1px solid var(--line);font-size:10.5px;color:var(--text-dim);line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div><span class="dot">●</span> QUANT-TERMINAL // WEEKLY RISK DESK</div>
+    <div id="genTime">GENERATED —</div>
+  </div>
+
+  <div class="masthead">
+    <h1>週度市場量化風險報告</h1>
+    <div class="sub">Cross-Asset Breadth · Credit &amp; Liquidity · Sentiment Composite Score — 產出對象：下週入市部位規劃</div>
+    <div class="badges">
+      <div class="badge analysis">
+        <span class="lbl">數據分析週期（上一週）</span>
+        <span class="val">2026.08.16 – 2026.08.22</span>
+      </div>
+      <div class="badge forecast">
+        <span class="lbl">風險預測週期（下一週）</span>
+        <span class="val">2026.08.23 – 2026.08.29</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SECTION 1: BASIC DATA ================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><span class="sec-title">基本數據展示</span></div>
+    <div class="sec-desc">主要指數與宏觀指標最新收盤，資料來源與截至時間標註於各卡片底部。</div>
+
+    <div class="grid grid-4" style="margin-bottom:14px;">
+      <div class="card up">
+        <div class="idx-name">S&amp;P 500</div>
+        <div class="idx-val">7,674.37</div>
+        <div class="idx-chg up">▲ +33.21 (+0.43%)</div>
+        <div class="src-badge"><b>Source:</b> Yahoo Finance (^GSPC) · <b>As of:</b> 2026-08-21 16:41 EDT</div>
+      </div>
+      <div class="card up">
+        <div class="idx-name">Nasdaq Composite</div>
+        <div class="idx-val">26,180.46</div>
+        <div class="idx-chg up">▲ +113.29 (+0.43%)</div>
+        <div class="src-badge"><b>Source:</b> Yahoo Finance (^IXIC) · <b>As of:</b> 2026-08-21 16:41 EDT</div>
+      </div>
+      <div class="card up">
+        <div class="idx-name">Dow Jones Industrial</div>
+        <div class="idx-val">53,277.01</div>
+        <div class="idx-chg up">▲ +517.80 (+0.98%)</div>
+        <div class="src-badge"><b>Source:</b> Yahoo Finance (^DJI) · <b>As of:</b> 2026-08-21 16:41 EDT</div>
+      </div>
+      <div class="card down">
+        <div class="idx-name">SOX（PHLX Semiconductor）</div>
+        <div class="idx-val">11,740.37</div>
+        <div class="idx-chg down">▼ −60 pts (−0.51%)</div>
+        <div class="src-badge"><b>Source:</b> Nasdaq / FRED (NASDAQSOX) · <b>As of:</b> 2026-08-21</div>
+      </div>
+    </div>
+
+    <div class="grid grid-5">
+      <div class="card macro-card up">
+        <div class="idx-name">10Y Treasury Yield</div>
+        <div class="idx-val">4.70<span class="unit">%</span></div>
+        <div class="idx-chg down">近 20 個月高位附近</div>
+        <div class="src-badge"><b>Source:</b> Trading Economics · <b>As of:</b> 2026-08-21</div>
+      </div>
+      <div class="card macro-card up">
+        <div class="idx-name">20Y Treasury Yield</div>
+        <div class="idx-val">≈5.05<span class="unit">%</span></div>
+        <div class="idx-chg down">30Y 同步逼近近二十年高位</div>
+        <div class="src-badge"><b>Source:</b> 估算（10Y/30Y 曲線內插）· <b>As of:</b> 2026-08-21</div>
+      </div>
+      <div class="card macro-card down">
+        <div class="idx-name">VIX</div>
+        <div class="idx-val">15.13</div>
+        <div class="idx-chg down">▼ −0.88 (−5.50%)</div>
+        <div class="src-badge"><b>Source:</b> Yahoo Finance (^VIX) · <b>As of:</b> 2026-08-21 16:41 EDT</div>
+      </div>
+      <div class="card macro-card up">
+        <div class="idx-name">WTI Crude Oil</div>
+        <div class="idx-val">$87.06</div>
+        <div class="idx-chg up">▲ +0.23 (+0.26%)</div>
+        <div class="src-badge"><b>Source:</b> Yahoo Finance (CL=F) · <b>As of:</b> 2026-08-21 16:41 EDT</div>
+      </div>
+      <div class="card macro-card up">
+        <div class="idx-name">Gold</div>
+        <div class="idx-val">$4,680.60</div>
+        <div class="idx-chg up">▲ +109.20 (+2.39%)</div>
+        <div class="src-badge"><b>Source:</b> Yahoo Finance (GC=F) · <b>As of:</b> 2026-08-21 16:41 EDT</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 2: TREND CHARTS ================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><span class="sec-title">六個月趨勢圖</span></div>
+    <div class="sec-desc">以週收盤為基礎重建之近似走勢，用以呈現方向與波動幅度，非逐日精確報價；用於輔助判斷中期結構。</div>
+    <div class="grid grid-2" style="margin-bottom:12px;">
+      <div class="chart-panel" style="grid-column:1 / -1;">
+        <h3>VIX vs. Nasdaq Composite（六個月）</h3>
+        <div class="chart-note">左軸：Nasdaq Composite　右軸：VIX　— 觀察恐慌指數是否與指數走勢背離</div>
+        <svg id="chartVixNdx" viewBox="0 0 1080 260" width="100%" height="260"></svg>
+        <div class="legend">
+          <span><i style="background:var(--cyan)"></i>Nasdaq Composite（左軸）</span>
+          <span><i style="background:var(--red)"></i>VIX（右軸）</span>
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-2">
+      <div class="chart-panel">
+        <h3>10Y Treasury Yield（六個月）</h3>
+        <div class="chart-note">觀察殖利率上行斜率是否加速施壓估值</div>
+        <svg id="chart10y" viewBox="0 0 520 220" width="100%" height="220"></svg>
+      </div>
+      <div class="chart-panel">
+        <h3>DXY 美元指數（六個月）</h3>
+        <div class="chart-note">觀察美元強弱對新興市場與商品的外溢效果</div>
+        <svg id="chartDxy" viewBox="0 0 520 220" width="100%" height="220"></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 3: BREADTH ================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><span class="sec-title">市場內部廣度分析</span></div>
+    <div class="sec-desc">比較上上週（08.10–08.14）與上週（08.17–08.21）之新高/新低動能與突破留存率變化。</div>
+
+    <div class="breadth-block">
+      <div class="breadth-title">大型股 + 科技股（S&amp;P 500 &amp; Nasdaq 100）<span class="tag">518 檔去重覆成分股</span></div>
+      <table class="datatbl">
+        <tr><th>週期</th><th>指數漲跌</th><th>Dynamic NH</th><th>Dynamic NL</th><th>Net NH</th><th>NH Ratio</th><th>Close NH</th><th>留存率</th></tr>
+        <tr>
+          <td>08.10–08.14</td>
+          <td class="mono-pos">S&amp;P +0.44% / NAS +1.13%</td>
+          <td>53</td><td>4</td><td class="mono-pos">49</td><td>93.0%</td><td>27</td><td>50.9%</td>
+        </tr>
+        <tr>
+          <td>08.17–08.21</td>
+          <td class="mono-neg">S&amp;P −1.49% / NAS −2.79%</td>
+          <td>46</td><td>9</td><td class="mono-pos">37</td><td>83.6%</td><td>26</td><td>56.5%</td>
+        </tr>
+      </table>
+      <div class="analysis-txt">
+        <b>獨立分析：</b>大型股與科技股週線由正轉負（S&amp;P −1.49%、Nasdaq −2.79%），創新高家數由 53 檔降至 46 檔，新低家數則由 4 檔倍增至 9 檔，Net NH 由 49 收斂至 37，NH Ratio 由 93.0% 滑落至 83.6%，顯示廣度動能明顯降溫，但仍維持「新高遠多於新低」的多方結構，尚未出現全面轉空的訊號。值得留意的是<b>突破留存率反而由 50.9% 回升至 56.5%</b>——在指數重挫的一週裡，成功站穩新高的家數比例不降反升，暗示真正創新高的個股體質相對紮實，本週的下跌更接近「估值修正」而非「品質瓦解」。
+      </div>
+    </div>
+
+    <div class="breadth-block">
+      <div class="breadth-title">中小盤股（Russell 2000）<span class="tag">1,970 檔成分股</span></div>
+      <table class="datatbl">
+        <tr><th>週期</th><th>指數漲跌</th><th>Dynamic NH</th><th>Dynamic NL</th><th>Net NH</th><th>NH Ratio</th><th>Close NH</th><th>留存率</th></tr>
+        <tr>
+          <td>08.10–08.14</td>
+          <td class="mono-pos">+1.39%</td>
+          <td>146</td><td>12</td><td class="mono-pos">134</td><td>92.4%</td><td>77</td><td>52.7%</td>
+        </tr>
+        <tr>
+          <td>08.17–08.21</td>
+          <td class="mono-neg">−1.39%</td>
+          <td>160</td><td>32</td><td class="mono-pos">128</td><td>83.3%</td><td>67</td><td>41.9%</td>
+        </tr>
+      </table>
+      <div class="analysis-txt">
+        <b>獨立分析：</b>中小盤股嘗試創新高的家數不減反增（146→160 檔），顯示投機性買盤仍在積極測試高點；但新低家數同步由 12 檔跳增至 32 檔（近 3 倍），Net NH 小幅收斂至 128，NH Ratio 由 92.4% 降至 83.3%。更關鍵的是<b>突破留存率由 52.7% 明顯滑落至 41.9%</b>——與大型股相反，中小盤新高「攻堅但守不住」的比例大幅上升，反映資金品質相對脆弱、追價意願強但承接力道不足，是本週廣度數據中最需要留意的弱化訊號。
+      </div>
+    </div>
+
+    <div class="breadth-block combined">
+      <div class="breadth-title">🔎 廣度綜合分析</div>
+      <div class="analysis-txt">
+        兩個族群的 NH Ratio 皆從 92–93% 的高檔區同步滑落至 83% 左右，顯示上週的賣壓是<b>系統性、非結構性</b>的（與債券殖利率飆升、Iran 地緣風險升溫的總經事件一致），而非個股基本面惡化所致。但兩者的「留存率」出現明顯分歧：大型科技股逆勢走強（+5.6pp），中小盤顯著轉弱（−10.8pp）。這種分化意味著<b>資金正在從高波動、低流動性的中小盤股轉向相對優質的大型科技權值股</b>，下週若指數反彈，領漲族群大概率仍以大型股 / 半導體權值為主，中小盤的反彈力道與持續性應保持審慎。
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 4: CREDIT / LIQUIDITY ================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><span class="sec-title">信貸 / 流動性指標分析</span></div>
+    <div class="sec-desc">依 2026-08-03 至 2026-08-21 每日真實數值繪製；狀態燈號依報告內建之閾值方法論判定。</div>
+
+    <div class="grid grid-3" id="creditCards"></div>
+
+    <div class="breadth-block combined" style="margin-top:14px;">
+      <div class="breadth-title">🔎 信用 / 流動性綜合分析</div>
+      <div class="analysis-txt" id="creditCombined"></div>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 5: SCORE ================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><span class="sec-title">下週入市熱度綜合評分</span></div>
+    <div class="sec-desc">滿分 100 分，五大構面加權；分項燈號沿用第 3、4 節之判定結果，供未來每週橫向比較。</div>
+
+    <div class="score-wrap">
+      <div class="gauge-card">
+        <svg id="gauge" viewBox="0 0 300 190" width="100%" height="190"></svg>
+        <div class="gauge-score" id="gaugeScoreTxt">—</div>
+        <div class="gauge-label">Composite Entry Score / 100</div>
+        <div class="gauge-verdict" id="gaugeVerdict">—</div>
+      </div>
+
+      <div class="subscore-list" id="subscoreList"></div>
+    </div>
+
+    <div class="methodology">
+      <h4>評分方法論（供未來橫向比較）</h4>
+      <div>總分 = Σ（分項燈號分數 × 分項權重）。每一分項先依第 3、4 節建立之閾值判定為 🟢 / 🟡 / 🔴，再對應下表基礎分數，最後乘以權重加總；🟢 代表結構健康、🟡 代表中性 / 需觀察、🔴 代表警戒。</div>
+      <table>
+        <tr><th>燈號</th><th>基礎分數（滿分 100）</th><th>意涵</th></tr>
+        <tr><td>🟢 綠燈</td><td>85–95</td><td>指標落於安全區，支持風險偏好</td></tr>
+        <tr><td>🟡 黃燈</td><td>50–65</td><td>指標中性或訊號分歧，維持觀望權重</td></tr>
+        <tr><td>🔴 紅燈</td><td>10–20</td><td>指標觸及警戒區，建議降低曝險</td></tr>
+      </table>
+      <table>
+        <tr><th>分項</th><th>權重</th><th>依據</th></tr>
+        <tr><td>市場廣度（NH Ratio / 留存率變化）</td><td>25%</td><td>第 3 節：大型股與中小盤 NH Ratio、留存率週變化</td></tr>
+        <tr><td>信用利差與資金面（SOFR-IORB、HY OAS）</td><td>20%</td><td>第 4 節：隔夜融資利差是否收斂、信用利差是否過度壓縮</td></tr>
+        <tr><td>風險偏好（SPHB / SPLV）</td><td>15%</td><td>第 4 節：高 Beta 對低波動比率是否與大盤同步</td></tr>
+        <tr><td>期權情緒（Put/Call MA20、VIX/VIX3M）</td><td>20%</td><td>第 4 節：散戶恐慌情緒與波動率期限結構</td></tr>
+        <tr><td>債市門控（MOVE Index）</td><td>20%</td><td>第 4 節：美債抵押品體系流動性是否穩定</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 6: CONCLUSION ================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><span class="sec-title">綜合結論</span></div>
+    <div class="concl-grid">
+      <div class="concl-col bull">
+        <h4><span class="dotlbl" style="background:var(--green)"></span>支持做多因素</h4>
+        <ul>
+          <li>MOVE Index 收於 73.4，遠低於 100 之警戒線，債市抵押品體系尚穩，未對股市形成流動性緊縮壓力。</li>
+          <li>大型股／科技股突破留存率逆勢由 50.9% 升至 56.5%，顯示真正創新高的個股體質紮實，賣壓偏向估值修正而非品質崩壞。</li>
+          <li>SOFR-IORB 維持負值區間，隔夜融資順暢，短端流動性無壓力。</li>
+          <li>Friday 收盤全面翻紅（Dow +0.98%、S&amp;P +0.43%、Nasdaq +0.43%），VIX 單日重挫 5.5%，顯示週末前恐慌情緒已明顯釋放。</li>
+        </ul>
+      </div>
+      <div class="concl-col risk">
+        <h4><span class="dotlbl" style="background:var(--red)"></span>需留意風險</h4>
+        <ul>
+          <li>10Y／30Y 公債殖利率逼近近二十年高位（10Y ≈4.70%、30Y ≈5.25%），長端融資成本上升，估值端持續承壓。</li>
+          <li>中小盤股突破留存率驟降至 41.9%（−10.8pp），新低家數暴增近 3 倍，內部脆弱度上升。</li>
+          <li>HY OAS 壓縮至約 2.7%（270–275bps）低檔，信用利差對風險的緩衝空間偏薄，一旦出現信用事件容錯率低。</li>
+          <li>美國對伊朗「經濟戰」相關政策細節將於下週一公布，地緣政治與油價（WTI $87）存在跳空風險。</li>
+        </ul>
+      </div>
+      <div class="concl-col watch">
+        <h4><span class="dotlbl" style="background:var(--cyan)"></span>下週關鍵觀察指標</h4>
+        <ul>
+          <li>Fed Jackson Hole 年會發言基調，是否強化「暫不升息但維持鷹派」立場。</li>
+          <li>Nvidia（NVDA）財報：AI 資本支出週期是否延續，將牽動 SOX 與科技權值股廣度。</li>
+          <li>財政部長 Bessent 週一記者會之對伊朗經濟制裁細節，觀察油價與避險情緒反應。</li>
+          <li>10Y／30Y 殖利率能否守住當前高檔區，及財政部擴大回購（buyback）對長端利率之壓制效果。</li>
+          <li>Put/Call MA20 是否由目前 0.60 續向 0.45–0.50 警戒區靠攏，作為觀察散戶過度樂觀的先行指標。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>資料來源：Yahoo Finance、Trading Economics、FRED（NASDAQSOX）、使用者提供之廣度掃描與信用/流動性數據表；六個月趨勢圖為依可查證之週度數據點重建之近似走勢，僅供中期方向參考，非逐日精確報價。</div>
+    <div style="margin-top:6px;">本報告為量化數據彙整與情境分析，不構成投資建議；市場瞬息萬變，請自行審慎評估風險並諮詢專業意見。</div>
+  </footer>
+
+</div>
+
+<script>
+document.getElementById('genTime').textContent = 'GENERATED ' + new Date().toISOString().slice(0,16).replace('T',' ') + ' UTC';
+
+/* ============== helper: build svg line/area chart from array ============== */
+function buildLineChart(svgEl, series, opts){
+  // series: [{data:[...], color, axis:'l'|'r'}]
+  const vb = svgEl.viewBox.baseVal;
+  const W = vb.width, H = vb.height;
+  const padL = opts.padL||44, padR = opts.padR||44, padT = opts.padT||10, padB = opts.padB||22;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  let svgns = "http://www.w3.org/2000/svg";
+
+  function scaleY(v,min,max){ return padT + plotH - ( (v-min)/(max-min||1) )*plotH; }
+
+  // gridlines
+  for(let i=0;i<=4;i++){
+    const y = padT + (plotH/4)*i;
+    const gl = document.createElementNS(svgns,'line');
+    gl.setAttribute('x1',padL); gl.setAttribute('x2', W-padR);
+    gl.setAttribute('y1',y); gl.setAttribute('y2',y);
+    gl.setAttribute('stroke','#182231'); gl.setAttribute('stroke-width','1');
+    svgEl.appendChild(gl);
+  }
+
+  series.forEach(s=>{
+    const vals = s.data.filter(v=>v!=null);
+    const min = Math.min(...vals), max = Math.max(...vals);
+    const range = (max-min) || 1;
+    const lo = min - range*0.12, hi = max + range*0.12;
+    const n = s.data.length;
+    let pts = [];
+    s.data.forEach((v,i)=>{
+      if(v==null) return;
+      const x = padL + (plotW/(n-1))*i;
+      const y = scaleY(v,lo,hi);
+      pts.push([x,y]);
+    });
+    // area fill for first series only if requested
+    if(s.fill){
+      const areaPts = pts.map(p=>p[0]+','+p[1]).join(' L ');
+      const path = document.createElementNS(svgns,'path');
+      const d = `M ${pts[0][0]},${padT+plotH} L ${areaPts} L ${pts[pts.length-1][0]},${padT+plotH} Z`;
+      path.setAttribute('d', d);
+      path.setAttribute('fill', s.color);
+      path.setAttribute('opacity','0.10');
+      svgEl.appendChild(path);
+    }
+    const path = document.createElementNS(svgns,'path');
+    const d = 'M ' + pts.map(p=>p[0]+','+p[1]).join(' L ');
+    path.setAttribute('d', d);
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke', s.color);
+    path.setAttribute('stroke-width', s.width||2);
+    path.setAttribute('stroke-linejoin','round');
+    path.setAttribute('stroke-linecap','round');
+    svgEl.appendChild(path);
+
+    // last point marker + label
+    const lastPt = pts[pts.length-1];
+    const dot = document.createElementNS(svgns,'circle');
+    dot.setAttribute('cx',lastPt[0]); dot.setAttribute('cy',lastPt[1]); dot.setAttribute('r','3.4');
+    dot.setAttribute('fill',s.color);
+    svgEl.appendChild(dot);
+
+    const lbl = document.createElementNS(svgns,'text');
+    lbl.setAttribute('x', s.axis==='r' ? lastPt[0]+6 : lastPt[0]+6);
+    lbl.setAttribute('y', lastPt[1]+4);
+    lbl.setAttribute('font-size','10');
+    lbl.setAttribute('font-family','ui-monospace, monospace');
+    lbl.setAttribute('fill', s.color);
+    lbl.textContent = s.lastLabel;
+    if(lastPt[0] > W - padR - 60){ lbl.setAttribute('text-anchor','end'); lbl.setAttribute('x', lastPt[0]-6); }
+    svgEl.appendChild(lbl);
+  });
+
+  // x axis month labels
+  if(opts.xLabels){
+    opts.xLabels.forEach((lab,i)=>{
+      const n = opts.xLabels.length;
+      const x = padL + (plotW/(n-1))*i;
+      const t = document.createElementNS(svgns,'text');
+      t.setAttribute('x',x); t.setAttribute('y', H-6);
+      t.setAttribute('font-size','9.5'); t.setAttribute('fill','#5b6b80');
+      t.setAttribute('font-family','ui-monospace, monospace');
+      t.setAttribute('text-anchor', i===0? 'start' : (i===n-1?'end':'middle'));
+      t.textContent = lab;
+      svgEl.appendChild(t);
+    });
+  }
+}
+
+/* ---- approximate 6-month weekly reconstructions (indicative trend, not tick data) ---- */
+const wkLabels = ['2/23','3/16','4/6','4/27','5/18','6/8','6/29','7/20','8/10','8/21'];
+
+const ndxSeries = [22480,22910,21860,23150,23980,24560,25120,25890,27310,26180];
+const vixSeries = [14.8,13.9,21.4,16.2,13.1,12.6,13.4,12.9,14.1,15.13];
+buildLineChart(document.getElementById('chartVixNdx'), [
+  {data:ndxSeries, color:'#3fd0ff', axis:'l', width:2.2, fill:true, lastLabel:'26,180.46'},
+  {data:vixSeries, color:'#ff5c6e', axis:'r', width:2, lastLabel:'15.13'}
+], {xLabels:wkLabels, padR:70});
+
+const y10Series = [4.18,4.24,4.31,4.22,4.30,4.42,4.38,4.51,4.63,4.70];
+buildLineChart(document.getElementById('chart10y'), [
+  {data:y10Series, color:'#ffb648', width:2.2, fill:true, lastLabel:'4.70%'}
+], {xLabels:wkLabels});
+
+const dxySeries = [98.6,97.9,96.4,97.1,97.8,97.3,96.9,97.6,98.3,98.0];
+buildLineChart(document.getElementById('chartDxy'), [
+  {data:dxySeries, color:'#a78bfa', width:2.2, fill:true, lastLabel:'≈98.0'}
+], {xLabels:wkLabels});
+
+/* ============== sparkline builder ============== */
+function sparkline(svgEl, data, color){
+  const vb = svgEl.viewBox.baseVal;
+  const W = vb.width, H = vb.height;
+  const pad = 4;
+  const vals = data.filter(v=>v!=null);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = (max-min)||1;
+  const n = data.length;
+  let pts = [];
+  data.forEach((v,i)=>{
+    if(v==null) return;
+    const x = pad + ((W-2*pad)/(n-1))*i;
+    const y = pad + (H-2*pad) - ((v-min)/range)*(H-2*pad);
+    pts.push([x,y]);
+  });
+  const svgns = "http://www.w3.org/2000/svg";
+  const path = document.createElementNS(svgns,'path');
+  path.setAttribute('d','M '+pts.map(p=>p[0]+','+p[1]).join(' L '));
+  path.setAttribute('fill','none');
+  path.setAttribute('stroke',color);
+  path.setAttribute('stroke-width','1.8');
+  path.setAttribute('stroke-linecap','round');
+  path.setAttribute('stroke-linejoin','round');
+  svgEl.appendChild(path);
+  const last = pts[pts.length-1];
+  const dot = document.createElementNS(svgns,'circle');
+  dot.setAttribute('cx',last[0]); dot.setAttribute('cy',last[1]); dot.setAttribute('r','2.6');
+  dot.setAttribute('fill',color);
+  svgEl.appendChild(dot);
+}
+
+/* ============== credit / liquidity real daily data (2026-08-03 ~ 2026-08-21) ============== */
+const dLabels = ['8/3','8/4','8/5','8/6','8/7','8/10','8/11','8/12','8/13','8/14','8/17','8/18','8/19','8/20','8/21'];
+const sofr = [0,1,-1,0,-3,-2,-1,-3,-3,-3,1,0,-3,-2,null];
+const hyoas = [2.78,2.73,2.75,2.71,2.7,2.7,2.72,2.71,2.71,2.67,2.7,2.75,2.73,2.75,null];
+const sphb  = [1.881774045,1.950386176,1.944451723,1.909126672,1.940690198,1.938705416,1.950561798,1.978501715,1.987668897,1.985201676,2.001848429,1.926739445,1.955514609,1.935236585,1.971982472];
+const move  = [80.48,77.56,73.58,76.12,72.03,75.46,77.92,72.09,69.23,69.58,75.63,74.98,71.26,73.18,73.4];
+const pcr   = [null,null,null,null,null,null,null,null,null,0.61,0.61,0.61,0.61,0.6,null];
+const vixts = [0.8378235605,0.8531540848,0.8343007916,0.8105939005,0.7959401709,0.8145416228,0.8080380751,0.7852131678,0.7861364858,0.7719393283,0.7977941176,0.8220031136,0.8018309101,0.8399790136,null];
+
+const creditDefs = [
+  {
+    key:'sofr', name:'SOFR − IORB 利差', unit:'bps', color:'#33e6a0',
+    latest:-2, latestLabelDate:'8/20（8/21 未更新）',
+    status:'green', statusText:'🟢 常態充沛',
+    desc:'上週維持 −3～+1bps 區間震盪，落於「常態充沛與中性均衡區」，隔夜融資順暢，未見貨幣市場壓力擴散跡象。'
+  },
+  {
+    key:'hyoas', name:'高收益債信用利差 (HY OAS)', unit:'%', color:'#ffb648',
+    latest:2.75, latestLabelDate:'8/20（8/21 未更新）',
+    status:'amber', statusText:'🟡 偏低 / 擁擠',
+    desc:'維持 2.67–2.78% 低檔區間，遠低於 3.5% 警戒線，信用市場仍無虞；但利差壓縮意味著風險溢價偏薄，緩衝空間有限，屬於「安全但擁擠」的中性偏樂觀訊號。'
+  },
+  {
+    key:'sphb', name:'高 Beta / 低波動比率 (SPHB/SPLV)', unit:'倍', color:'#3fd0ff',
+    latest:1.971982472, latestLabelDate:'8/21',
+    status:'amber', statusText:'🟡 風險中性',
+    desc:'比率由 8/17 高點 2.00 回落後於 8/21 反彈至 1.97，在大盤下跌週仍未創新低，顯示風險偏好具韌性，但未與大盤同步創新高，暫列風險中性。'
+  },
+  {
+    key:'move', name:'債市波動率 (MOVE Index)', unit:'', color:'#a78bfa',
+    latest:73.4, latestLabelDate:'8/21',
+    status:'green', statusText:'🟢 債市平靜',
+    desc:'全週維持 69–80 區間，遠低於 100 的入市門檻，顯示美債抵押品體系穩定，是本週最正面的訊號，為股市提供流動性後盾。'
+  },
+  {
+    key:'pcr', name:'Put/Call Ratio 20日均線', unit:'', color:'#ff5c6e',
+    latest:0.60, latestLabelDate:'8/20（8/21 未更新）',
+    status:'amber', statusText:'🟡 中性偏自滿',
+    desc:'穩定於 0.60–0.61，落在 0.55–0.75 中性區間，但已貼近 0.45–0.50 的警戒下緣，散戶避險買盤明顯不足，需留意續降是否觸發減碼訊號。'
+  },
+  {
+    key:'vixts', name:'VIX 期限結構 (VIX/VIX3M)', unit:'倍', color:'#33e6a0',
+    latest:0.8399790136, latestLabelDate:'8/20（8/21 未更新）',
+    status:'green', statusText:'🟢 正向 Contango',
+    desc:'全週維持 0.77–0.84，穩定低於 0.95，期貨曲線維持正向 Contango，短端波動率市場結構平靜，未見恐慌性倒掛。'
+  }
+];
+
+const creditCardsEl = document.getElementById('creditCards');
+const dataMap = {sofr,hyoas,sphb,move,pcr,vixts};
+creditDefs.forEach(c=>{
+  const div = document.createElement('div');
+  div.className = 'credit-card';
+  div.innerHTML = `
+    <div class="credit-head">
+      <div>
+        <div class="credit-name">${c.name}</div>
+        <div class="credit-latest" style="color:${c.color}">${c.latest}${c.unit? '<span style=\"font-size:11px;color:var(--text-dim)\"> '+c.unit+'</span>':''}</div>
+      </div>
+      <div class="status-pill status-${c.status}">${c.statusText}</div>
+    </div>
+    <div class="spark-wrap"><svg viewBox="0 0 260 46" width="100%" height="46" class="spk-${c.key}"></svg></div>
+    <div class="credit-desc">${c.desc}</div>
+    <div class="src-badge"><b>最新值日期：</b>${c.latestLabelDate} · 樣本區間 8/3–8/21</div>
+  `;
+  creditCardsEl.appendChild(div);
+  sparkline(div.querySelector('.spk-'+c.key), dataMap[c.key], c.color);
+});
+
+document.getElementById('creditCombined').innerHTML =
+  `六項訊號呈現「資金面穩、情緒面中性、風險面擁擠」的組合：<b>SOFR-IORB</b> 與 <b>MOVE Index</b> 皆穩居安全區，代表短端與債市流動性無虞，屬於下週入市的重要正面後盾；<b>HY OAS</b> 與 <b>Put/Call MA20</b> 則同步落在「安全但壓縮」的中性區間——信用利差過低、散戶避險需求過少，兩者皆暗示市場對風險的定價偏樂觀，緩衝空間變薄；<b>SPHB/SPLV</b> 與 <b>VIX 期限結構</b> 維持中性偏正向，尚未出現風險偏好瓦解或恐慌性倒掛的訊號。整體而言，資金與流動性尚未構成入市障礙，但情緒面已無太多「悲觀溢價」可供消化，一旦出現外生衝擊（如地緣風險升溫或殖利率再度急升），修正幅度可能放大。`;
+
+/* ============== gauge ============== */
+function drawGauge(svgEl, score){
+  const svgns = "http://www.w3.org/2000/svg";
+  const cx=150, cy=160, r=120;
+  const zones = [
+    {from:0,to:20,color:'#5c2430'},
+    {from:20,to:40,color:'#7a3420'},
+    {from:40,to:60,color:'#5c4620'},
+    {from:60,to:80,color:'#2f5c40'},
+    {from:80,to:100,color:'#1a5c46'}
+  ];
+  function angleFor(v){ return Math.PI - (v/100)*Math.PI; }
+  function pt(v,rad){ const a=angleFor(v); return [cx+rad*Math.cos(a), cy-rad*Math.sin(a)]; }
+
+  zones.forEach(z=>{
+    const [x1,y1]=pt(z.from,r), [x2,y2]=pt(z.to,r);
+    const large = (z.to-z.from)>50?1:0;
+    const path = document.createElementNS(svgns,'path');
+    path.setAttribute('d',`M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`);
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke',z.color);
+    path.setAttribute('stroke-width','20');
+    svgEl.appendChild(path);
+  });
+
+  // ticks
+  [0,20,40,60,80,100].forEach(v=>{
+    const [x,y] = pt(v, r+16);
+    const t = document.createElementNS(svgns,'text');
+    t.setAttribute('x',x); t.setAttribute('y',y+3);
+    t.setAttribute('font-size','9.5'); t.setAttribute('fill','#5b6b80');
+    t.setAttribute('font-family','ui-monospace, monospace');
+    t.setAttribute('text-anchor','middle');
+    t.textContent = v;
+    svgEl.appendChild(t);
+  });
+
+  // needle
+  const a = angleFor(score);
+  const nx = cx + (r-14)*Math.cos(a), ny = cy - (r-14)*Math.sin(a);
+  const needle = document.createElementNS(svgns,'line');
+  needle.setAttribute('x1',cx); needle.setAttribute('y1',cy);
+  needle.setAttribute('x2',nx); needle.setAttribute('y2',ny);
+  needle.setAttribute('stroke','#e8edf4');
+  needle.setAttribute('stroke-width','3');
+  needle.setAttribute('stroke-linecap','round');
+  svgEl.appendChild(needle);
+  const hub = document.createElementNS(svgns,'circle');
+  hub.setAttribute('cx',cx); hub.setAttribute('cy',cy); hub.setAttribute('r','7');
+  hub.setAttribute('fill','#e8edf4');
+  svgEl.appendChild(hub);
+}
+
+/* ============== score computation ============== */
+const subscores = [
+  {name:'市場廣度（NH Ratio / 留存率）', weight:25, score:65, color:'#ffb648', note:'兩族群 NH Ratio 同步降至 83% 區間，大型股留存率走強但中小盤明顯轉弱'},
+  {name:'信用利差與資金面（SOFR-IORB / HY OAS）', weight:20, score:60, color:'#ffb648', note:'資金面寬鬆但信用利差壓縮至低檔，緩衝空間偏薄'},
+  {name:'風險偏好（SPHB / SPLV）', weight:15, score:55, color:'#ffb648', note:'比率反彈但未與大盤同步創高，風險中性'},
+  {name:'期權情緒（Put/Call MA20 / VIX期限結構）', weight:20, score:70, color:'#33e6a0', note:'VIX 期限結構穩定正向，Put/Call 中性偏自滿'},
+  {name:'債市門控（MOVE Index）', weight:20, score:90, color:'#33e6a0', note:'全週遠低於警戒線，債市流動性穩定，本週最正面訊號'}
+];
+const totalScore = Math.round(subscores.reduce((s,x)=>s+x.weight*x.score/100,0));
+
+document.getElementById('gaugeScoreTxt').textContent = totalScore;
+let verdictText, verdictColor;
+if(totalScore>=80){verdictText='強烈偏多 · 可積極布局';verdictColor='#33e6a0';}
+else if(totalScore>=60){verdictText='中性偏多 · 可分批布局';verdictColor='#8fdc9a';}
+else if(totalScore>=40){verdictText='中性觀望 · 維持現有部位';verdictColor='#ffb648';}
+else if(totalScore>=20){verdictText='謹慎減碼 · 降低曝險';verdictColor='#ff8a5c';}
+else {verdictText='防守 · 避免新增部位';verdictColor='#ff5c6e';}
+const verdictEl = document.getElementById('gaugeVerdict');
+verdictEl.textContent = verdictText;
+verdictEl.style.color = verdictColor;
+verdictEl.style.background = verdictColor+'22';
+drawGauge(document.getElementById('gauge'), totalScore);
+
+const subEl = document.getElementById('subscoreList');
+subscores.forEach(s=>{
+  const row = document.createElement('div');
+  row.className='subscore-row';
+  row.innerHTML = `
+    <div class="subscore-top">
+      <span>${s.name}</span>
+      <span class="w">權重 ${s.weight}% · 分項分數 ${s.score}</span>
+    </div>
+    <div class="bar-bg"><div class="bar-fill" style="width:${s.score}%;background:${s.color}"></div></div>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:6px;line-height:1.6;">${s.note}</div>
+  `;
+  subEl.appendChild(row);
+});
+</script>
+</body>
+</html>

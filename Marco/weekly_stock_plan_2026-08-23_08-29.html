@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>持股戰術排序報告 | 2026W34 (08/23–08/29)</title>
+<style>
+  :root {
+    --green: #16a34a;
+    --green-bg: #dcfce7;
+    --yellow: #ca8a04;
+    --yellow-bg: #fef9c3;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --blue: #2563eb;
+    --gray: #64748b;
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    padding: 2rem 1rem 4rem;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #334155;
+  }
+  h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+  .subtitle { color: var(--muted); font-size: 0.95rem; margin-top: 0.4rem; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center;
+    margin-top: 1.25rem; font-size: 0.85rem;
+  }
+  .badge {
+    background: #334155; padding: 0.3rem 0.75rem; border-radius: 999px;
+    color: var(--muted);
+  }
+  .section { margin-bottom: 2.5rem; }
+  h2 {
+    font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #334155;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .summary-item {
+    background: #0f172a;
+    border-radius: 10px;
+    padding: 1rem;
+    border-left: 4px solid var(--blue);
+  }
+  .summary-item.green { border-left-color: var(--green); }
+  .summary-item.yellow { border-left-color: var(--yellow); }
+  .summary-item.red { border-left-color: var(--red); }
+  .summary-item h3 { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.35rem; }
+  .summary-item p { font-size: 0.95rem; font-weight: 500; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  th, td {
+    padding: 0.85rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #334155;
+  }
+  th {
+    background: #0f172a;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  tr:hover td { background: rgba(255,255,255,0.03); }
+  .rank {
+    font-weight: 700;
+    font-size: 1.1rem;
+    width: 48px;
+    text-align: center;
+  }
+  .ticker {
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+  }
+  .name { color: var(--muted); font-size: 0.8rem; }
+  .prio {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
+  .prio-1 { background: var(--green-bg); color: #166534; }
+  .prio-2 { background: var(--yellow-bg); color: #854d0e; }
+  .prio-3 { background: var(--red-bg); color: #991b1b; }
+  .color-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .dot-g { background: var(--green); }
+  .dot-y { background: var(--yellow); }
+  .dot-r { background: var(--red); }
+  .reason { font-size: 0.85rem; color: #cbd5e1; max-width: 420px; }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 1.25rem;
+    font-size: 0.85rem; color: var(--muted);
+    margin-top: 1rem; padding-top: 1rem;
+    border-top: 1px solid #334155;
+  }
+  .footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #334155;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-align: center;
+  }
+  .key-events {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+  .event {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+  }
+  .event strong { color: #e2e8f0; }
+  .tag { font-size: 0.7rem; opacity: 0.7; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>持股戰術排序報告</h1>
+  <p class="subtitle">入市優先級 · 2026 年第 34 週 (08/23 – 08/29)</p>
+  <div class="meta">
+    <span class="badge">資料週期：08/16–08/22</span>
+    <span class="badge">對比基準：IXIC 相對強弱 + 板塊輪動</span>
+    <span class="badge">綜合環境：中性偏防禦 (Macro 42 / Breadth 68)</span>
+  </div>
+</header>
+
+<!-- 核心結論 -->
+<section class="section">
+  <h2>一、核心結論與環境總覽</h2>
+  <div class="summary-grid">
+    <div class="summary-item red">
+      <h3>宏觀環境</h3>
+      <p>轉差 · Risk Appetite Deteriorating<br>長債息率逼近數十年高位 + 伊朗「經濟 D-Day」制裁落地</p>
+    </div>
+    <div class="summary-item yellow">
+      <h3>市場廣度 / 流動性</h3>
+      <p>Composite Entry 68/100<br>大型股留存率回升，中小盤脆弱；信用利差極度壓縮</p>
+    </div>
+    <div class="summary-item green">
+      <h3>板塊輪動主軸</h3>
+      <p>資金從「算力硬件估值頂端」→ 能源 / 防禦性生技 / 軟體現金流</p>
+    </div>
+    <div class="summary-item yellow">
+      <h3>下週關鍵催化</h3>
+      <p>NVDA 財報 (8/26) · Jackson Hole · 核心 PCE · 伊朗制裁細節</p>
+    </div>
+  </div>
+  <div class="card">
+    <p style="font-size:0.95rem;color:#cbd5e1;">
+      <strong>總體判斷：</strong>這不是系統性 Risk-Off，而是「板塊內部換血」。大盤仍處中期上升結構，但估值端受長債壓制、地緣風險升溫。資金偏好已完成築底或具現金流的防禦 / 軟體標的，對高估值半導體與 AI 電力基建採取觀望。建議以「分批布局 + 嚴守個股防守線」為主軸，優先配置綠色名單，黃色名單僅逢低小倉試探，紅色名單本週暫緩加碼。
+    </p>
+  </div>
+</section>
+
+<!-- 關鍵日程 -->
+<section class="section">
+  <h2>二、下週關鍵日程</h2>
+  <div class="key-events">
+    <div class="event"><strong>08/24 (一)</strong><br>Bessent 伊朗經濟孤立制裁細節<br><span class="tag">地緣 / 油價風險</span></div>
+    <div class="event"><strong>08/25 (二)</strong><br>耐用品訂單 · 消費者信心<br><span class="tag">經濟數據</span></div>
+    <div class="event"><strong>08/26 (三)</strong><br>Nvidia 財報 (AI 資本支出風向標)<br><span class="tag">科技核心催化</span></div>
+    <div class="event"><strong>08/27 (四)</strong><br>Q2 GDP 修訂 · Jackson Hole 揭幕<br><span class="tag">政策真空期</span></div>
+    <div class="event"><strong>08/28 (五)</strong><br>Warsh JH 演講 · 7月核心 PCE · 非農修訂<br><span class="tag">利率 / 通脹定調</span></div>
+  </div>
+</section>
+
+<!-- 持股排序表 -->
+<section class="section">
+  <h2>三、持股入市優先級排序</h2>
+  <div class="card" style="padding:0;overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>優先級</th>
+          <th>Ticker</th>
+          <th>顏色</th>
+          <th>建議動作</th>
+          <th>決策理由 (結合宏觀 / 廣度 / 輪動)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Priority 1 - Green -->
+        <tr>
+          <td class="rank">1</td>
+          <td><span class="ticker">NBIX</span><br><span class="name">Neurocrine</span></td>
+          <td><span class="color-dot dot-g"></span><span class="prio prio-1">綠色 · 部署</span></td>
+          <td>積極建倉 / 加碼</td>
+          <td class="reason">IBB / XBI 本週量增突破確立（W-1 RS +9.21% / +6.75%，量能跳升至 169% / 119%）。防禦性生技為本輪資金明確流向，事件驅動動能強，與宏觀「滯脹式防禦」敘事高度契合。</td>
+        </tr>
+        <tr>
+          <td class="rank">1</td>
+          <td><span class="ticker">ISRG</span><br><span class="name">Intuitive Surgical</span></td>
+          <td><span class="color-dot dot-g"></span><span class="prio prio-1">綠色 · 部署</span></td>
+          <td>逢低加碼</td>
+          <td class="reason">IHI / XLV 趨勢延續（量縮價穩），醫療保健屬防禦性輪動受益板塊。宏觀環境轉差時資金偏好現金流穩定的成長醫療，技術面溫和上行，風險回撤空間相對可控。</td>
+        </tr>
+        <tr>
+          <td class="rank">1</td>
+          <td><span class="ticker">MSFT</span><br><span class="name">Microsoft</span></td>
+          <td><span class="color-dot dot-g"></span><span class="prio prio-1">綠色 · 部署</span></td>
+          <td>持有並逢低加碼</td>
+          <td class="reason">IGV（系統軟體）健康趨勢延續，與 SMH 形成鮮明對比。資金從「硬體資本支出」轉向「已產生現金流的應用層」。大型股廣度留存率回升，MSFT 屬核心權值防禦。</td>
+        </tr>
+        <tr>
+          <td class="rank">1</td>
+          <td><span class="ticker">PLTR</span><br><span class="name">Palantir</span></td>
+          <td><span class="color-dot dot-g"></span><span class="prio prio-1">綠色 · 部署</span></td>
+          <td>持有並逢低加碼</td>
+          <td class="reason">同屬 IGV 健康延續陣營。AI 應用層現金流邏輯優於硬體估值頂端，與本週「風格再定價」方向一致。大型股體質紮實，適合作為軟體敞口核心。</td>
+        </tr>
+        <tr>
+          <td class="rank">1</td>
+          <td><span class="ticker">KO</span><br><span class="name">Coca-Cola</span></td>
+          <td><span class="color-dot dot-g"></span><span class="prio prio-1">綠色 · 部署</span></td>
+          <td>防禦性配置</td>
+          <td class="reason">XLP 溫和轉強，量增反彈。必需消費在「higher for longer + 地緣風險」環境下具備避險屬性，適合作為組合穩定器。</td>
+        </tr>
+        <tr>
+          <td class="rank">1</td>
+          <td><span class="ticker">MCD</span><br><span class="name">McDonald's</span></td>
+          <td><span class="color-dot dot-g"></span><span class="prio prio-1">綠色 · 部署</span></td>
+          <td>防禦性配置</td>
+          <td class="reason">同屬 XLP / 消費防禦邏輯。宏觀評分中「經濟基本面穩健但邊際轉弱」與「滯脹式訊號」下，必需消費具備相對防禦優勢。</td>
+        </tr>
+
+        <!-- Priority 2 - Yellow -->
+        <tr>
+          <td class="rank">2</td>
+          <td><span class="ticker">GOOG</span><br><span class="name">Alphabet</span></td>
+          <td><span class="color-dot dot-y"></span><span class="prio prio-2">黃色 · 中性</span></td>
+          <td>持有 · 暫緩大幅加碼</td>
+          <td class="reason">FDN 良性消化（量縮），屬健康回調。但整體科技高位分歧，且本週 NVDA 財報與 Jackson Hole 可能引發波動。適合持有既有部位，新資金優先配置綠色名單。</td>
+        </tr>
+        <tr>
+          <td class="rank">2</td>
+          <td><span class="ticker">AAPL</span><br><span class="name">Apple</span></td>
+          <td><span class="color-dot dot-y"></span><span class="prio prio-2">黃色 · 中性</span></td>
+          <td>持有 · 觀察量價</td>
+          <td class="reason">IYW 量縮回調觀察中。大型權值體質相對穩健，但 XLK 整體高位震盪分歧，且利率環境不利高估值。本週以觀望為主，待催化明朗再決定加碼。</td>
+        </tr>
+        <tr>
+          <td class="rank">2</td>
+          <td><span class="ticker">GRMN</span><br><span class="name">Garmin</span></td>
+          <td><span class="color-dot dot-y"></span><span class="prio prio-2">黃色 · 中性</span></td>
+          <td>持有 · 小倉試探</td>
+          <td class="reason">XLY 量增反彈待驗證。非必需消費屬弱基期反彈，宏觀環境偏防禦下動能有限。可作為衛星配置，但不宜重倉。</td>
+        </tr>
+
+        <!-- Priority 3 - Red -->
+        <tr>
+          <td class="rank">3</td>
+          <td><span class="ticker">NVDA</span><br><span class="name">Nvidia</span></td>
+          <td><span class="color-dot dot-r"></span><span class="prio prio-3">紅色 · 不建議部署</span></td>
+          <td>暫緩加碼 · 嚴控倉位</td>
+          <td class="reason">SMH 下行風險加重（1M RS −17.62%，W-1 放量下殺）。本週三財報為最大不確定性，若指引保守易引發 AI 板塊系統性回調。宏觀「AI 資本支出永續性辯論」升溫，風險回報比不佳。</td>
+        </tr>
+        <tr>
+          <td class="rank">3</td>
+          <td><span class="ticker">TSM</span><br><span class="name">TSMC</span></td>
+          <td><span class="color-dot dot-r"></span><span class="prio prio-3">紅色 · 不建議部署</span></td>
+          <td>暫緩加碼</td>
+          <td class="reason">同屬 SMH 核心弱勢陣營。半導體 1M 劇烈弱勢且量能放大，顯示拋壓未盡。需等待 SMH 止跌與 NVDA 財報落地後再評估。</td>
+        </tr>
+        <tr>
+          <td class="rank">3</td>
+          <td><span class="ticker">AVGO</span><br><span class="name">Broadcom</span></td>
+          <td><span class="color-dot dot-r"></span><span class="prio prio-3">紅色 · 不建議部署</span></td>
+          <td>暫緩加碼</td>
+          <td class="reason">SMH 成員，硬體估值頂端遭資金撤離。與 IGV 形成結構性衝突，本週不宜逆勢加倉。</td>
+        </tr>
+        <tr>
+          <td class="rank">3</td>
+          <td><span class="ticker">MU</span><br><span class="name">Micron</span></td>
+          <td><span class="color-dot dot-r"></span><span class="prio prio-3">紅色 · 不建議部署</span></td>
+          <td>暫緩加碼</td>
+          <td class="reason">同屬半導體弱勢陣營。記憶體週期與 AI 資本支出敏感性高，本週催化風險大於機會。</td>
+        </tr>
+        <tr>
+          <td class="rank">3</td>
+          <td><span class="ticker">RMBS</span><br><span class="name">Rambus</span></td>
+          <td><span class="color-dot dot-r"></span><span class="prio prio-3">紅色 · 不建議部署</span></td>
+          <td>暫緩加碼</td>
+          <td class="reason">SMHX 縮量下跌待驗證，半導體整體動能衰退。高 Beta 半導體在長債高位與地緣風險下脆弱度較高。</td>
+        </tr>
+        <tr>
+          <td class="rank">3</td>
+          <td><span class="ticker">PANW</span><br><span class="name">Palo Alto</span></td>
+          <td><span class="color-dot dot-r"></span><span class="prio prio-3">紅色 · 不建議部署</span></td>
+          <td>嚴密監控 · 防守為主</td>
+          <td class="reason">CIBR 高位天量滯漲（3M +30.97% 極端擁擠 + W-1 量能 172%），教科書級多空交戰。絕對防守線 = W-1 低點，本週不宜加碼，若跌破則減倉。</td>
+        </tr>
+        <tr>
+          <td class="rank">3</td>
+          <td><span class="ticker">VRT</span><br><span class="name">Vertiv</span></td>
+          <td><span class="color-dot dot-r"></span><span class="prio prio-3">紅色 · 不建議部署</span></td>
+          <td>暫緩加碼</td>
+          <td class="reason">AIPO / GRID 動能轉弱（W-1 RS −5.23% / −2.36%），「電力即 AI 基礎設施」敘事遭遇降溫。AI 電力基建屬本輪結構性隱憂名單。</td>
+        </tr>
+        <tr>
+          <td class="rank">3</td>
+          <td><span class="ticker">BE</span><br><span class="name">Bloom Energy</span></td>
+          <td><span class="color-dot dot-r"></span><span class="prio prio-3">紅色 · 不建議部署</span></td>
+          <td>暫緩加碼</td>
+          <td class="reason">同屬 GRID / AIPO 弱勢陣營。公用事業與 AI 電力基建資金持續流出，動能衰退明顯，本週風險回報不佳。</td>
+        </tr>
+        <tr>
+          <td class="rank">3</td>
+          <td><span class="ticker">GEV</span><br><span class="name">GE Vernova</span></td>
+          <td><span class="color-dot dot-r"></span><span class="prio prio-3">紅色 · 不建議部署</span></td>
+          <td>暫緩加碼</td>
+          <td class="reason">能源轉型 / 電網基建相關，與 GRID / AIPO 動能衰退邏輯一致。宏觀「電力剛需敘事」重定價中，短期缺乏上行動能。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="legend">
+    <span><span class="color-dot dot-g"></span><strong>綠色 (優先級 1)</strong>：建議部署 / 逢低加碼</span>
+    <span><span class="color-dot dot-y"></span><strong>黃色 (優先級 2)</strong>：中性持有 · 暫緩大幅加碼</span>
+    <span><span class="color-dot dot-r"></span><strong>紅色 (優先級 3)</strong>：不建議部署 · 嚴控或減倉</span>
+  </div>
+</section>
+
+<!-- 執行建議 -->
+<section class="section">
+  <h2>四、執行建議與風險控管</h2>
+  <div class="card">
+    <ul style="padding-left:1.25rem;font-size:0.95rem;color:#cbd5e1;">
+      <li style="margin-bottom:0.6rem;"><strong>資金配置優先序：</strong>綠色名單（NBIX / ISRG / MSFT / PLTR / KO / MCD）→ 黃色名單小倉試探 → 紅色名單本週暫緩。</li>
+      <li style="margin-bottom:0.6rem;"><strong>時點選擇：</strong>08/24 伊朗制裁細節公布後觀察油價與風險偏好；08/26 NVDA 財報後再決定是否對半導體進行「超跌反彈」試倉。</li>
+      <li style="margin-bottom:0.6rem;"><strong>防守紀律：</strong>CIBR（PANW）絕對防守線 = W-1 低點；SMH 相關個股若再放量下殺則進一步減倉。</li>
+      <li style="margin-bottom:0.6rem;"><strong>宏觀門控：</strong>若 10Y 升破 4.80% 或 30Y 再創新高，整體風險偏好將進一步惡化，綠色名單亦需放慢建倉速度。</li>
+      <li><strong>廣度確認：</strong>下週關注大型股 NH 留存率是否持續 >55%，以及中小盤是否出現止跌訊號。</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="footer">
+  本報告綜合三份來源：美股宏觀事件週報 (2026.08.16–08.22)、市場內部廣度與信用流動性週報、板塊/行業輪動週報 (W-1)。<br>
+  僅供戰術參考，不構成投資建議。實際進出場請結合即時價量與個人風險承受度。
+</footer>
+
+</div>
+</body>
+</html>

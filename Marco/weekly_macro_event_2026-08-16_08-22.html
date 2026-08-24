@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美股宏觀情報週報 | 2026.08.16 – 08.22</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Noto+Sans+TC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#10131a;
+    --panel:#171b24;
+    --panel-2:#1c212c;
+    --line:#2a3140;
+    --line-soft:#232a36;
+    --text:#e9e7de;
+    --muted:#8d93a3;
+    --muted-2:#5f6577;
+    --gold:#c9a24b;
+    --gold-soft:#c9a24b33;
+    --green:#5fa87c;
+    --green-soft:#5fa87c22;
+    --red:#c1584d;
+    --red-soft:#c1584d22;
+    --amber:#c9a24b;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, #1c2434 0%, transparent 60%),
+      radial-gradient(ellipse 700px 400px at 100% 0%, #23181a 0%, transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Noto Sans TC','Noto Sans',sans-serif;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:0 28px 90px;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- HEADER ---------- */
+  header{padding:56px 0 34px;border-bottom:1px solid var(--line);}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;letter-spacing:.22em;color:var(--gold);
+    text-transform:uppercase;margin-bottom:14px;display:flex;gap:10px;align-items:center;
+  }
+  .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);display:inline-block;box-shadow:0 0 8px var(--gold);}
+  h1{
+    font-family:'Noto Serif TC',serif;font-weight:700;
+    font-size:40px;line-height:1.25;margin:0 0 10px;letter-spacing:.01em;
+  }
+  .subtitle{color:var(--muted);font-size:15px;max-width:640px;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:26px;margin-top:26px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--muted-2);}
+  .meta-row b{color:var(--muted);font-weight:500;}
+
+  /* ---------- HERO SCORE ---------- */
+  .hero{
+    display:grid;grid-template-columns:220px 1fr;gap:40px;
+    padding:40px 0 8px;align-items:center;
+  }
+  .dial{
+    width:200px;height:200px;border-radius:50%;
+    background:conic-gradient(var(--gold) calc(var(--pct,42)*1%), var(--line-soft) 0);
+    display:flex;align-items:center;justify-content:center;position:relative;
+  }
+  .dial::before{
+    content:"";position:absolute;inset:14px;border-radius:50%;
+    background:var(--panel);border:1px solid var(--line);
+  }
+  .dial-inner{position:relative;text-align:center;}
+  .dial-inner .num{font-family:'JetBrains Mono',monospace;font-size:44px;font-weight:700;color:var(--gold);}
+  .dial-inner .den{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted-2);}
+  .hero-text .verdict{
+    display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.14em;
+    padding:5px 12px;border-radius:3px;background:var(--red-soft);color:#e08277;border:1px solid #c1584d55;
+    text-transform:uppercase;margin-bottom:14px;
+  }
+  .hero-text h2{font-family:'Noto Serif TC',serif;font-size:23px;margin:0 0 12px;font-weight:600;}
+  .hero-text p{color:var(--muted);font-size:14.5px;margin:0;max-width:620px;}
+
+  /* ---------- SECTION HEADERS ---------- */
+  section{margin-top:64px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:26px;}
+  .sec-num{font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:13px;letter-spacing:.12em;}
+  .sec-head h3{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:600;margin:0;}
+  .sec-line{flex:1;height:1px;background:var(--line);}
+
+  /* ---------- EVENT CARDS ---------- */
+  .event{
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:24px 26px;margin-bottom:16px;
+  }
+  .event-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:10px;flex-wrap:wrap;}
+  .event-title{font-family:'Noto Serif TC',serif;font-weight:600;font-size:17.5px;color:var(--text);}
+  .event-date{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted-2);margin-top:4px;}
+  .tags{display:flex;gap:8px;flex-wrap:wrap;}
+  .tag{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;
+    padding:4px 10px;border-radius:20px;white-space:nowrap;border:1px solid transparent;
+  }
+  .tag.bull{background:var(--green-soft);color:#8fcaa5;border-color:#5fa87c4d;}
+  .tag.bear{background:var(--red-soft);color:#e08277;border-color:#c1584d4d;}
+  .tag.mix{background:var(--gold-soft);color:#e0c583;border-color:#c9a24b4d;}
+  .tag.neu{background:#8d93a322;color:#b7bcc7;border-color:#8d93a34d;}
+  .event p{color:var(--muted);font-size:14.5px;margin:8px 0 0;}
+  .event .insight{
+    margin-top:14px;padding:12px 16px;border-left:2px solid var(--gold);
+    background:#c9a24b0d;font-size:13.8px;color:#cfc6a8;border-radius:0 5px 5px 0;
+  }
+  .event .insight b{color:var(--gold);font-weight:600;}
+
+  /* ---------- SCORE BARS ---------- */
+  .score-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:22px 26px;margin-bottom:14px;
+  }
+  .score-top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:12px;}
+  .score-name{font-family:'Noto Serif TC',serif;font-weight:600;font-size:16.5px;}
+  .score-val{font-family:'JetBrains Mono',monospace;font-size:17px;color:var(--gold);font-weight:700;}
+  .score-val span{color:var(--muted-2);font-size:12px;font-weight:400;}
+  .bar-track{height:7px;background:var(--line-soft);border-radius:4px;overflow:hidden;margin-bottom:14px;}
+  .bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#c1584d,#c9a24b 60%,#5fa87c);}
+  .score-card p{color:var(--muted);font-size:14px;margin:0;}
+
+  /* ---------- TOTAL BAND ---------- */
+  .total-band{
+    background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+    padding:30px 30px;margin-top:8px;
+  }
+  .total-band .row{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;}
+  .total-band .label{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;}
+  .total-band .score-big{font-family:'JetBrains Mono',monospace;font-size:46px;font-weight:700;color:var(--gold);}
+  .total-band .score-big span{font-size:16px;color:var(--muted-2);font-weight:400;}
+  .gauge{margin-top:22px;}
+  .gauge-labels{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted-2);margin-bottom:6px;letter-spacing:.05em;}
+  .gauge-track{position:relative;height:10px;border-radius:6px;background:linear-gradient(90deg,#c1584d,#8a6b4c 35%,#c9a24b 55%,#5fa87c 100%);}
+  .gauge-marker{
+    position:absolute;top:-7px;width:3px;height:24px;background:var(--text);
+    box-shadow:0 0 0 3px var(--bg),0 0 10px #fff8;border-radius:2px;
+  }
+  .total-band .narrative{margin-top:24px;color:var(--muted);font-size:14.5px;border-top:1px solid var(--line);padding-top:20px;}
+  .total-band .narrative b{color:var(--text);}
+
+  /* ---------- NEXT WEEK ---------- */
+  .calendar-strip{
+    display:flex;gap:10px;overflow-x:auto;margin-bottom:28px;padding-bottom:6px;
+  }
+  .cal-item{
+    flex:0 0 auto;min-width:130px;background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;padding:14px 16px;
+  }
+  .cal-item .d{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:.06em;}
+  .cal-item .e{font-size:13px;color:var(--text);margin-top:6px;}
+
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .colcard{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:24px 26px;}
+  .colcard h4{
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:.1em;
+    margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:8px;
+  }
+  .colcard.bull h4{color:#8fcaa5;}
+  .colcard.bear h4{color:#e08277;}
+  .colcard ul{margin:0;padding:0;list-style:none;}
+  .colcard li{
+    font-size:14px;color:var(--muted);padding:10px 0;border-bottom:1px dashed var(--line-soft);
+    display:flex;gap:10px;
+  }
+  .colcard li:last-child{border-bottom:none;}
+  .colcard li::before{content:"";flex:0 0 auto;width:6px;height:6px;border-radius:50%;margin-top:7px;}
+  .colcard.bull li::before{background:#5fa87c;}
+  .colcard.bear li::before{background:#c1584d;}
+
+  /* ---------- FOOTER ---------- */
+  footer{margin-top:70px;padding-top:24px;border-top:1px solid var(--line);}
+  footer p{font-size:12.5px;color:var(--muted-2);line-height:1.8;}
+
+  @media (max-width:720px){
+    .hero{grid-template-columns:1fr;text-align:center;}
+    .dial{margin:0 auto;}
+    .twocol{grid-template-columns:1fr;}
+    h1{font-size:30px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Macro Regime Weekly · Institutional Desk Note</div>
+    <h1>美股宏觀情報週報</h1>
+    <div class="subtitle">機構策略視角：解讀上週真實宏觀事件對風險偏好之影響，並對下週及可預見事件進行前瞻評估。</div>
+    <div class="meta-row">
+      <span><b>回顧週期：</b>2026.08.16 – 2026.08.22</span>
+      <span><b>發布日期：</b>2026.08.24</span>
+      <span><b>前瞻週期：</b>2026.08.24 – 2026.08.28</span>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="dial" style="--pct:42">
+      <div class="dial-inner">
+        <div class="num">42</div>
+        <div class="den">/ 100</div>
+      </div>
+    </div>
+    <div class="hero-text">
+      <div class="verdict">環境轉差 · Risk Appetite Deteriorating</div>
+      <h2>宏觀環境正由「中性偏緊」滑向「風險偏防禦」</h2>
+      <p>上週標普 500 收跌 1.4%，距歷史高位僅一週之遙已回落近 2%；長債息率再創數十年新高，油金同步走強反映市場正從「金融資產」輪動至「實物避險資產」——典型的滯脹式訊號。財政部擴大回購雖短暫壓低息率，但未能扭轉趨勢；地緣政治風險更於本週一（8/24）伴隨對伊朗的「經濟 D-Day」制裁而急速升溫，是未來一週最大變數。</p>
+    </div>
+  </div>
+
+  <!-- ================= SECTION 1 ================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h3>上週核心事件回顧</h3><div class="sec-line"></div></div>
+
+    <div class="event">
+      <div class="event-top">
+        <div>
+          <div class="event-title">財政部擴大長債回購規模至每次最少 40 億美元</div>
+          <div class="event-date">08.19 公布 · 09.09 生效 · Bessent 08.20 表態不排除再加碼</div>
+        </div>
+        <div class="tags"><span class="tag mix">利好 + 利淡</span></div>
+      </div>
+      <p>財政部將 10–30 年期美債流動性支持回購上限由 20 億美元倍增至最少 40 億美元，直接針對長端「買家罷工」問題；Bessent 翌日於 CNBC 表示規模未來或進一步提高，並形容 30 年期流動性「非常差」。消息公布當日 10 年期息率急跌約 5.7 個基點至 4.647%，30 年期跌 9 個基點至 5.196%，惟效應僅維持一個交易日，其後息率反彈，30 年期一度升穿 5.28%，創數十年新高。</p>
+      <div class="insight"><b>個人觀點採納：</b>此舉本質上是用現時約 4 厘的短端資金，以折價贖回當年約 2 厘發行的舊長債——面值折讓換來的是「到期日提前 + 每年付息成本上升」。短期紓緩資金流與長債供需失衡，屬 buffer 性質而非結構性解決；長遠仍需靠生產力（AI）驅動的實質經濟增長來對沖利息負擔擴大，否則債務可持續性疑慮將週期性重現。</div>
+    </div>
+
+    <div class="event">
+      <div class="event-top">
+        <div>
+          <div class="event-title">FOMC 7 月會議紀要：9–3 鷹派分歧創近十年之最</div>
+          <div class="event-date">08.19 公布（原會議 07.28–29）</div>
+        </div>
+        <div class="tags"><span class="tag bear">利淡</span></div>
+      </div>
+      <p>Warsh 主政下第二次會議，票委以 9–3 維持利率於 3.50–3.75% 不變，三位地區聯儲行長（Hammack、Kashkari、Logan）一致主張加息 25 點子，是 2016 年以來首次出現方向一致的三票異議。紀要顯示鷹派情緒不止於異議者：多位官員認為若通脹未回落至 2% 目標，需要進一步緊縮；亦有官員認為現時金融條件可能仍未夠緊。7 月後就業數據轉弱、核心通脹回落，令 9 月加息預期由會後一度逾 57% 回落至週五收市約 36%（9 基點）。</p>
+      <div class="insight"><b>個人觀點採納：</b>日圓／日本央行未啟動實質加息週期前，美日息差仍具吸引力，Fed 缺乏急於減息的外部壓力，「higher for longer」格局短期內難改變，甚至不排除息差因日本落後而進一步擴大。</div>
+    </div>
+
+    <div class="event">
+      <div class="event-top">
+        <div>
+          <div class="event-title">特朗普白宮加密峰會：力推《Clarity Act》立法</div>
+          <div class="event-date">08.19</div>
+        </div>
+        <div class="tags"><span class="tag bull">利好（加密資產）</span></div>
+      </div>
+      <p>特朗普於白宮召集 SEC、CFTC、Coinbase、Kraken、Robinhood 等業界及監管代表，公開呼籲參議院通過《數位資產市場明確法案》（Clarity Act），強調要確保美國在比特幣、加密貨幣及人工智能領域維持絕對領導地位。惟法案因政府倫理條款（涉及特朗普家族逾 14 億美元加密收益的利益衝突爭議）在參議院休會前未能完成程序性表決，目前程序性表決押後至 9 月，最終立法時間表仍不確定。比特幣週內急升約 22% 至 78,335 美元，創 2024 年以來最佳單週表現；XRP 更急彈約 40%。</p>
+      <div class="insight"><b>個人觀點採納：</b>比特幣及穩定幣板塊同步走強，與美元穩定幣可望在財政部化債敘事中扮演「長期買家」角色的猜測相符——若穩定幣儲備資金持續配置美債，將為長端提供邊際新增需求，是財政部債務管理棋盤上的潛在盟友。</div>
+    </div>
+
+    <div class="event">
+      <div class="event-top">
+        <div>
+          <div class="event-title">伊朗戰事未止：油價逼近兩個月高位</div>
+          <div class="event-date">全週持續 · Brent 週五收 94.39 美元</div>
+        </div>
+        <div class="tags"><span class="tag bear">利淡</span></div>
+      </div>
+      <p>美伊 6 月中停火協議已破局，兩國重陷戰爭狀態，油價於 8 月上半月因外交緩和一度回落，其後隨談判觸礁再度反彈。Brent 連升五個交易日至 94.39 美元、WTI 報 87.06 美元。週五伊朗總統表態希望及早結束戰事，為市場帶來短暫喘息，惟整體地緣風險溢價仍高企。黃金週內走強至 4,615.64 美元，與油價同步反映資金正從金融資產轉向實物避險資產，屬滯脹式訊號。</p>
+    </div>
+
+    <div class="event">
+      <div class="event-top">
+        <div>
+          <div class="event-title">美股週線收跌：科技股領跌，長債息率為主要壓力</div>
+          <div class="event-date">08.17 – 08.21 收市</div>
+        </div>
+        <div class="tags"><span class="tag bear">利淡</span></div>
+      </div>
+      <p>標普 500 全週跌 1.4% 收 7,674.37，較 8 月 13 日歷史高位回落約 1.8%；資訊科技板塊五日累跌逾 3%，Meta 跌近 7%。10 年期息率週內企於 4.74%，30 年期一度觸及 5.28%，20 年高位，長端融資成本上升是拖累估值的核心主因，亦與 AI 基建相關企業債發行潮爭奪長端資金有關。醫療、能源、原材料等防禦／實物類板塊逆市造好。</p>
+    </div>
+
+    <div class="event">
+      <div class="event-top">
+        <div>
+          <div class="event-title">特朗普／Bessent 醞釀對伊朗「經濟 D-Day」制裁</div>
+          <div class="event-date">08.19 – 08.20 預告 · 08.24（本週一）公布細節</div>
+        </div>
+        <div class="tags"><span class="tag bear">利淡（前瞻風險）</span></div>
+      </div>
+      <p>特朗普週三警告將對伊朗及其貿易夥伴實施「史上最猛烈經濟行動」，Bessent 隨後表示將於本週一（8/24）公布具體制裁方案，形容為「史上規模最大的協同經濟孤立行動」，並要求盟友「選邊站」。中國作為伊朗原油最大買家成為焦點；阿聯酋已率先宣布與伊朗斷絕貿易及金融往來。此消息雖於上週五已在醞釀，但實際落地與市場反應將發生在下週，是承上啟下的關鍵風險事件。</p>
+    </div>
+
+  </section>
+
+  <!-- ================= SECTION 2 ================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h3>五維度綜合評分</h3><div class="sec-line"></div></div>
+
+    <div class="score-card">
+      <div class="score-top">
+        <div class="score-name">① 利率與貨幣政策</div>
+        <div class="score-val mono">8<span> / 20</span></div>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:40%"></div></div>
+      <p>7 月會議紀要呈現近十年最鷹派分歧，多位官員明言若通脹不降需進一步緊縮；9 月加息機率雖因就業數據轉弱而由 57% 回落至約 36%，但「減息」完全不在短期議程。日本未同步啟動加息週期，美日息差短期難收窄，令 Fed 缺乏放寬誘因，「higher for longer」是基準情境。</p>
+    </div>
+
+    <div class="score-card">
+      <div class="score-top">
+        <div class="score-name">② 通貨膨脹</div>
+        <div class="score-val mono">9<span> / 20</span></div>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:45%"></div></div>
+      <p>核心通脹已連續五年以上高於 2% 目標，關稅、伊朗戰事推升的能源成本、AI 資本開支帶動的需求壓力是三大結構性驅動。市場預期 7 月核心 PCE 按月 +0.2%、按年維持 3.3%，屬「高位企穩」而非「加速惡化」，故評分略高於利率分項，但遠未達到可支持風險偏好回升的水平。</p>
+    </div>
+
+    <div class="score-card">
+      <div class="score-top">
+        <div class="score-name">③ 經濟基本面</div>
+        <div class="score-val mono">12<span> / 20</span></div>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:60%"></div></div>
+      <p>盈利季表現正面，指數仍距歷史高位不足 2%，逢低吸納資金未見撤離；惟 7 月非農就業轉弱、動能與成長股資金流出，勞動市場降溫跡象開始浮現。下週 Q2 GDP 修訂值、耐用品訂單及非農年度修訂初值將是驗證增長韌性的關鍵數據，目前判斷為「穩健但邊際轉弱」。</p>
+    </div>
+
+    <div class="score-card">
+      <div class="score-top">
+        <div class="score-name">④ 地緣政治風險</div>
+        <div class="score-val mono">6<span> / 20</span></div>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:30%"></div></div>
+      <p>美伊戰事實質未止，油價重返兩個月高位，本週一即將公布針對伊朗及其貿易夥伴（含中國）的「史上最大規模」經濟制裁方案，存在觸發對手國反制、油運中斷甚至衝突升級的尾部風險。Bessent 雖暗示極限經濟施壓或可避免大規模軍事升級，但確定性極低，本項為五維度中評分最低、亦是下週最大波動來源。</p>
+    </div>
+
+    <div class="score-card">
+      <div class="score-top">
+        <div class="score-name">⑤ 美國債務因素</div>
+        <div class="score-val mono">7<span> / 20</span></div>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:35%"></div></div>
+      <p>財政部主動擴大回購顯示政策當局對長端壓力高度敏感並願意動用工具箱，屬正面訊號；惟效應僅維持一個交易日，30 年期息率其後仍創數十年新高，反映市場對「以短債換長債」這種資產負債表操作的長期有效性存疑——面值折讓但利息支出增加、到期日提前，本質是延後而非解決融資成本問題。加上 AI 基建企業債發行潮持續與國債爭奪長端資金，結構性壓力未除。</p>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 3 ================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h3>總評分與歸納</h3><div class="sec-line"></div></div>
+
+    <div class="total-band">
+      <div class="row">
+        <div class="label">Composite Score</div>
+        <div class="score-big">42<span> / 100</span></div>
+      </div>
+      <div class="gauge">
+        <div class="gauge-labels"><span>0 · 極度防禦</span><span>50 · 中性</span><span>100 · 高度適合部署</span></div>
+        <div class="gauge-track"><div class="gauge-marker" style="left:42%"></div></div>
+      </div>
+      <div class="narrative">
+        <p><b>歸納：</b>總分 42/100，落於「中性偏防禦」區間，較過去數週進一步下滑。核心矛盾在於：<b>政策工具（財政部回購）與政策立場（Fed 鷹派持有）方向相反</b>——財政端試圖以流動性手段壓低長端息率，貨幣端卻因通脹頑固而拒絕鬆綁，兩者角力下，長債息率淨值仍在攀升，是壓制估值的主要力量。與此同時，地緣政治風險本週進入新階段——伊朗經濟孤立制裁方案將於週一正式公布，其力度與波及範圍（尤其對中國原油貿易的影響）將直接決定油價與避險情緒的下一步。黃金與比特幣同步造好、科技與動能股資金流出，顯示市場正處於「風險資產內部輪動 + 整體風險偏好收縮」的雙重狀態，屬滯脹式防禦格局，而非單純的獲利了結。</p>
+        <p style="margin-top:14px;"><b>方向判斷：</b>宏觀環境正在【變差】，主因是地緣政治風險急速上升與長債息率屢創新高的組合，惟通脹未見進一步加速、企業盈利仍具韌性，故並非全面轉向風險規避，而是「精選防禦」——資金傾向流向能源、醫療、原材料及實物資產，而非全面撤出股市。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 4 ================= -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h3>下週展望（08.24 – 08.28）</h3><div class="sec-line"></div></div>
+
+    <div class="calendar-strip">
+      <div class="cal-item"><div class="d">週一 08.24</div><div class="e">Bessent 公布伊朗經濟孤立制裁方案</div></div>
+      <div class="cal-item"><div class="d">週二 08.25</div><div class="e">耐用品訂單 · 消費者信心指數</div></div>
+      <div class="cal-item"><div class="d">週三 08.26</div><div class="e">Nvidia 業績（AI 資本開支風向標）</div></div>
+      <div class="cal-item"><div class="d">週四 08.27</div><div class="e">Q2 GDP 修訂值 · Jackson Hole 揭幕</div></div>
+      <div class="cal-item"><div class="d">週五 08.28</div><div class="e">Warsh Jackson Hole 主題演講 · 7月核心PCE · 非農年度修訂初值</div></div>
+    </div>
+
+    <div class="twocol">
+      <div class="colcard bull">
+        <h4>▲ 利好因素</h4>
+        <ul>
+          <li>Nvidia 業績若符合或超預期，可延續 AI 資本開支敘事，策略師視其為標普挑戰 8,000 點的關鍵催化劑。</li>
+          <li>伊朗總統釋出「希望及早結束戰事」訊號，若制裁公布後配合外交緩和，油價風險溢價有望回落。</li>
+          <li>核心 PCE 若按月增幅低於 0.2% 預期，將進一步壓低 9 月加息機率，緩解長端息率壓力。</li>
+          <li>財政部擴大回購機制正式生效前的預期效應，或持續為長債提供邊際支撐。</li>
+          <li>指數仍具「逢低吸納」慣性，距歷史高位不足 2%，技術面尚未轉壞。</li>
+        </ul>
+      </div>
+      <div class="colcard bear">
+        <h4>▼ 利淡因素</h4>
+        <ul>
+          <li>週一伊朗制裁方案若涉及對中國原油貿易的直接施壓，恐觸發報復或油運中斷，油價存在單日跳升風險。</li>
+          <li>Warsh 於 Jackson Hole 演講若延續鷹派基調，將鞏固「無近期減息」定價，長端息率或再創新高。</li>
+          <li>核心 PCE 若意外偏高，9 月加息機率將重新攀升，衝擊估值倍數。</li>
+          <li>Nvidia 若業績遜預期或指引保守，鑒於指數集中度極高，恐引發 AI 板塊系統性回調。</li>
+          <li>30 年期息率已達數十年高位，AI 基建企業債發行潮持續與國債爭奪資金，長端壓力結構性未解。</li>
+          <li>非農就業年度修訂初值若顯示勞動市場實際更弱，將加深「滯脹式」擔憂，削弱經濟因素評分。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>本報告基於截至 2026 年 8 月 23 日之公開市場資訊整理及量化評分框架分析，評分機制為內部主觀研判工具，僅反映特定時點之宏觀環境判斷，並非投資建議，不構成任何買賣邀約。市場數據及事件發展迅速，實際情況請以官方公布及即時報價為準。過往表現及研判不代表未來結果。</p>
+  </footer>
+
+</div>
+</body>
+</html>
