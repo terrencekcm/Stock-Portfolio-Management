@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美股量化市場週報 | 2026-08-24 ~ 2026-08-28</title>
+<style>
+:root{
+  --bg:#0a0d12;
+  --panel:#111620;
+  --panel2:#151b27;
+  --border:#232b3a;
+  --border-soft:#1b2130;
+  --text:#dfe4ee;
+  --muted:#7c8598;
+  --muted2:#5a6376;
+  --amber:#f0a824;
+  --amber-dim:#c98c1e;
+  --cyan:#2fd3c7;
+  --green:#3fcf8e;
+  --red:#ff5a5f;
+  --yellow:#f0c419;
+  --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(240,168,36,0.06), transparent 60%),
+    radial-gradient(1000px 500px at 90% 0%, rgba(47,211,199,0.05), transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:14px;
+  line-height:1.6;
+  padding:0 0 60px;
+}
+a{color:var(--cyan);}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+/* ===== Header ===== */
+header.top{
+  border-bottom:1px solid var(--border);
+  padding:28px 0 22px;
+  background:linear-gradient(180deg, rgba(240,168,36,0.05), transparent);
+}
+.eyebrow{
+  font-family:var(--mono);
+  color:var(--amber);
+  font-size:11px;
+  letter-spacing:0.14em;
+  margin-bottom:10px;
+}
+h1{
+  font-family:var(--sans);
+  font-weight:800;
+  font-size:30px;
+  letter-spacing:-0.01em;
+  margin:0 0 6px;
+  color:#f4f6fa;
+}
+.subtitle{color:var(--muted);font-size:13px;margin-bottom:18px;}
+.badges{display:flex;gap:12px;flex-wrap:wrap;}
+.badge{
+  border:1px solid var(--border);
+  background:var(--panel);
+  border-radius:3px;
+  padding:9px 14px;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:220px;
+}
+.badge .lbl{font-size:10px;color:var(--muted);letter-spacing:0.08em;}
+.badge .val{font-size:14px;color:var(--text);font-weight:600;}
+.badge.risk .val{color:var(--amber);}
+.badge.data .val{color:var(--cyan);}
+
+/* ===== Sections ===== */
+section{padding:38px 0;border-bottom:1px solid var(--border-soft);}
+section:last-of-type{border-bottom:none;}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:20px;}
+.sec-num{font-family:var(--mono);color:var(--amber-dim);font-size:13px;}
+h2{
+  font-family:var(--sans);
+  font-size:19px;
+  font-weight:700;
+  color:#f0f2f7;
+  margin:0;
+}
+.sec-desc{color:var(--muted);font-size:12.5px;margin:-10px 0 22px;max-width:760px;}
+
+/* ===== Cards grid ===== */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+@media(max-width:1000px){.grid4,.grid5{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.grid4,.grid5{grid-template-columns:1fr;}}
+
+.card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:16px;
+  position:relative;
+}
+.card .name{font-size:11px;color:var(--muted);letter-spacing:0.05em;margin-bottom:8px;}
+.card .price{font-family:var(--mono);font-size:22px;font-weight:600;color:#fff;margin-bottom:6px;}
+.card .chgrow{display:flex;gap:10px;font-size:12.5px;margin-bottom:4px;}
+.up{color:var(--green);}
+.down{color:var(--red);}
+.flat{color:var(--muted);}
+.card .srcbadge{
+  margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-soft);
+  font-size:10px;color:var(--muted2);letter-spacing:0.02em;
+}
+
+/* ===== Charts ===== */
+.chart-block{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:18px 18px 10px;
+  margin-bottom:18px;
+}
+.chart-title{font-size:12.5px;color:var(--text);font-weight:600;margin-bottom:2px;}
+.chart-sub{font-size:10.5px;color:var(--muted2);margin-bottom:10px;}
+.legend{display:flex;gap:16px;font-size:11px;margin-bottom:6px;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.dot{width:9px;height:9px;border-radius:2px;display:inline-block;}
+svg{display:block;max-width:100%;}
+.axis-label{fill:var(--muted2);font-size:9px;font-family:var(--mono);}
+
+/* ===== Breadth tables ===== */
+.subhead{font-family:var(--sans);font-weight:700;font-size:14.5px;color:#eef1f7;margin:24px 0 10px;display:flex;align-items:center;gap:8px;}
+.subhead .tag{font-size:10px;background:var(--panel2);border:1px solid var(--border);color:var(--cyan);padding:2px 8px;border-radius:2px;letter-spacing:0.05em;}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;}
+th,td{border:1px solid var(--border);padding:7px 9px;text-align:center;}
+th{background:var(--panel2);color:var(--muted);font-weight:600;font-size:11px;letter-spacing:0.02em;}
+td{color:var(--text);}
+td.metric-name{text-align:left;color:var(--muted);}
+.analysis-box{
+  background:var(--panel2);
+  border-left:3px solid var(--amber-dim);
+  padding:14px 16px;
+  font-size:12.8px;
+  color:#c9cfdb;
+  margin-bottom:6px;
+  border-radius:0 3px 3px 0;
+}
+.analysis-box.combo{border-left-color:var(--cyan);}
+.analysis-box b{color:var(--text);}
+
+/* ===== Liquidity cards ===== */
+.liq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+@media(max-width:900px){.liq-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.liq-grid{grid-template-columns:1fr;}}
+.liq-card{background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:15px;}
+.liq-card .top-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.liq-card .metric{font-size:12px;color:var(--text);font-weight:600;line-height:1.3;}
+.status-pill{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;white-space:nowrap;}
+.pill-green{background:rgba(63,207,142,0.12);color:var(--green);border:1px solid rgba(63,207,142,0.35);}
+.pill-yellow{background:rgba(240,196,25,0.12);color:var(--yellow);border:1px solid rgba(240,196,25,0.35);}
+.pill-red{background:rgba(255,90,95,0.12);color:var(--red);border:1px solid rgba(255,90,95,0.35);}
+.liq-card .lastval{font-family:var(--mono);font-size:20px;color:#fff;margin:6px 0 2px;}
+.liq-card .rangeline{font-size:10.5px;color:var(--muted2);margin-bottom:8px;}
+.liq-card .note{font-size:11.5px;color:var(--muted);line-height:1.5;}
+
+/* ===== Score section ===== */
+.score-layout{display:grid;grid-template-columns:340px 1fr;gap:24px;}
+@media(max-width:900px){.score-layout{grid-template-columns:1fr;}}
+.gauge-box{background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:20px;text-align:center;}
+.gauge-score{font-family:var(--sans);font-size:44px;font-weight:800;color:var(--amber);margin-top:-30px;}
+.gauge-label{font-size:11px;color:var(--muted);letter-spacing:0.08em;margin-top:4px;}
+.bars-box{background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:20px;}
+.methodology{background:var(--panel2);border:1px solid var(--border);border-radius:3px;padding:16px 18px;margin-top:18px;font-size:12px;color:#c9cfdb;}
+.methodology h4{margin:0 0 10px;font-family:var(--sans);font-size:13px;color:#eef1f7;}
+.methodology table{margin-bottom:0;}
+.methodology table th, .methodology table td{font-size:11px;}
+
+/* ===== Conclusion ===== */
+.concl-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
+@media(max-width:800px){.concl-grid{grid-template-columns:1fr;}}
+.concl-card{background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:18px;}
+.concl-card h3{font-family:var(--sans);font-size:13.5px;margin:0 0 12px;display:flex;align-items:center;gap:8px;}
+.concl-card ul{margin:0;padding-left:18px;font-size:12.5px;color:#c9cfdb;}
+.concl-card li{margin-bottom:9px;}
+.concl-card.bull h3{color:var(--green);}
+.concl-card.bear h3{color:var(--red);}
+.watchlist{background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:18px;}
+.watchlist h3{font-family:var(--sans);font-size:13.5px;margin:0 0 12px;color:var(--cyan);}
+.watchlist ol{margin:0;padding-left:20px;font-size:12.5px;color:#c9cfdb;}
+.watchlist li{margin-bottom:9px;}
+
+footer{padding:28px 0;color:var(--muted2);font-size:10.5px;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">QUANT TERMINAL // WEEKLY MARKET INTERNALS &amp; LIQUIDITY BRIEF</div>
+  <h1>美股量化市場分析週報</h1>
+  <div class="subtitle">市場內部廣度 × 信貸流動性 × 下週入市熱度評分</div>
+  <div class="badges">
+    <div class="badge data">
+      <div class="lbl">數據分析週期 （近三週）</div>
+      <div class="val">2026-08-10 ~ 2026-08-28</div>
+    </div>
+    <div class="badge risk">
+      <div class="lbl">風險預測週期（下一週）</div>
+      <div class="val">2026-08-31 ~ 2026-09-04</div>
+    </div>
+    <div class="badge">
+      <div class="lbl">報告產出時間</div>
+      <div class="val">2026-08-31（美東時間 08/28 收盤數據）</div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== 1. 基本數據 — 主要指數 ===================== -->
+<section>
+  <div class="sec-head"><span class="sec-num">01</span><h2>主要指數收盤變化</h2></div>
+  <p class="sec-desc">截至 2026-08-28（週五）收盤；日漲跌為 08/28 單日變化，週漲跌為 08/21 收盤 → 08/28 收盤變化。</p>
+  <div class="grid4">
+    <div class="card">
+      <div class="name">S&amp;P 500 (^GSPC)</div>
+      <div class="price">7,711.76</div>
+      <div class="chgrow"><span class="down">日 −19.23 (−0.25%)</span></div>
+      <div class="chgrow"><span class="up">週 +0.63%</span></div>
+      <div class="srcbadge">SOURCE: Yahoo Finance · AS OF 2026-08-28 16:37 EDT</div>
+    </div>
+    <div class="card">
+      <div class="name">NASDAQ COMPOSITE (^IXIC)</div>
+      <div class="price">26,402.42</div>
+      <div class="chgrow"><span class="down">日 −138.93 (−0.52%)</span></div>
+      <div class="chgrow"><span class="up">週 +0.85%</span></div>
+      <div class="srcbadge">SOURCE: Yahoo Finance · AS OF 2026-08-28 17:15 EDT</div>
+    </div>
+    <div class="card">
+      <div class="name">DOW JONES (^DJI)</div>
+      <div class="price">53,559.99</div>
+      <div class="chgrow"><span class="down">日 −9.45 (−0.02%)</span></div>
+      <div class="chgrow"><span class="up">週 +0.53%</span></div>
+      <div class="srcbadge">SOURCE: Yahoo Finance · AS OF 2026-08-28 收盤</div>
+    </div>
+    <div class="card">
+      <div class="name">PHLX SEMICONDUCTOR (^SOX)</div>
+      <div class="price">11,469.66</div>
+      <div class="chgrow"><span class="down">日 −412.51 (−3.47%)</span></div>
+      <div class="chgrow"><span class="down">週 −2.31%</span></div>
+      <div class="srcbadge">SOURCE: Yahoo Finance · AS OF 2026-08-28 17:15 EDT</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 2. 關鍵宏觀指標 ===================== -->
+<section>
+  <div class="sec-head"><span class="sec-num">02</span><h2>關鍵宏觀指標</h2></div>
+  <p class="sec-desc">08/28 為 Jackson Hole 年會，Fed 主席 Warsh 首次演說偏鷹，9 月升息機率跳升至 57%，帶動殖利率與美元走高。</p>
+  <div class="grid5">
+    <div class="card">
+      <div class="name">10Y TREASURY YIELD</div>
+      <div class="price">4.72%</div>
+      <div class="chgrow"><span class="down">日 +4.8bp</span></div>
+      <div class="chgrow"><span class="down">週 −1.8bp</span></div>
+      <div class="srcbadge">SOURCE: Yahoo Finance ^TNX · 2026-08-28</div>
+    </div>
+    <div class="card">
+      <div class="name">20Y TREASURY YIELD</div>
+      <div class="price">5.18%</div>
+      <div class="chgrow"><span class="down">週 −7bp（08/21→08/27）</span></div>
+      <div class="srcbadge">SOURCE: FRED H.15 (DGS20) · 最新公布值 2026-08-27（Fed 公布延遲一日）</div>
+    </div>
+    <div class="card">
+      <div class="name">VIX</div>
+      <div class="price">14.43</div>
+      <div class="chgrow"><span class="up">日 −0.08 (−0.55%)</span></div>
+      <div class="chgrow"><span class="up">週 −4.6%</span></div>
+      <div class="srcbadge">SOURCE: Yahoo Finance ^VIX · 2026-08-28 收盤</div>
+    </div>
+    <div class="card">
+      <div class="name">WTI CRUDE OIL</div>
+      <div class="price">$83.40</div>
+      <div class="chgrow"><span class="down">日 −0.13 (−0.16%)</span></div>
+      <div class="srcbadge">SOURCE: Yahoo Finance CL=F (Oct26) · 2026-08-28</div>
+    </div>
+    <div class="card">
+      <div class="name">GOLD</div>
+      <div class="price">$4,529.90</div>
+      <div class="chgrow"><span class="down">日 −134.10 (−2.88%)</span></div>
+      <div class="srcbadge">SOURCE: Yahoo Finance GC=F · 2026-08-28</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 3. SVG 趨勢圖 ===================== -->
+<section>
+  <div class="sec-head"><span class="sec-num">03</span><h2>六個月趨勢關係圖</h2></div>
+  <p class="sec-desc">以週線收盤值繪製（2026-02-27 ~ 2026-08-28，共 27 個採樣點），數值依各序列最小/最大值自動縮放。</p>
+
+  <!-- VIX vs Nasdaq -->
+  <div class="chart-block">
+    <div class="chart-title">VIX vs. NASDAQ COMPOSITE — 六個月關係</div>
+    <div class="chart-sub">左軸：VIX（橙色）14.43–31.05　右軸：Nasdaq Composite（青色）20,948–27,094</div>
+    <div class="legend">
+      <span><i class="dot" style="background:#f0a824"></i>VIX</span>
+      <span><i class="dot" style="background:#2fd3c7"></i>Nasdaq Composite</span>
+    </div>
+    <svg viewBox="0 0 800 230" xmlns="http://www.w3.org/2000/svg">
+      <line x1="40" y1="20" x2="40" y2="200" stroke="#232b3a" stroke-width="1"/>
+      <line x1="40" y1="200" x2="760" y2="200" stroke="#232b3a" stroke-width="1"/>
+      <line x1="760" y1="20" x2="760" y2="200" stroke="#232b3a" stroke-width="1"/>
+      <text x="10" y="24" class="axis-label">31.1</text>
+      <text x="10" y="204" class="axis-label">14.4</text>
+      <text x="765" y="24" class="axis-label">27.1k</text>
+      <text x="765" y="204" class="axis-label">20.9k</text>
+      <polyline points="40.0,141.2 67.7,36.9 95.4,61.8 123.1,66.2 150.8,20.0 178.5,94.5 206.2,149.2 233.8,151.9 261.5,161.1 289.2,158.2 316.9,157.2 344.6,163.3 372.3,176.6 400.0,182.5 427.7,151.4 455.4,180.8 483.1,145.2 510.8,178.1 538.5,173.2 566.2,186.6 593.8,176.1 621.5,132.5 649.2,185.1 676.9,198.7 704.6,195.0 732.3,191.6 760.0,200.0" fill="none" stroke="#f0a824" stroke-width="2"/>
+      <polyline points="40.0,149.6 67.7,157.8 95.4,166.1 123.1,179.5 150.8,200.0 178.5,169.3 206.2,134.5 233.8,98.8 261.5,84.6 289.2,79.3 316.9,44.0 344.6,49.4 372.3,32.8 400.0,20.0 427.7,61.4 455.4,41.0 483.1,67.4 510.8,50.9 538.5,46.0 566.2,55.5 593.8,77.3 621.5,77.8 649.2,41.8 676.9,28.5 704.6,50.1 732.3,36.2 760.0,40.3" fill="none" stroke="#2fd3c7" stroke-width="2"/>
+      <text x="40" y="216" class="axis-label">2026-02</text>
+      <text x="230" y="216" class="axis-label">2026-04</text>
+      <text x="420" y="216" class="axis-label">2026-06</text>
+      <text x="700" y="216" class="axis-label">2026-08</text>
+    </svg>
+  </div>
+
+  <!-- 10Y Yield -->
+  <div class="chart-block">
+    <div class="chart-title">10 年期公債殖利率 — 六個月走勢</div>
+    <div class="chart-sub">^TNX，區間 3.96% ~ 4.72%（週線收盤）</div>
+    <svg viewBox="0 0 800 230" xmlns="http://www.w3.org/2000/svg">
+      <line x1="40" y1="20" x2="40" y2="200" stroke="#232b3a" stroke-width="1"/>
+      <line x1="40" y1="200" x2="760" y2="200" stroke="#232b3a" stroke-width="1"/>
+      <line x1="760" y1="20" x2="760" y2="200" stroke="#232b3a" stroke-width="1"/>
+      <text x="10" y="24" class="axis-label">4.72%</text>
+      <text x="10" y="204" class="axis-label">3.96%</text>
+      <polyline points="40.0,200.0 67.7,159.4 95.4,123.3 123.1,98.1 150.8,86.5 178.5,111.4 206.2,120.4 233.8,131.6 261.5,111.2 289.2,85.1 316.9,93.6 344.6,43.0 372.3,73.9 400.0,82.9 427.7,65.6 455.4,89.3 483.1,95.5 510.8,78.2 538.5,63.0 566.2,55.9 593.8,24.0 621.5,33.5 649.2,31.9 676.9,38.8 704.6,25.7 732.3,31.4 760.0,20.0" fill="none" stroke="#f0a824" stroke-width="2.2"/>
+      <text x="40" y="216" class="axis-label">2026-02</text>
+      <text x="230" y="216" class="axis-label">2026-04</text>
+      <text x="420" y="216" class="axis-label">2026-06</text>
+      <text x="700" y="216" class="axis-label">2026-08</text>
+    </svg>
+  </div>
+
+  <!-- DXY -->
+  <div class="chart-block">
+    <div class="chart-title">美元指數 (DXY) — 六個月走勢</div>
+    <div class="chart-sub">DX-Y.NYB，區間 97.61 ~ 101.61（週線收盤）</div>
+    <svg viewBox="0 0 800 230" xmlns="http://www.w3.org/2000/svg">
+      <line x1="40" y1="20" x2="40" y2="200" stroke="#232b3a" stroke-width="1"/>
+      <line x1="40" y1="200" x2="760" y2="200" stroke="#232b3a" stroke-width="1"/>
+      <line x1="760" y1="20" x2="760" y2="200" stroke="#232b3a" stroke-width="1"/>
+      <text x="10" y="24" class="axis-label">101.6</text>
+      <text x="10" y="204" class="axis-label">97.6</text>
+      <polyline points="40.0,200.0 67.7,137.9 95.4,76.2 123.1,108.2 150.8,85.7 178.5,93.3 206.2,165.8 233.8,180.2 261.5,160.8 289.2,161.3 316.9,185.2 344.6,138.8 372.3,129.8 400.0,127.6 427.7,96.5 455.4,113.1 483.1,20.0 510.8,29.9 538.5,50.2 566.2,59.6 593.8,28.1 621.5,92.0 649.2,93.8 676.9,94.3 704.6,141.9 732.3,130.3 760.0,105.9" fill="none" stroke="#2fd3c7" stroke-width="2.2"/>
+      <text x="40" y="216" class="axis-label">2026-02</text>
+      <text x="230" y="216" class="axis-label">2026-04</text>
+      <text x="420" y="216" class="axis-label">2026-06</text>
+      <text x="700" y="216" class="axis-label">2026-08</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ===================== 4. 市場內部廣度分析 ===================== -->
+<section>
+  <div class="sec-head"><span class="sec-num">04</span><h2>市場內部廣度分析</h2></div>
+  <p class="sec-desc">大型股+科技股（S&amp;P500 + Nasdaq100，518檔）與中小盤股（Russell 2000，1,970檔）分別檢視，最後給出綜合判讀。</p>
+
+  <div class="subhead">大型股 + 科技股 <span class="tag">S&amp;P 500 &amp; NASDAQ 100</span></div>
+  <table>
+    <tr><th>時間區間</th><th>S&amp;P500 漲跌</th><th>NAS100 漲跌</th><th>Dynamic NH</th><th>Dynamic NL</th><th>淨新高</th><th>NH Ratio</th><th>嘗試攻堅</th><th>成功站穩</th><th>突破留存率</th></tr>
+    <tr><td>08-24~08-28</td><td class="down">+0.63%</td><td class="up">+1.16%</td><td>43</td><td>12</td><td>31</td><td>78.2%</td><td>43</td><td>10</td><td class="down">23.3%</td></tr>
+    <tr><td>08-17~08-21</td><td class="down">−1.49%</td><td class="down">−2.79%</td><td>46</td><td>9</td><td>37</td><td>83.6%</td><td>46</td><td>26</td><td>56.5%</td></tr>
+    <tr><td>08-10~08-14</td><td class="up">+0.44%</td><td class="up">+1.13%</td><td>53</td><td>4</td><td>49</td><td>93.0%</td><td>53</td><td>27</td><td>50.9%</td></tr>
+  </table>
+  <div class="analysis-box">
+    <b>獨立分析：</b>大型股與科技股上週指數雖收正（S&amp;P +0.63%、NAS100 +1.16%），但廣度品質同步走弱三週：NH Ratio 由 93.0% → 83.6% → 78.2% 連續下滑，淨新高數從 49 縮小到 31，降幅逾三成。最關鍵的是<b>突破留存率由 50.9% 一路崩落至 23.3%</b>——代表上週嘗試創新高的 43 檔個股中，將近八成最終未能站穩在新高之上，顯示指數表面創高但個股層面的攻堅成功率明顯惡化，是價漲量弱、內部結構轉弱的典型訊號。
+  </div>
+
+  <div class="subhead">中小盤股 <span class="tag">RUSSELL 2000</span></div>
+  <table>
+    <tr><th>時間區間</th><th>R2000 漲跌</th><th>Dynamic NH</th><th>Dynamic NL</th><th>淨新高</th><th>NH Ratio</th><th>嘗試攻堅</th><th>成功站穩</th><th>突破留存率</th></tr>
+    <tr><td>08-24~08-28</td><td class="down">−1.42%</td><td>118</td><td>38</td><td>80</td><td>75.6%</td><td>118</td><td>36</td><td class="down">30.5%</td></tr>
+    <tr><td>08-17~08-21</td><td class="down">−1.39%</td><td>160</td><td>32</td><td>128</td><td>83.3%</td><td>160</td><td>67</td><td>41.9%</td></tr>
+    <tr><td>08-10~08-14</td><td class="up">+1.39%</td><td>146</td><td>12</td><td>134</td><td>92.4%</td><td>146</td><td>77</td><td>52.7%</td></tr>
+  </table>
+  <div class="analysis-box">
+    <b>獨立分析：</b>Russell 2000 已連兩週收黑（−1.39%、−1.42%），與大型股的正報酬明顯脫鉤。廣度指標同樣走弱：淨新高從 134 降至 80（近 40% 降幅），突破留存率由 52.7% 滑落至 30.5%。中小盤股波動放大、攻堅成功率下降，且指數本身已經開始下跌，代表資金正從風險係數較高的小型股撤出，是防禦性輪動的早期跡象。
+  </div>
+
+  <div class="subhead">廣度綜合分析</div>
+  <div class="analysis-box combo">
+    大型股與中小盤股在過去三週呈現<b>「指數強、廣度弱」的同步惡化模式</b>：兩個群組的 NH Ratio、淨新高與突破留存率全數三週連降，且降幅在最新一週（08-24~08-28）明顯加速——大型股突破留存率單週腰斬（56.5%→23.3%），中小盤同步破位向下。搭配大型股指數仍收紅、中小盤已轉跌的分歧走勢，顯示市場上漲的參與廣度正在收斂，愈來愈依賴少數權值股撐盤。這是典型的「頂部前兆型」廣度背離，尚未構成立即翻空訊號，但已足以列為下週入市評分的主要扣分項。
+  </div>
+</section>
+
+<!-- ===================== 5. 信貸/流動性指標分析 ===================== -->
+<section>
+  <div class="sec-head"><span class="sec-num">05</span><h2>信貸 / 流動性指標分析</h2></div>
+  <p class="sec-desc">依 2026-08-10 ~ 2026-08-28 每日真實數值繪製 sparkline；狀態燈號依報告附帶之判讀方法論分類。</p>
+
+  <div class="liq-grid">
+    <div class="liq-card">
+      <div class="top-row"><div class="metric">SOFR − IORB 利差</div><span class="status-pill pill-green">🟢 常態充沛</span></div>
+      <div class="lastval">−1 bp</div>
+      <div class="rangeline">近三週區間：−3 ~ +1 bp（08/27 最新值）</div>
+      <svg viewBox="0 0 200 50" width="100%" height="50"><polyline points="0.0,35.0 15.4,25.0 30.8,45.0 46.2,45.0 61.5,45.0 76.9,5.0 92.3,15.0 107.7,45.0 123.1,35.0 138.5,15.0 153.8,15.0 169.2,5.0 184.6,25.0 200.0,25.0" fill="none" stroke="#3fcf8e" stroke-width="1.8"/></svg>
+      <div class="note">利差持續落在 -5~+2bp 中性均衡區，隔夜融資順暢，未見貨幣市場壓力跡象。</div>
+    </div>
+
+    <div class="liq-card">
+      <div class="top-row"><div class="metric">高收益債信用利差<br>(BAMLH0A0HYM2)</div><span class="status-pill pill-yellow">🟡 極度壓縮</span></div>
+      <div class="lastval">2.63%</div>
+      <div class="rangeline">近三週區間：2.63% ~ 2.75%（＝263~275bp）</div>
+      <svg viewBox="0 0 200 50" width="100%" height="50"><polyline points="0.0,21.7 15.4,15.0 30.8,18.3 46.2,18.3 61.5,31.7 76.9,21.7 92.3,5.0 107.7,11.7 123.1,5.0 138.5,21.7 153.8,25.0 169.2,21.7 184.6,31.7 200.0,45.0" fill="none" stroke="#f0c419" stroke-width="1.8"/></svg>
+      <div class="note">數值遠低於 350bp 安全區上限，技術上屬「安全」，但利差已壓縮至歷史極窄水準，市場對信用風險定價過度樂觀，容錯空間有限。</div>
+    </div>
+
+    <div class="liq-card">
+      <div class="top-row"><div class="metric">SPHB / SPLV 比率</div><span class="status-pill pill-yellow">🟡 高位盤整</span></div>
+      <div class="lastval">1.9475</div>
+      <div class="rangeline">近三週區間：1.9159 ~ 2.0018</div>
+      <svg viewBox="0 0 200 50" width="100%" height="50"><polyline points="0.0,34.4 14.3,28.9 28.6,15.9 42.9,11.6 57.1,12.8 71.4,5.0 85.7,40.0 100.0,26.6 114.3,36.0 128.6,18.9 142.9,45.0 157.1,26.0 171.4,24.1 185.7,10.2 200.0,30.3" fill="none" stroke="#f0c419" stroke-width="1.8"/></svg>
+      <div class="note">比率高位橫盤，未與大盤同步創新高，屬風險中性訊號，留意若指數再創高而比率走低即轉為頂背離警訊。</div>
+    </div>
+
+    <div class="liq-card">
+      <div class="top-row"><div class="metric">MOVE Index<br>（債市波動率）</div><span class="status-pill pill-green">🟢 債市平靜</span></div>
+      <div class="lastval">70.97</div>
+      <div class="rangeline">近三週區間：69.23 ~ 77.92</div>
+      <svg viewBox="0 0 200 50" width="100%" height="50"><polyline points="0.0,16.3 14.3,5.0 28.6,31.8 42.9,45.0 57.1,43.4 71.4,15.5 85.7,18.5 100.0,35.7 114.3,26.8 128.6,25.8 142.9,23.1 157.1,32.6 171.4,44.0 185.7,42.1 200.0,37.0" fill="none" stroke="#3fcf8e" stroke-width="1.8"/></svg>
+      <div class="note">連續三週穩定低於 100 的買入訊號門檻，美債抵押品體系穩定，未對股市構成流動性風險。</div>
+    </div>
+
+    <div class="liq-card">
+      <div class="top-row"><div class="metric">CBOE Equity P/C<br>20日均線</div><span class="status-pill pill-yellow">🟡 趨向自滿</span></div>
+      <div class="lastval">0.57</div>
+      <div class="rangeline">近三週區間：0.57 ~ 0.63，持續下滑</div>
+      <svg viewBox="0 0 200 50" width="100%" height="50"><polyline points="0.0,5.0 14.3,5.0 28.6,5.0 42.9,11.7 57.1,18.3 71.4,18.3 85.7,18.3 100.0,18.3 114.3,25.0 128.6,31.7 142.9,31.7 157.1,38.3 171.4,31.7 185.7,45.0 200.0,45.0" fill="none" stroke="#f0c419" stroke-width="1.8"/></svg>
+      <div class="note">仍處 0.55–0.75 中性區間，但已連續三週單向下滑，逐漸逼近 <0.45–0.50 的「警惕/禁止入市」下緣，散戶避險需求持續萎縮。</div>
+    </div>
+
+    <div class="liq-card">
+      <div class="top-row"><div class="metric">VIX / VIX3M<br>期限結構</div><span class="status-pill pill-green">🟢 正向平靜</span></div>
+      <div class="lastval">0.826</div>
+      <div class="rangeline">近三週區間：0.772 ~ 0.854，全數 &lt;1.0</div>
+      <svg viewBox="0 0 200 50" width="100%" height="50"><polyline points="0.0,24.2 15.4,27.4 30.8,38.5 46.2,38.1 61.5,45.0 76.9,32.4 92.3,20.6 107.7,30.4 123.1,11.8 138.5,22.6 153.8,5.0 169.2,7.7 184.6,9.2 200.0,18.5" fill="none" stroke="#3fcf8e" stroke-width="1.8"/></svg>
+      <div class="note">結構持續處於正向 Contango，市場並未出現恐慌倒掛，但同時也未達 &gt;1.0 後回落的「恐慌釋放」買點訊號，屬於中性偏平靜。</div>
+    </div>
+  </div>
+
+  <div class="subhead">信用 / 流動性綜合分析</div>
+  <div class="analysis-box combo">
+    整體流動性環境仍屬健康：SOFR-IORB 維持中性偏鬆、MOVE Index 連三週遠低於 100，短端資金與美債抵押品市場均無壓力訊號。但風險定價端已出現「過度自滿」的早期跡象——高收益債利差壓縮至 263bp 的歷史極窄水準（雖仍在 350bp 安全區內），加上 Put/Call 20日均線連三週走低、SPHB/SPLV 高位盤整未創新高，三者共同指向<b>市場容錯空間正在收窄</b>。依「頂部與減倉警訊」判讀表，目前僅單一條件（HY OAS 偏低）觸發，SOFR-IORB 尚未轉正，故整體仍落在「中性觀望」而非「減倉警訊」等級，但若下週 HY OAS 進一步收斂至 &lt;250bp 且 SOFR-IORB 轉正，應提高警覺。
+  </div>
+</section>
+
+<!-- ===================== 6. 下週入市熱度評分 ===================== -->
+<section>
+  <div class="sec-head"><span class="sec-num">06</span><h2>下週入市熱度綜合評分（滿分 100）</h2></div>
+  <p class="sec-desc">預測週期：2026-08-31 ~ 2026-09-04</p>
+
+  <div class="score-layout">
+    <div class="gauge-box">
+      <svg viewBox="0 0 300 175" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 30 150 A 120 120 0 0 1 270 150" fill="none" stroke="#1b2130" stroke-width="20" stroke-linecap="round"/>
+        <path d="M 30 150 A 120 120 0 0 1 270 150" fill="none" stroke="#f0a824" stroke-width="20" stroke-linecap="round"
+              stroke-dasharray="376.99" stroke-dashoffset="150.8"/>
+        <line x1="150" y1="150" x2="180.9" y2="54.9" stroke="#dfe4ee" stroke-width="2.5"/>
+        <circle cx="150" cy="150" r="6" fill="#dfe4ee"/>
+        <text x="45" y="168" class="axis-label">0</text>
+        <text x="145" y="30" class="axis-label">50</text>
+        <text x="248" y="168" class="axis-label">100</text>
+      </svg>
+      <div class="gauge-score">60</div>
+      <div class="gauge-label">中性偏謹慎 NEUTRAL / LEAN CAUTIOUS</div>
+    </div>
+
+    <div class="bars-box">
+      <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+        <text x="0" y="16" fill="#dfe4ee" font-size="11" font-family="ui-monospace,monospace">市場廣度 Breadth</text>
+        <rect x="130" y="4" width="560" height="16" fill="#1b2130"/>
+        <rect x="130" y="4" width="224.0" height="16" fill="#f0a824"/>
+        <text x="695" y="16" fill="#dfe4ee" font-size="11" text-anchor="end" font-family="ui-monospace,monospace">12/30</text>
+
+        <text x="0" y="56" fill="#dfe4ee" font-size="11" font-family="ui-monospace,monospace">信用/流動性 Credit</text>
+        <rect x="130" y="44" width="560" height="16" fill="#1b2130"/>
+        <rect x="130" y="44" width="403.2" height="16" fill="#3fcf8e"/>
+        <text x="695" y="56" fill="#dfe4ee" font-size="11" text-anchor="end" font-family="ui-monospace,monospace">18/25</text>
+
+        <text x="0" y="96" fill="#dfe4ee" font-size="11" font-family="ui-monospace,monospace">風險偏好 Risk Appetite</text>
+        <rect x="130" y="84" width="560" height="16" fill="#1b2130"/>
+        <rect x="130" y="84" width="364.0" height="16" fill="#f0c419"/>
+        <text x="695" y="96" fill="#dfe4ee" font-size="11" text-anchor="end" font-family="ui-monospace,monospace">13/20</text>
+
+        <text x="0" y="136" fill="#dfe4ee" font-size="11" font-family="ui-monospace,monospace">債市穩定度 Bond</text>
+        <rect x="130" y="124" width="560" height="16" fill="#1b2130"/>
+        <rect x="130" y="124" width="485.3" height="16" fill="#3fcf8e"/>
+        <text x="695" y="136" fill="#dfe4ee" font-size="11" text-anchor="end" font-family="ui-monospace,monospace">13/15</text>
+
+        <text x="0" y="176" fill="#dfe4ee" font-size="11" font-family="ui-monospace,monospace">動能/總經 Momentum</text>
+        <rect x="130" y="164" width="560" height="16" fill="#1b2130"/>
+        <rect x="130" y="164" width="224.0" height="16" fill="#ff5a5f"/>
+        <text x="695" y="176" fill="#dfe4ee" font-size="11" text-anchor="end" font-family="ui-monospace,monospace">4/10</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="methodology">
+    <h4>評分方法論（供未來每週橫向比較）</h4>
+    <table>
+      <tr><th>分項</th><th>權重</th><th>本週得分</th><th>評分邏輯</th></tr>
+      <tr><td class="metric-name">A. 市場廣度</td><td>30</td><td>12</td><td>NH Ratio 水準與趨勢(5)、淨新高變化率(10)、突破留存率(10)、大/小盤一致性(5)；三週連降且留存率單週腰斬 → 重扣分</td></tr>
+      <tr><td class="metric-name">B. 信用/流動性</td><td>25</td><td>18</td><td>SOFR-IORB 水準(10)、HY OAS 水準與壓縮程度(15)；資金面順暢但利差過度壓縮扣中等分</td></tr>
+      <tr><td class="metric-name">C. 風險偏好</td><td>20</td><td>13</td><td>SPHB/SPLV(7)、Put/Call 20MA 趨勢(7)、VIX期限結構(6)；中性偏自滿</td></tr>
+      <tr><td class="metric-name">D. 債市穩定度</td><td>15</td><td>13</td><td>MOVE Index 連三週遠低於 100 門檻 → 接近滿分</td></tr>
+      <tr><td class="metric-name">E. 動能/總經背景</td><td>10</td><td>4</td><td>指數動能(5)：SOX 領跌拖累；殖利率/美元趨勢(5)：Fed 偏鷹推升利率，屬入市逆風 → 重扣分</td></tr>
+      <tr><td class="metric-name"><b>合計</b></td><td><b>100</b></td><td><b>60</b></td><td>60分以上=中性偏多；45-60=中性偏謹慎；&lt;45=防禦</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===================== 7. 綜合結論 ===================== -->
+<section>
+  <div class="sec-head"><span class="sec-num">07</span><h2>綜合結論</h2></div>
+
+  <div class="concl-grid">
+    <div class="concl-card bull">
+      <h3>✓ 支持做多因素</h3>
+      <ul>
+        <li>S&amp;P 500、Nasdaq Composite、Dow 三大指數上週均收紅（+0.5% ~ +0.85%）</li>
+        <li>SOFR-IORB 利差維持 -3~+1bp 中性偏鬆，隔夜融資無壓力</li>
+        <li>高收益債利差仍在 350bp 安全區以內，信用市場未見系統性壓力</li>
+        <li>MOVE Index 連三週穩定低於 100 門檻，美債流動性無虞</li>
+        <li>VIX/VIX3M 維持正向 Contango，選擇權市場未見恐慌倒掛</li>
+      </ul>
+    </div>
+    <div class="concl-card bear">
+      <h3>⚠ 需留意風險</h3>
+      <ul>
+        <li>突破留存率大型股單週崩落至 23.3%、中小盤 30.5%，創新高後站不穩的比例明顯升高</li>
+        <li>淨新高數三週連降（大型股 49→31、中小盤 134→80），廣度隨指數上漲反而收斂</li>
+        <li>Russell 2000 已連兩週收黑（−1.42%），與大型股走勢脫鉤</li>
+        <li>10年期殖利率單日跳升 4.8bp 至 4.72%，Fed 官員 Warsh 於 Jackson Hole 偏鷹發言，9月升息機率升至57%</li>
+        <li>SOX 單日重挫 3.47%、單週 −2.31%，Marvell、應材等權值股領跌，半導體領漲動能轉弱</li>
+        <li>HY OAS 壓縮至歷史極窄、Put/Call 20MA 連三週走低，市場定價逐漸趨向自滿</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="watchlist">
+    <h3>▸ 下週關鍵觀察指標（08/31 ~ 09/04）</h3>
+    <ol>
+      <li><b>突破留存率能否止跌回升</b>——若大型股／中小盤留存率持續探底，廣度背離風險將進一步上升</li>
+      <li><b>10年期殖利率是否突破 4.75%–4.80%</b> 近期區間高點，觀察對成長股估值的壓力</li>
+      <li><b>9月升息機率變化</b>——留意本週勞動市場與通膨數據對 Fed 定價的影響</li>
+      <li><b>半導體股（SOX／NVDA 供應鏈）能否止穩</b>，或延續財報後的獲利了結賣壓</li>
+      <li><b>高收益債利差（HY OAS）是否轉為走闊</b>，尤其留意是否跌破 250bp 並同時 SOFR-IORB 轉正（觸發減倉警訊組合）</li>
+      <li><b>CBOE Put/Call 20日均線是否跌破 0.55</b>，逼近「警惕/禁止入市」下緣</li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  資料來源：Yahoo Finance（^GSPC、^IXIC、^DJI、^SOX、^VIX、^TNX、DX-Y.NYB、GC=F、CL=F，2026-08-28 收盤）；FRED（Federal Reserve Board H.15，DGS20，2026-08-27 最新公布值）；CNBC / Washington Post / 24-7 Wall St / Trading Economics（2026-08-28 Jackson Hole Warsh 談話市場反應報導）。市場廣度與信貸流動性每日原始數值由使用者提供之數據檔案（us_market_breadth_3weeks_raw_data.md、us_macro_liquidity_3weeks_raw_data.md）計算。本報告僅供研究參考，不構成投資建議。
+</footer>
+
+</div>
+</body>
+</html>
