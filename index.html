@@ -636,7 +636,30 @@
                 </div>
                 <p class="text-[9px] text-gray-500 mt-3 text-center">💡 計算邏輯：以 2026.07.01 為基準點 (0%)，計算每日累積百分比變化。大盤數據取自每日收盤快照。</p>
             </div>
-
+            <!-- 🏆 美股 5 大已實現盈利 / 虧蝕股票清單 (Top 5 Gainers & Losers) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                <!-- 5 大已實現盈利股票 -->
+                <div class="bg-gray-800/80 p-3.5 rounded-xl border border-emerald-500/30 shadow-sm flex flex-col justify-between">
+                    <div class="flex items-center justify-between border-b border-gray-700/80 pb-2 mb-2">
+                        <span class="text-xs font-black text-emerald-400 flex items-center gap-1">🟢 5 大已實現盈利股票 (Top 5 Gainers)</span>
+                        <span class="text-[10px] text-gray-500 font-mono">已平倉獲利</span>
+                    </div>
+                    <div id="usTopGainersList" class="space-y-1.5 text-xs font-mono">
+                        <div class="text-gray-500 text-[11px] py-1 text-center">計算中...</div>
+                    </div>
+                </div>
+            
+                <!-- 5 大已實現虧蝕股票 -->
+                <div class="bg-gray-800/80 p-3.5 rounded-xl border border-rose-500/30 shadow-sm flex flex-col justify-between">
+                    <div class="flex items-center justify-between border-b border-gray-700/80 pb-2 mb-2">
+                        <span class="text-xs font-black text-rose-400 flex items-center gap-1">🔴 5 大已實現虧蝕股票 (Top 5 Losers)</span>
+                        <span class="text-[10px] text-gray-500 font-mono">已平倉虧損</span>
+                    </div>
+                    <div id="usTopLosersList" class="space-y-1.5 text-xs font-mono">
+                        <div class="text-gray-500 text-[11px] py-1 text-center">計算中...</div>
+                    </div>
+                </div>
+            </div>
             <!-- 視圖 2：US期權績效 -->
             <div id="view-opt-perf-us" class="space-y-6 hidden">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -3836,21 +3859,19 @@
             document.getElementById('genericIframeModal').classList.add('hidden');
         }
 
-        // ==========================================
-        // 🚀 美股專屬盈虧指標計算引擎 (即時算力)
-        // ==========================================
         function calculateUSStockPerformance() {
             let usRealizedPl = 0;
             let usDividends = 0;
             let usPositions = {};
-
+            let usRealizedMap = {};
+        
             // 1. 依時間升序排列所有交易紀錄 (舊 ➔ 新)，確保加權平均成本精確
             let sortedTx = [...transactions].sort((a, b) => {
                 let dateDiff = new Date(a.date) - new Date(b.date);
                 if (dateDiff !== 0) return dateDiff;
                 return (Number(a.id) || 0) - (Number(b.id) || 0);
             });
-
+        
             sortedTx.forEach(t => {
                 if (!t.code) return;
                 const codeStr = String(t.code).trim().toUpperCase();
@@ -3859,15 +3880,18 @@
                 const price = parseFloat(t.price) || 0;
                 const qty = parseFloat(t.qty) || 0;
                 const amt = price * qty;
-
+        
                 // 僅計算美股，排除現金流水
                 if (marketStr !== 'US' || codeStr === 'CASH') return;
-
+        
                 if (!usPositions[codeStr]) {
                     usPositions[codeStr] = { shares: 0, totalCost: 0 };
                 }
+                if (!usRealizedMap[codeStr]) {
+                    usRealizedMap[codeStr] = 0;
+                }
                 const pos = usPositions[codeStr];
-
+        
                 if (typeStr === 'BUY') {
                     pos.shares += qty;
                     pos.totalCost += amt;
@@ -3877,7 +3901,8 @@
                         const soldCost = qty * avgCost;
                         const realized = (price - avgCost) * qty;
                         usRealizedPl += realized;
-
+                        usRealizedMap[codeStr] += realized;
+        
                         pos.shares -= qty;
                         pos.totalCost -= soldCost;
                         if (pos.shares <= 0) {
@@ -3889,7 +3914,7 @@
                     usDividends += amt;
                 }
             });
-
+        
             // 2. 計算美股在倉浮動盈虧 (Unrealized P&L)
             let usFloatingPl = 0;
             for (const code in usPositions) {
@@ -3902,24 +3927,44 @@
                     }
                 }
             }
-
+        
             // 3. 美股總盈虧 $ = 已實現 + 股息 + 浮動
             const usTotalPl = usRealizedPl + usDividends + usFloatingPl;
-
+        
             // 4. 讀取美股起始金額
             const currentYear = new Date().getFullYear();
             const usInitialCapital = parseFloat(perfConfig[currentYear + "_us_initial"]) || 0;
-
+        
             // 5. 美股資產盈虧 % = 美股總盈虧 $ / 美股起始金額 * 100
             const usPlPct = usInitialCapital > 0 ? (usTotalPl / usInitialCapital) * 100 : 0;
-
+        
+            // 6. 提煉 5 大已實現盈利與 5 大已實現虧蝕股票
+            let realizedList = [];
+            for (const code in usRealizedMap) {
+                if (Math.abs(usRealizedMap[code]) > 0.001) {
+                    realizedList.push({ code: code, realizedPl: usRealizedMap[code] });
+                }
+            }
+        
+            const topGainers = realizedList
+                .filter(item => item.realizedPl > 0)
+                .sort((a, b) => b.realizedPl - a.realizedPl)
+                .slice(0, 5);
+        
+            const topLosers = realizedList
+                .filter(item => item.realizedPl < 0)
+                .sort((a, b) => a.realizedPl - b.realizedPl)
+                .slice(0, 5);
+        
             return {
                 realizedPl: usRealizedPl,
                 dividends: usDividends,
                 floatingPl: usFloatingPl,
                 totalPl: usTotalPl,
                 initialCapital: usInitialCapital,
-                plPct: usPlPct
+                plPct: usPlPct,
+                topGainers: topGainers,
+                topLosers: topLosers
             };
         }
 
@@ -3933,42 +3978,82 @@
                 const sign = val >= 0 ? '+' : '-';
                 return `${sign}USD $${Math.abs(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             };
-
+        
             const realizedEl = document.getElementById('usPerfRealizedPl');
             const divEl = document.getElementById('usPerfDividends');
             const floatingEl = document.getElementById('usPerfFloatingPl');
             const totalEl = document.getElementById('usPerfTotalPl');
             const pctEl = document.getElementById('usPerfPlPct');
             const baseEl = document.getElementById('usPerfInitialBase');
-
+        
             if (realizedEl) {
                 realizedEl.innerText = formatUSD(data.realizedPl);
                 realizedEl.className = `text-base sm:text-lg font-black mt-1 font-mono ${data.realizedPl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
             }
-
+        
             if (divEl) {
                 divEl.innerText = `+USD $${data.dividends.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 divEl.className = "text-base sm:text-lg font-black mt-1 font-mono text-emerald-400";
             }
-
+        
             if (floatingEl) {
                 floatingEl.innerText = formatUSD(data.floatingPl);
                 floatingEl.className = `text-base sm:text-lg font-black mt-1 font-mono ${data.floatingPl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
             }
-
+        
             if (totalEl) {
                 totalEl.innerText = formatUSD(data.totalPl);
                 totalEl.className = `text-base sm:text-lg font-black mt-1 font-mono ${data.totalPl >= 0 ? 'text-indigo-400' : 'text-rose-400'}`;
             }
-
+        
             if (pctEl) {
                 const sign = data.plPct >= 0 ? '+' : '';
                 pctEl.innerText = `${sign}${data.plPct.toFixed(2)}%`;
                 pctEl.className = `text-base sm:text-lg font-black mt-1 font-mono ${data.plPct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
             }
-
+        
             if (baseEl) {
                 baseEl.innerText = `美股起始本金: $${data.initialCapital.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+            }
+        
+            // 渲染 5 大已實現盈利股票清單
+            const gainersListEl = document.getElementById('usTopGainersList');
+            if (gainersListEl) {
+                if (data.topGainers.length === 0) {
+                    gainersListEl.innerHTML = `<div class="text-gray-500 text-[11px] py-1 text-center font-sans">暫無已實現盈利紀錄</div>`;
+                } else {
+                    gainersListEl.innerHTML = data.topGainers.map((item, index) => {
+                        return `
+                            <div class="flex items-center justify-between py-1.5 px-2.5 rounded bg-gray-900/70 border border-gray-700/50 hover:bg-gray-900 transition">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-4 text-center font-bold text-gray-500 text-[10px]">${index + 1}</span>
+                                    <span class="font-bold text-gray-200 tracking-wide">${item.code}</span>
+                                </div>
+                                <span class="font-extrabold text-emerald-400">+USD $${item.realizedPl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+        
+            // 渲染 5 大已實現虧蝕股票清單
+            const losersListEl = document.getElementById('usTopLosersList');
+            if (losersListEl) {
+                if (data.topLosers.length === 0) {
+                    losersListEl.innerHTML = `<div class="text-gray-500 text-[11px] py-1 text-center font-sans">暫無已實現虧蝕紀錄</div>`;
+                } else {
+                    losersListEl.innerHTML = data.topLosers.map((item, index) => {
+                        return `
+                            <div class="flex items-center justify-between py-1.5 px-2.5 rounded bg-gray-900/70 border border-gray-700/50 hover:bg-gray-900 transition">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-4 text-center font-bold text-gray-500 text-[10px]">${index + 1}</span>
+                                    <span class="font-bold text-gray-200 tracking-wide">${item.code}</span>
+                                </div>
+                                <span class="font-extrabold text-rose-400">-USD $${Math.abs(item.realizedPl).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
             }
         }
         
