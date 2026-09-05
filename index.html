@@ -588,7 +588,39 @@
                         🚀 生成績效對比圖表
                     </button>
                 </div>
-                
+                <!-- 🇺🇸 美股專屬績效與盈虧指標面板 (圖表上方空間) -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
+                    <!-- 1. 美股已實現盈虧 -->
+                    <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/70 shadow-sm flex flex-col justify-between">
+                        <span class="text-[11px] font-bold text-gray-400 flex items-center gap-1">🏷️ 美股已實現盈虧</span>
+                        <span id="usPerfRealizedPl" class="text-base sm:text-lg font-black mt-1 font-mono text-gray-200">USD $0.00</span>
+                        <span class="text-[9px] text-gray-500 mt-0.5">純買賣股價價差</span>
+                    </div>
+                    <!-- 2. 美股已收股息 -->
+                    <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/70 shadow-sm flex flex-col justify-between">
+                        <span class="text-[11px] font-bold text-gray-400 flex items-center gap-1">💰 美股已收股息</span>
+                        <span id="usPerfDividends" class="text-base sm:text-lg font-black mt-1 font-mono text-emerald-400">USD $0.00</span>
+                        <span class="text-[9px] text-gray-500 mt-0.5">累計股息入帳</span>
+                    </div>
+                    <!-- 3. 美股浮動盈虧 -->
+                    <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/70 shadow-sm flex flex-col justify-between">
+                        <span class="text-[11px] font-bold text-gray-400 flex items-center gap-1">🌊 美股浮動盈虧</span>
+                        <span id="usPerfFloatingPl" class="text-base sm:text-lg font-black mt-1 font-mono text-gray-200">USD $0.00</span>
+                        <span class="text-[9px] text-gray-500 mt-0.5">當前在倉未實現</span>
+                    </div>
+                    <!-- 4. 美股總盈虧 $ -->
+                    <div class="bg-gray-800/80 p-3 rounded-xl border border-indigo-500/40 shadow-sm flex flex-col justify-between">
+                        <span class="text-[11px] font-bold text-indigo-300 flex items-center gap-1">💵 美股總盈虧 ($)</span>
+                        <span id="usPerfTotalPl" class="text-base sm:text-lg font-black mt-1 font-mono text-indigo-400">USD $0.00</span>
+                        <span class="text-[9px] text-gray-500 mt-0.5">已實現+股息+浮動</span>
+                    </div>
+                    <!-- 5. 美股資產盈虧 % -->
+                    <div class="bg-gray-800/80 p-3 rounded-xl border border-emerald-500/40 shadow-sm flex flex-col justify-between col-span-2 sm:col-span-1">
+                        <span class="text-[11px] font-bold text-emerald-300 flex items-center gap-1">📊 美股資產盈虧 (%)</span>
+                        <span id="usPerfPlPct" class="text-base sm:text-lg font-black mt-1 font-mono text-emerald-400">0.00%</span>
+                        <span id="usPerfInitialBase" class="text-[9px] text-gray-400 font-mono mt-0.5">起始本金: $0</span>
+                    </div>
+                </div>
                 <!-- 🔥 新增：計算驗證數據顯示區 -->
                 <div id="navChartDebugInfo" class="hidden flex flex-wrap gap-6 text-xs font-mono text-gray-400 mb-3 bg-gray-800/50 p-3 rounded-lg border border-gray-700 shadow-inner">
                     <div>全倉基準本金 (分母): <span id="debugBaseCapital" class="text-blue-400 font-bold tracking-wider">---</span></div>
@@ -3303,6 +3335,9 @@
         }
 
         function renderPerformanceReport() {
+            // 🚀 優先渲染圖表上方的美股五大盈虧指標
+            renderUSStockPerformanceCard();
+
             const renderReportForMarket = (marketFilter, prefix) => {
                 let closedOps = optionsTx.filter(o => o.status && String(o.status).trim().toUpperCase() === 'CLOSED' && (o.market || 'US') === marketFilter);
                 
@@ -3335,8 +3370,8 @@
                         } else {
                             lpData.count++; lpData.pnl += pnl; lpData.holdDays.push(days);
                             if(pnl > 0) { wins++; lpData.wins++; }
-                            if(pnl > lpData.maxProf.val) { lpData.maxProf.val = pnl; lpData.maxProf.desc = `${o.ticker} (+${currencySign}${pnl})`; }
-                            if(pnl < lpData.maxLoss.val) { lpData.maxLoss.val = pnl; lpData.maxLoss.desc = `${o.ticker} (-${currencySign}${Math.abs(pnl)})`; }
+                            if(pnl > lcData.maxProf.val) { lcData.maxProf.val = pnl; lcData.maxProf.desc = `${o.ticker} (+${currencySign}${pnl})`; }
+                            if(pnl < lpData.maxLoss.val) { lcData.maxLoss.val = pnl; lcData.maxLoss.desc = `${o.ticker} (-${currencySign}${Math.abs(pnl)})`; }
                         }
                     } else {
                         pnl = (Number(o.open_premium) - Number(o.close_premium)) * multiplier;
@@ -3393,8 +3428,8 @@
                     <div class="flex justify-between border-b pb-1"><span>總淨損益</span><span class="font-bold ${lpData.pnl>=0?'text-emerald-600':'text-rose-600'}">${lpData.pnl>=0?'+':''}${currencySign}${lpData.pnl.toLocaleString()}</span></div>
                     <div class="flex justify-between border-b pb-1"><span>勝率</span><span class="font-bold">${lpData.count>0?((lpData.wins/lpData.count)*100).toFixed(1):0}%</span></div>
                     <div class="flex justify-between border-b pb-1"><span>平均持倉天數</span><span class="font-bold">${avgDaysLP} 天</span></div>
-                    <div class="flex justify-between border-b pb-1"><span>最大盈利單</span><span class="font-bold text-emerald-600">${lpData.maxProf.desc || '無'}</span></div>
-                    <div class="flex justify-between"><span>最大虧損單</span><span class="font-bold text-rose-600">${lpData.maxLoss.desc || '無'}</span></div>
+                    <div class="flex justify-between border-b pb-1"><span>最大盈利單</span><span class="font-bold text-emerald-600">${lcData.maxProf.desc || '無'}</span></div>
+                    <div class="flex justify-between"><span>最大虧損單</span><span class="font-bold text-rose-600">${lcData.maxLoss.desc || '無'}</span></div>
                 `;
             
                 document.getElementById(`reportShortPutBody${prefix}`).innerHTML = `
@@ -3800,6 +3835,143 @@
             // 隱藏彈窗 (保留 src 狀態，下次點擊同一個網址可秒開)
             document.getElementById('genericIframeModal').classList.add('hidden');
         }
+
+        // ==========================================
+        // 🚀 美股專屬盈虧指標計算引擎 (即時算力)
+        // ==========================================
+        function calculateUSStockPerformance() {
+            let usRealizedPl = 0;
+            let usDividends = 0;
+            let usPositions = {};
+
+            // 1. 依時間升序排列所有交易紀錄 (舊 ➔ 新)，確保加權平均成本精確
+            let sortedTx = [...transactions].sort((a, b) => {
+                let dateDiff = new Date(a.date) - new Date(b.date);
+                if (dateDiff !== 0) return dateDiff;
+                return (Number(a.id) || 0) - (Number(b.id) || 0);
+            });
+
+            sortedTx.forEach(t => {
+                if (!t.code) return;
+                const codeStr = String(t.code).trim().toUpperCase();
+                const typeStr = String(t.type).trim().toUpperCase();
+                const marketStr = String(t.market).trim().toUpperCase();
+                const price = parseFloat(t.price) || 0;
+                const qty = parseFloat(t.qty) || 0;
+                const amt = price * qty;
+
+                // 僅計算美股，排除現金流水
+                if (marketStr !== 'US' || codeStr === 'CASH') return;
+
+                if (!usPositions[codeStr]) {
+                    usPositions[codeStr] = { shares: 0, totalCost: 0 };
+                }
+                const pos = usPositions[codeStr];
+
+                if (typeStr === 'BUY') {
+                    pos.shares += qty;
+                    pos.totalCost += amt;
+                } else if (typeStr === 'SELL') {
+                    if (pos.shares > 0) {
+                        const avgCost = pos.totalCost / pos.shares;
+                        const soldCost = qty * avgCost;
+                        const realized = (price - avgCost) * qty;
+                        usRealizedPl += realized;
+
+                        pos.shares -= qty;
+                        pos.totalCost -= soldCost;
+                        if (pos.shares <= 0) {
+                            pos.shares = 0;
+                            pos.totalCost = 0;
+                        }
+                    }
+                } else if (typeStr === 'DIVIDEND') {
+                    usDividends += amt;
+                }
+            });
+
+            // 2. 計算美股在倉浮動盈虧 (Unrealized P&L)
+            let usFloatingPl = 0;
+            for (const code in usPositions) {
+                const pos = usPositions[code];
+                if (pos.shares > 0) {
+                    const livePrice = prices[code] || 0;
+                    if (livePrice > 0) {
+                        const mktVal = pos.shares * livePrice;
+                        usFloatingPl += (mktVal - pos.totalCost);
+                    }
+                }
+            }
+
+            // 3. 美股總盈虧 $ = 已實現 + 股息 + 浮動
+            const usTotalPl = usRealizedPl + usDividends + usFloatingPl;
+
+            // 4. 讀取美股起始金額
+            const currentYear = new Date().getFullYear();
+            const usInitialCapital = parseFloat(perfConfig[currentYear + "_us_initial"]) || 0;
+
+            // 5. 美股資產盈虧 % = 美股總盈虧 $ / 美股起始金額 * 100
+            const usPlPct = usInitialCapital > 0 ? (usTotalPl / usInitialCapital) * 100 : 0;
+
+            return {
+                realizedPl: usRealizedPl,
+                dividends: usDividends,
+                floatingPl: usFloatingPl,
+                totalPl: usTotalPl,
+                initialCapital: usInitialCapital,
+                plPct: usPlPct
+            };
+        }
+
+        // ==========================================
+        // 🚀 渲染美股專屬指標卡片至畫面上
+        // ==========================================
+        function renderUSStockPerformanceCard() {
+            const data = calculateUSStockPerformance();
+            
+            const formatUSD = (val) => {
+                const sign = val >= 0 ? '+' : '-';
+                return `${sign}USD $${Math.abs(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            };
+
+            const realizedEl = document.getElementById('usPerfRealizedPl');
+            const divEl = document.getElementById('usPerfDividends');
+            const floatingEl = document.getElementById('usPerfFloatingPl');
+            const totalEl = document.getElementById('usPerfTotalPl');
+            const pctEl = document.getElementById('usPerfPlPct');
+            const baseEl = document.getElementById('usPerfInitialBase');
+
+            if (realizedEl) {
+                realizedEl.innerText = formatUSD(data.realizedPl);
+                realizedEl.className = `text-base sm:text-lg font-black mt-1 font-mono ${data.realizedPl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            }
+
+            if (divEl) {
+                divEl.innerText = `+USD $${data.dividends.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                divEl.className = "text-base sm:text-lg font-black mt-1 font-mono text-emerald-400";
+            }
+
+            if (floatingEl) {
+                floatingEl.innerText = formatUSD(data.floatingPl);
+                floatingEl.className = `text-base sm:text-lg font-black mt-1 font-mono ${data.floatingPl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            }
+
+            if (totalEl) {
+                totalEl.innerText = formatUSD(data.totalPl);
+                totalEl.className = `text-base sm:text-lg font-black mt-1 font-mono ${data.totalPl >= 0 ? 'text-indigo-400' : 'text-rose-400'}`;
+            }
+
+            if (pctEl) {
+                const sign = data.plPct >= 0 ? '+' : '';
+                pctEl.innerText = `${sign}${data.plPct.toFixed(2)}%`;
+                pctEl.className = `text-base sm:text-lg font-black mt-1 font-mono ${data.plPct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            }
+
+            if (baseEl) {
+                baseEl.innerText = `美股起始本金: $${data.initialCapital.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+            }
+        }
+        
     </script>
 </body>
 </html>
