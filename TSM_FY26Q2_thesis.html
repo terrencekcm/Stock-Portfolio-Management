@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TSMC Thesis Sheet FY26 Q2：生意質素、財報核對、相對估值、行動價位、Kill criteria 與多空證據。展示至第 6 節。">
+  <meta name="theme-color" content="#1e4a45">
+  <title>TSMC Thesis Sheet · FY26 Q2</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect fill='%231e4a45' width='16' height='16'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #efeae1;
+      --paper: #f7f4ee;
+      --ink: #1c1915;
+      --muted: #5e584f;
+      --faint: #8a8378;
+      --line: #ddd4c6;
+      --line-strong: #cfc4b2;
+      --teal: #1e4a45;
+      --teal-mid: #3d6b64;
+      --teal-soft: #e4eeeb;
+      --copper: #8c4e28;
+      --sand: #f0d7b8;
+      --bear: #8e342c;
+      --bear-soft: #f6e8e6;
+      --bull: #1d5c40;
+      --bull-soft: #e6f1eb;
+      --warn: #8a5a12;
+      --warn-soft: #f6edd9;
+      --white: #fffcf7;
+      --shadow: 0 1px 0 rgba(28, 25, 21, 0.04);
+      --nav: 168px;
+      --measure: 74ch;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Noto Sans TC", "PingFang TC", "Noto Sans CJK TC", "Microsoft JhengHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+    img { max-width: 100%; }
+    a { color: var(--teal); }
+    :focus-visible {
+      outline: 2px solid var(--copper);
+      outline-offset: 3px;
+    }
+    .skip {
+      position: absolute;
+      left: 12px;
+      top: -40px;
+      background: var(--white);
+      padding: 8px 12px;
+      z-index: 10;
+    }
+    .skip:focus { top: 12px; }
+    .num {
+      font-family: "IBM Plex Sans", "Noto Sans TC", sans-serif;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .mast {
+      background: var(--teal);
+      color: #f6f1e8;
+      border-top: 4px solid var(--copper);
+    }
+    .mast-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 24px 28px;
+    }
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #d5c4ae;
+    }
+    .mast h1 {
+      margin: 0;
+      font-family: "Noto Serif TC", "Songti TC", serif;
+      font-weight: 600;
+      font-size: clamp(1.7rem, 3vw, 2.35rem);
+      line-height: 1.3;
+      letter-spacing: 0.01em;
+    }
+    .lede {
+      max-width: 68ch;
+      margin: 14px 0 0;
+      color: #d7e2df;
+      font-size: 1.02rem;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .stat {
+      padding-top: 10px;
+      border-top: 1px solid rgba(246, 241, 232, 0.28);
+    }
+    .stat span {
+      display: block;
+      color: #c9d7d3;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+    }
+    .stat strong {
+      display: block;
+      margin-top: 4px;
+      font-family: "IBM Plex Sans", "Noto Sans TC", sans-serif;
+      font-size: 1.35rem;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat em {
+      display: block;
+      margin-top: 2px;
+      font-style: normal;
+      color: #d5c4ae;
+      font-size: 0.78rem;
+    }
+    .stat.alert strong { color: var(--sand); }
+    .bounds {
+      margin: 18px 0 0;
+      color: #b7c7c3;
+      font-size: 0.82rem;
+    }
+
+    .layout {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 24px 64px;
+      display: grid;
+      grid-template-columns: var(--nav) minmax(0, 1fr);
+      gap: 36px;
+      align-items: start;
+    }
+    .toc {
+      position: sticky;
+      top: 18px;
+    }
+    .toc p {
+      margin: 0 0 8px;
+      color: var(--faint);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+    }
+    .toc ol {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .toc a {
+      display: block;
+      padding: 7px 0 7px 12px;
+      border-left: 2px solid var(--line);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.92rem;
+    }
+    .toc a[aria-current="true"] {
+      border-left-color: var(--copper);
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .toc a:hover { color: var(--ink); }
+
+    main section { scroll-margin-top: 18px; }
+    main section + section {
+      margin-top: 42px;
+      padding-top: 36px;
+      border-top: 1px solid var(--line-strong);
+    }
+    .kicker {
+      margin: 0;
+      color: var(--copper);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+    }
+    h2 {
+      margin: 4px 0 0;
+      font-family: "Noto Serif TC", serif;
+      font-size: 1.55rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+    .sec-lead {
+      max-width: var(--measure);
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+    h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    p { margin: 0; }
+    .note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .quad {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 22px;
+      margin-top: 22px;
+    }
+    .quad article {
+      padding-top: 12px;
+      border-top: 2px solid var(--teal);
+    }
+    .quad h3 { font-size: 0.95rem; }
+    .quad p { color: var(--ink); font-size: 0.94rem; }
+
+    .pull {
+      margin: 20px 0 0;
+      padding: 4px 0 4px 16px;
+      border-left: 3px solid var(--copper);
+      font-family: "Noto Serif TC", serif;
+      font-size: 1.22rem;
+      line-height: 1.6;
+    }
+    .pillars { list-style: none; margin: 26px 0 0; padding: 0; }
+    .pillars > li {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 18px;
+      padding: 16px 0;
+      border-top: 1px solid var(--line);
+    }
+    .pillars h3 { margin: 0; }
+    .mini {
+      margin: 0 0 6px;
+      color: var(--faint);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+    }
+
+    .callout {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 22px;
+      padding: 18px 18px 16px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--bear);
+    }
+    .callout .vs {
+      align-self: center;
+      color: var(--faint);
+      font-family: "Noto Serif TC", serif;
+      font-size: 1.1rem;
+    }
+    .big-num {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+    .lag .big-num { color: var(--bear); }
+    .run .big-num { color: var(--teal); }
+    .callout p { margin-top: 6px; color: var(--muted); font-size: 0.9rem; }
+    .callout-foot {
+      grid-column: 1 / -1;
+      margin: 0;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      color: var(--ink);
+      font-size: 0.92rem;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-top: 26px;
+    }
+    .mix-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+    }
+    .bar {
+      display: flex;
+      height: 22px;
+      margin-top: 10px;
+      background: #e7e0d4;
+      overflow: hidden;
+    }
+    .bar span { display: block; height: 100%; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+    .swatch {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      margin-right: 6px;
+      vertical-align: baseline;
+    }
+    .c-n2 { background: #8c4e28; }
+    .c-n3 { background: #1e4a45; }
+    .c-n5 { background: #3d6b64; }
+    .c-n7 { background: #8aa39c; }
+    .c-old { background: #d9d0c2; }
+    .c-hpc { background: #1e4a45; }
+    .c-phone { background: #4e7c74; }
+    .c-iot { background: #8aa39c; }
+    .c-auto { background: #c4b89a; }
+    .c-dce { background: #ddd4c6; }
+    .c-rest { background: #eee8de; }
+
+    .meters { margin-top: 8px; }
+    .meter { margin-top: 12px; }
+    .meter-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.9rem;
+    }
+    .track {
+      height: 8px;
+      margin-top: 5px;
+      background: #e5dfd4;
+    }
+    .track i {
+      display: block;
+      height: 100%;
+      background: var(--teal);
+    }
+    .track i.faint { background: #c4b8a4; }
+    .track i.bad { background: var(--bear); }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: 22px;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+    .metrics div { background: var(--paper); padding: 12px 14px; }
+    .metrics span { display: block; color: var(--muted); font-size: 0.78rem; }
+    .metrics strong {
+      display: block;
+      margin-top: 2px;
+      font-family: "IBM Plex Sans", "Noto Sans TC", sans-serif;
+      font-weight: 500;
+      font-size: 1.15rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .metrics em {
+      display: block;
+      font-style: normal;
+      color: var(--faint);
+      font-size: 0.78rem;
+    }
+
+    .table-wrap { margin-top: 16px; overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    caption {
+      caption-side: top;
+      text-align: left;
+      padding: 0 0 8px;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.78rem;
+      letter-spacing: 0.03em;
+    }
+    td.num, th.num { text-align: right; white-space: nowrap; }
+    tbody tr:hover td { background: rgba(255, 252, 247, 0.7); }
+    .tag {
+      display: inline-block;
+      padding: 0 6px;
+      border: 1px solid var(--line-strong);
+      color: var(--muted);
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+    .tag.out { color: var(--bear); border-color: #e2c4c0; background: var(--bear-soft); }
+    .tag.in { color: var(--teal); border-color: #c5d6d2; background: var(--teal-soft); }
+
+    .premises { margin: 18px 0 0; padding: 0; list-style: none; }
+    .premises li { margin-top: 10px; padding-left: 14px; border-left: 2px solid var(--line-strong); }
+    .bars { margin-top: 8px; }
+    .prow {
+      display: grid;
+      grid-template-columns: minmax(140px, 190px) 1fr 64px;
+      gap: 10px;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 0.88rem;
+    }
+    .prow .fill {
+      height: 10px;
+      background: var(--teal);
+    }
+    .prow .fill.sales { background: var(--copper); }
+    .prow b {
+      font-weight: 500;
+      text-align: right;
+      font-family: "IBM Plex Sans", sans-serif;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .scenarios {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .scenario {
+      background: var(--white);
+      border: 1px solid var(--line);
+      padding: 14px 14px 12px;
+      text-align: left;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+      width: 100%;
+    }
+    .scenario small { color: var(--faint); letter-spacing: 0.08em; font-size: 0.72rem; }
+    .scenario strong {
+      display: block;
+      margin: 6px 0 2px;
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 1.55rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+    }
+    .scenario .ret { font-family: "IBM Plex Sans", sans-serif; font-variant-numeric: tabular-nums; }
+    .scenario.bear { border-top: 3px solid var(--bear); }
+    .scenario.base { border-top: 3px solid var(--teal); }
+    .scenario.bull { border-top: 3px solid var(--bull); }
+    .scenario[aria-pressed="true"] { background: var(--sand); }
+    .prob {
+      display: flex;
+      height: 28px;
+      margin-top: 14px;
+      overflow: hidden;
+      color: #f6f1e8;
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.8rem;
+    }
+    .prob span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+    .prob .bear { width: 30%; background: var(--bear); }
+    .prob .base { width: 45%; background: var(--teal); }
+    .prob .bull { width: 25%; background: var(--bull); }
+
+    .heat { min-width: 460px; }
+    .heat td, .heat th { text-align: center; }
+    .heat td {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-variant-numeric: tabular-nums;
+      border-bottom: 4px solid var(--paper);
+      border-right: 4px solid var(--paper);
+    }
+    .heat .s1 { background: #f3ece3; color: #1c1915; }
+    .heat .s2 { background: #e4d3c3; color: #1c1915; }
+    .heat .s3 { background: #8fafa8; color: #10211e; }
+    .heat .s4 { background: #2f6159; color: #f7f4ee; }
+    .heat .s5 { background: #163e39; color: #f7f4ee; }
+    .heat td.is-hit { outline: 2px solid var(--copper); outline-offset: -3px; }
+
+    .formula {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr auto;
+      gap: 12px;
+      align-items: stretch;
+      margin-top: 16px;
+    }
+    .formula article {
+      padding: 14px;
+      background: var(--white);
+      border: 1px solid var(--line);
+    }
+    .formula .result {
+      background: var(--teal);
+      color: #f6f1e8;
+      border-color: var(--teal);
+    }
+    .formula .result strong { color: var(--sand); }
+    .weight {
+      height: 10px;
+      margin-top: 10px;
+      background: #e5dfd4;
+    }
+    .weight i { display: block; height: 100%; background: var(--teal); }
+    .formula strong {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 1.4rem;
+      font-weight: 500;
+    }
+
+    .range { margin-top: 18px; }
+    .range-scale {
+      position: relative;
+      height: 18px;
+      background: #e7e1d6;
+    }
+    .range-band {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: #7fafa6;
+    }
+    .range-pin {
+      position: absolute;
+      top: -5px;
+      width: 1px;
+      height: 28px;
+      background: var(--copper);
+    }
+    .range-ticks {
+      position: relative;
+      height: 22px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-family: "IBM Plex Sans", "Noto Sans TC", sans-serif;
+    }
+    .range-ticks span {
+      position: absolute;
+      top: 0;
+      white-space: nowrap;
+      transform: translateX(-50%);
+    }
+    .range-ticks .now {
+      color: var(--copper);
+      font-weight: 700;
+      transform: translateX(-100%);
+    }
+
+    .ladder { list-style: none; margin: 18px 0 0; padding: 0; }
+    .ladder li {
+      display: grid;
+      grid-template-columns: 132px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: baseline;
+      padding: 11px 12px;
+      border-top: 1px solid var(--line);
+    }
+    .ladder li:last-child { border-bottom: 1px solid var(--line); }
+    .ladder .here {
+      background: var(--warn-soft);
+      box-shadow: inset 3px 0 0 var(--copper);
+    }
+    .ladder b { font-weight: 700; }
+    .ladder .px {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .rail { margin-top: 8px; }
+    .rail-wrap { position: relative; margin-top: 32px; }
+    .rail-flag {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      transform: translateX(-50%);
+      color: var(--teal);
+      font-size: 0.75rem;
+      font-family: "IBM Plex Sans", "Noto Sans TC", sans-serif;
+      white-space: nowrap;
+    }
+    .rail-flag::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      width: 1px;
+      height: 22px;
+      background: currentColor;
+    }
+    .rail-flag.now {
+      color: var(--copper);
+      font-weight: 700;
+      transform: translateX(-100%);
+    }
+    .rail-flag.now::after { left: auto; right: 0; }
+    .rail-label {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      color: var(--faint);
+      font-size: 0.78rem;
+      font-family: "IBM Plex Sans", "Noto Sans TC", sans-serif;
+    }
+    .rail-track {
+      display: flex;
+      height: 16px;
+    }
+    .rail-track span { display: block; height: 100%; }
+    .z1 { background: #1e4a45; }
+    .z2 { background: #4d7a72; }
+    .z3 { background: #8aada7; }
+    .z4 { background: #d9d0c0; }
+    .z5 { background: #e6d3b8; }
+    .z6 { background: #e7cbb8; }
+    .zone-key {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .rules {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .rules article {
+      padding: 12px 14px;
+      background: var(--white);
+      border: 1px solid var(--line);
+    }
+    .rules strong { display: block; margin-bottom: 4px; }
+
+    .risks {
+      display: grid;
+      grid-template-columns: 1.25fr 0.85fr;
+      gap: 28px;
+      margin-top: 20px;
+    }
+    .risks ol { margin: 8px 0 0; padding-left: 1.2rem; }
+    .risks li { margin-top: 10px; }
+    .risks li b { font-weight: 700; }
+    .bear-col h3 { color: var(--bear); }
+    .bull-col h3 { color: var(--bull); }
+    .flip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .flip article { padding: 14px 16px; border: 1px solid var(--line); background: var(--white); }
+    .flip .up { border-top: 3px solid var(--bull); }
+    .flip .down { border-top: 3px solid var(--bear); }
+    .flip ul { margin: 8px 0 0; padding-left: 1.1rem; }
+    .flip li { margin-top: 6px; }
+
+    footer {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 8px 24px 48px;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+    footer p + p { margin-top: 8px; }
+
+    @media (max-width: 980px) {
+      .stats, .quad, .metrics { grid-template-columns: 1fr 1fr; }
+      .pillars > li, .formula, .risks, .split { grid-template-columns: 1fr; }
+      .layout { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+      .toc, main, .table-wrap { min-width: 0; }
+      main section { scroll-margin-top: 108px; }
+      .toc {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        max-width: none;
+        margin: 0 -24px;
+        padding: 8px 24px 6px;
+        background: var(--bg);
+        border-bottom: 1px solid var(--line);
+      }
+      .toc p { display: none; }
+      .stats div:last-child { grid-column: 1 / -1; }
+      .toc ol {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0;
+        max-width: 100%;
+      }
+      .toc a { padding: 6px 10px; font-size: 0.86rem; }
+      .toc a {
+        white-space: nowrap;
+        border-left: 0;
+        border-bottom: 2px solid transparent;
+        padding: 8px 12px;
+      }
+      .toc a[aria-current="true"] { border-left: 0; border-bottom-color: var(--copper); }
+      .callout { grid-template-columns: 1fr; }
+      .callout .vs { display: none; }
+    }
+    @media (max-width: 640px) {
+      .mast-inner, .layout, footer { padding-left: 16px; padding-right: 16px; }
+      .toc { margin: 0 -16px; padding: 8px 16px 6px; }
+      .quad, .scenarios, .rules, .flip, .ladder li {
+        grid-template-columns: 1fr;
+      }
+      .prow { grid-template-columns: 1fr auto; }
+      .prow .fill { grid-column: 1 / -1; grid-row: 2; }
+      .stat strong { font-size: 1.2rem; }
+      .range-band span { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+    @media print {
+      .toc, .skip { display: none; }
+      .layout { display: block; max-width: none; }
+      .mast { break-after: avoid; }
+      body { background: white; }
+      a { text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#verdict">跳至內容</a>
+
+  <header class="mast">
+    <div class="mast-inner">
+      <p class="eyebrow">TSMC ADR · Thesis Sheet · FY26 Q2 首份</p>
+      <h1>質素仍高，現價沒有安全邊際</h1>
+      <p class="lede">先進製程代工仍是壟斷式複合機。本季真正響亮的訊號，是現金遠落後於盈利：Levered FCF 同比只有 5.20%，前瞻 EPS 卻有 46.22%。基準內在價值約 $320，估算現價 $455.65，貴約 42%。</p>
+      <div class="stats">
+        <div class="stat">
+          <span>估算現價</span>
+          <strong>$455.65</strong>
+          <em>26.74 × Dec26 EPS 17.04</em>
+        </div>
+        <div class="stat">
+          <span>基準內在價值</span>
+          <strong>$320</strong>
+          <em>區間約 $290–$375</em>
+        </div>
+        <div class="stat alert">
+          <span>相對基準</span>
+          <strong>+42%</strong>
+          <em>無安全邊際 · 無 DCF 對照</em>
+        </div>
+        <div class="stat">
+          <span>三年概率加權年化</span>
+          <strong>+6.2%</strong>
+          <em>含息 0.90%</em>
+        </div>
+        <div class="stat alert">
+          <span>現價落在</span>
+          <strong>再減貨 1/3</strong>
+          <em>減貨線 $380 之上 · 唔好追</em>
+        </div>
+      </div>
+      <p class="bounds">電話會議 2026-07-16（Wendell Huang／C.C. Wei）。價格為截圖時點估算，不是即時報價。本頁展示結論先行與第 1–6 節。</p>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="章節">
+      <p>SHEET</p>
+      <ol>
+        <li><a href="#verdict">0 結論</a></li>
+        <li><a href="#thesis">1 Thesis</a></li>
+        <li><a href="#earnings">2 財報</a></li>
+        <li><a href="#valuation">3 估值</a></li>
+        <li><a href="#action">4 行動</a></li>
+        <li><a href="#kill">5 Kill</a></li>
+        <li><a href="#risk">6 風險</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="verdict">
+        <p class="kicker">00 — 結論先行</p>
+        <h2>四件事先講完</h2>
+        <div class="quad">
+          <article>
+            <h3>生意質素</h3>
+            <p>≤7nm 佔晶圓收入 77%、HPC 66%。本季營收、指引、FY26「略高於 +40%」與 DPS +33% 強化增長與資本回報。盈利能力對自身五年全面提升。但「高 FCF 轉換現金牛」要降級：CapEx 上修至 $60–64B，未來三年資本開支顯著更高，N2 與海外廠稀釋毛利率。</p>
+          </article>
+          <article>
+            <h3>價格</h3>
+            <p>現價較基準約 $320 貴約 42%，區間約 $290–$375。DCF 未能提供，沒有絕對估值對照。現價無安全邊際。</p>
+          </article>
+          <article>
+            <h3>預期回報</h3>
+            <p>三年概率加權年化約 +6.2%。基準終點 EPS $29.20 若只求每年 8%，所需退出 trailing 約 19.7 倍，接近 Base 的 19 倍。回報幾乎完全依賴 AI／先進製程的 EPS 路徑，倍數難再擴張。</p>
+          </article>
+          <article>
+            <h3>行動</h3>
+            <p>持有者：現價已在減貨線 $380 之上，可考慮再減貨約三分之一；剩餘核心是持有、唔好加倉。空手唔好追。Starter 約 $280–$305，建至三分之二約 $255–$280，滿倉只在 $255 以下且屬 A 類下跌。現價壓力測試倉位上限約 1.7% 總資產（1% 風險預算）。</p>
+          </article>
+        </div>
+        <p class="note">首次成表。無舊版可對照，本版是 FY26 Q2 第一份 Thesis Sheet。權重與情境概率是判斷，不是市場報價。</p>
+      </section>
+
+      <section id="thesis">
+        <p class="kicker">01 — THESIS</p>
+        <h2>賺超額利潤的節點階梯，擺動在資本開支</h2>
+        <p class="pull">TSMC 係全球領先先進邏輯代工，靠 N3／N2／A14 節點階梯與 HPC／AI（含 Agentic AI CPU）需求賺取超額利潤。增長由先進產能與客戶多年需求錨定。關鍵擺動因素是 CapEx 前載對 FCF 滯後、N2／海外毛利率稀釋，以及 AI 資本開支周期是否消化。</p>
+        <ol class="pillars">
+          <li>
+            <h3>先進製程＋HPC／AI 需求</h3>
+            <div>
+              <p class="mini">本季證據</p>
+              <p>≤7nm 77%。N3 30%、N5 33%、N2 3%。HPC 66%（季增 20%）。FY26 收入略高於 +40%（美元）。Q3 指引 $44.6–45.8B。</p>
+            </div>
+            <div>
+              <p class="mini">持續驗證</p>
+              <p>先進節點收入佔比。HPC 相對手機／消費。Q3 是否落在指引。共識有沒有下修。</p>
+            </div>
+          </li>
+          <li>
+            <h3>產能與地理擴張</h3>
+            <div>
+              <p class="mini">本季證據</p>
+              <p>Arizona 再投 +$100B，總額約 $265B。台灣未來數年建 13 座領先／先進封裝廠。A14 量產 2028。</p>
+            </div>
+            <div>
+              <p class="mini">持續驗證</p>
+              <p>Arizona 實際進度——管理層說沒有公開死線。A14 tape-out 與良率。CoWoS／先進封裝瓶頸。</p>
+            </div>
+          </li>
+          <li>
+            <h3>超額盈利能力</h3>
+            <div>
+              <p class="mini">本季證據</p>
+              <p>TTM 毛利率 64.23%、EBIT 56.08%、純利率 49.92%、ROE 40.26%，都高於五年平均。Q2 毛利率 67.7%。Q3 毛利率指引 65–67%。</p>
+            </div>
+            <div>
+              <p class="mini">持續驗證</p>
+              <p>毛利率會否因 N2／海外稀釋跌穿管理層「約 68% 就開心」的帶。營業利潤率 56–58% 能否守住。</p>
+            </div>
+          </li>
+          <li>
+            <h3>資本配置：成長投資＋穩步加息</h3>
+            <div>
+              <p class="mini">本季證據</p>
+              <p>CapEx $60–64B，年內已階梯上修。2026 DPS 新台幣 24 元（+33%）。現金加有價證券約 $110B。</p>
+            </div>
+            <div>
+              <p class="mini">持續驗證</p>
+              <p>CapEx／Sales、Levered FCF 利潤率與同比相對 EPS。DPS 可持續性。未來三年資本開支「顯著更高」會否令自由現金流再惡化。</p>
+            </div>
+          </li>
+        </ol>
+        <p class="note">Kill／KPI 沿半導體與硬件選取：庫存天數、毛利率、先進製程／HPC 需求、CapEx／Sales、FCF 與 EPS 落差、ROIC／ROTC、客戶集中、管治與會計。門檻見第 5 節。</p>
+      </section>
+
+      <section id="earnings">
+        <p class="kicker">02 — 財報電話會議</p>
+        <h2>增長很強，現金性格才是本季重點</h2>
+        <p class="sec-lead">Q2 營收打到指引高位，外年共識零下修。與此同時，自由現金流幾乎沒有跟上盈利。這組落差是重評折讓的核心證據。</p>
+
+        <div class="callout">
+          <div class="lag">
+            <span class="mini">LEVERED FCF 同比</span>
+            <div class="big-num">+5.20%</div>
+            <p>截圖等級 C。TTM Levered FCF 利潤率 16.46%。</p>
+          </div>
+          <div class="vs">對</div>
+          <div class="run">
+            <span class="mini">EPS 前瞻同比</span>
+            <div class="big-num">+46.22%</div>
+            <p>營收前瞻 +38.26%。純利率 49.92%，與 FCF 利潤率相差約 33 個百分點。</p>
+          </div>
+          <p class="callout-foot">配合 CapEx 上修，以及未來三年資本開支「顯著更高」，這是維持 40% 重評權重的理由。FCF／股前瞻仍有 +36.85%，經營現金流前瞻 +38.69%，CapEx 同比 +24.56%——滯後的是已經槓桿後的自由現金流，不是帳面盈利。</p>
+        </div>
+
+        <div class="metrics" aria-label="Q2 與指引關鍵數字">
+          <div><span>Q2 營收</span><strong>$40.2B</strong><em>指引高位</em></div>
+          <div><span>Q3 營收指引</span><strong>$44.6–45.8B</strong><em>中位約 +12% 季增／~+37% 年增</em></div>
+          <div><span>Q2 毛利率</span><strong>67.7%</strong><em>+150 bps 季增；Q3 指引 65–67%</em></div>
+          <div><span>Q3 營業利潤率</span><strong>56–58%</strong><em>N2 陡坡稀釋約 3–4 ppt</em></div>
+          <div><span>先進節點 ≤7nm</span><strong>77%</strong><em>N2 剛起步，佔 3%</em></div>
+          <div><span>HPC 佔比</span><strong>66%</strong><em>季增 20%；手機 22%、季減 4%</em></div>
+          <div><span>FY26 收入展望</span><strong>&gt;+40%</strong><em>美元同比；DPS 新台幣 24 元、+33%</em></div>
+          <div><span>FY26 CapEx</span><strong>$60–64B</strong><em>相對 1 月指引約 +$10B</em></div>
+        </div>
+        <p class="note">匯率假設 1 美元 = 32 新台幣。海外廠早期稀釋 2–3 個百分點，其後數年 3–4 個百分點。現金加有價證券約新台幣 3.5 兆／約 1,100 億美元；經營現金流約新台幣 7,830 億；本季 CapEx 新台幣 4,960 億（約 157 億美元）；季末現金新台幣 3.1 兆。應收天數 29（+3）。庫存天數 87（+7，N2 爬坡）——上升有一部分是節點爬坡，仍要追蹤會否變成渠道堆積。</p>
+
+        <div class="split">
+          <div>
+            <div class="mix-head">
+              <h3>Q2 晶圓收入技術組合</h3>
+              <span class="num">先進合計 77%</span>
+            </div>
+            <div class="bar" role="img" aria-label="N2 3%，N3 30%，N5 33%，N7 11%，其餘節點 23%">
+              <span class="c-n2" style="width:3%"></span>
+              <span class="c-n3" style="width:30%"></span>
+              <span class="c-n5" style="width:33%"></span>
+              <span class="c-n7" style="width:11%"></span>
+              <span class="c-old" style="width:23%"></span>
+            </div>
+            <ul class="legend">
+              <li><i class="swatch c-n2"></i>N2 3%</li>
+              <li><i class="swatch c-n3"></i>N3 30%</li>
+              <li><i class="swatch c-n5"></i>N5 33%</li>
+              <li><i class="swatch c-n7"></i>N7 11%</li>
+              <li><i class="swatch c-old"></i>其餘 23%</li>
+            </ul>
+          </div>
+          <div>
+            <div class="mix-head">
+              <h3>平台組合</h3>
+              <span class="num">已列項目合計 98%</span>
+            </div>
+            <div class="bar" role="img" aria-label="HPC 66%，智慧型手機 22%，IoT 5%，汽車 4%，DCE 1%，未列明細 2%">
+              <span class="c-hpc" style="width:66%"></span>
+              <span class="c-phone" style="width:22%"></span>
+              <span class="c-iot" style="width:5%"></span>
+              <span class="c-auto" style="width:4%"></span>
+              <span class="c-dce" style="width:1%"></span>
+              <span class="c-rest" style="width:2%"></span>
+            </div>
+            <ul class="legend">
+              <li><i class="swatch c-hpc"></i>HPC 66%</li>
+              <li><i class="swatch c-phone"></i>手機 22%</li>
+              <li><i class="swatch c-iot"></i>IoT 5%</li>
+              <li><i class="swatch c-auto"></i>汽車 4%</li>
+              <li><i class="swatch c-dce"></i>DCE 1%</li>
+              <li><i class="swatch c-rest"></i>未列 2%</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 style="margin-top:28px">增長對自身五年，現金是離群值</h3>
+        <p class="sr-only">橫條以 50% 為滿格。營收與 EPS 的前瞻增長遠高於五年平均；Levered FCF 同比只有 5.20%。</p>
+        <div class="meters">
+          <div class="meter">
+            <div class="meter-row"><span>營收前瞻同比</span><b class="num">+38.26%</b></div>
+            <div class="track"><i style="width:76.5%"></i></div>
+          </div>
+          <div class="meter">
+            <div class="meter-row"><span>營收前瞻，五年平均</span><b class="num">+20.69%</b></div>
+            <div class="track"><i class="faint" style="width:41.4%"></i></div>
+          </div>
+          <div class="meter">
+            <div class="meter-row"><span>稀釋 EPS 前瞻同比</span><b class="num">+46.22%</b></div>
+            <div class="track"><i style="width:92.4%"></i></div>
+          </div>
+          <div class="meter">
+            <div class="meter-row"><span>EPS 前瞻，五年平均</span><b class="num">+21.80%</b></div>
+            <div class="track"><i class="faint" style="width:43.6%"></i></div>
+          </div>
+          <div class="meter">
+            <div class="meter-row"><span>Levered FCF 同比</span><b class="num">+5.20%</b></div>
+            <div class="track"><i class="bad" style="width:10.4%"></i></div>
+          </div>
+        </div>
+        <p class="note">另：營收已實現同比 +30.56%，稀釋 EPS 已實現同比 +53.43%，EBITDA 前瞻 +41.79%。滿格代表 50%，用來並排比較，不是評分上限。</p>
+
+        <div class="table-wrap">
+          <table>
+            <caption>管理層說法對照。解讀沿用 Thesis Sheet，驗證欄是之後要看的指標。</caption>
+            <thead>
+              <tr>
+                <th>管理層說</th>
+                <th>解讀</th>
+                <th>驗證指標</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>未來三年 CapEx「even more significantly higher」</td>
+                <td>不是資本開支見頂，是機會驅動再加速。FCF 滯後可能持續。</td>
+                <td>每年 CapEx 指引、$60–64B 會否再上修、CapEx／Sales、FCF 同比。</td>
+              </tr>
+              <tr>
+                <td>毛利率「about 68% I would be happy」；不會 4–5 倍抬價</td>
+                <td>約 68% 是滿意帶，不是承諾。N2／海外稀釋下，Q3 指引 65–67% 已低於這條線。</td>
+                <td>季度毛利率相對 65–67% 指引；全年能否靠近 68%。</td>
+              </tr>
+              <tr>
+                <td>Arizona +$100B（總約 $265B）；沒有公開死線，盡量加快</td>
+                <td>資本承諾大，時間表跟客戶與市場。估值不要假設即時貢獻。</td>
+                <td>產能開出時點、海外稀釋百分點、客戶綁定披露。</td>
+              </tr>
+              <tr>
+                <td>AI CAGR（曾 mid-high 50s）不更新數字，只說愈來愈強；更多 CapEx 本身是訊號</td>
+                <td>拒絕更新，代表可見度高但不想被釘死。用資本開支當軟代理。</td>
+                <td>全年收入指引、先進節點出貨、共識上修是否有實貨。</td>
+              </tr>
+              <tr>
+                <td>CoWoS 緊張；歡迎替代封裝（如 EMIB）以釋放前端晶圓</td>
+                <td>封裝是瓶頸。歡迎替代方案反而利好前端出貨，不是護城河崩潰。</td>
+                <td>CoWoS 產能、先進封裝收入、客戶改用替代方案後的晶圓出貨。</td>
+              </tr>
+              <tr>
+                <td>產能哲學：客戶同時很激進時，「全部真相加起來不是真相」；核對資料中心電力與機架</td>
+                <td>主動核對需求，避免晶片變成庫存。這是正面紀律。</td>
+                <td>庫存天數、客戶取消或延遲、渠道庫存傳聞。</td>
+              </tr>
+              <tr>
+                <td>客戶集中「not a concern」；樂見大客戶成長，也樂見新 AI 玩家</td>
+                <td>管理層在淡化集中風險。仍要獨立追蹤頭部客戶依存。</td>
+                <td>年報前五大客戶佔比、單一客戶流失新聞。</td>
+              </tr>
+              <tr>
+                <td>A14：2027 預生產，2028 量產；相對 N2 有速度、功耗、密度優勢</td>
+                <td>中期技術階梯清楚。敘事長度可能長過 N2。</td>
+                <td>Tape-out 進度、客戶宣布、2027–28 指引用語。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="margin-top:28px">季後共識：外年樂觀，概率先不動</h3>
+        <div class="metrics">
+          <div>
+            <span>Dec26 共識 EPS</span>
+            <strong>17.04</strong>
+            <em>+60.02% 年增 · 1M +0.64% · 3M +1.32% · 6M +10.25%</em>
+          </div>
+          <div>
+            <span>Dec27 共識 EPS</span>
+            <strong>22.30</strong>
+            <em>材料未附此年修訂幅度</em>
+          </div>
+          <div>
+            <span>Dec28 共識 EPS</span>
+            <strong>29.20</strong>
+            <em>六個月趨勢 +51.90%</em>
+          </div>
+          <div>
+            <span>近三個月修訂</span>
+            <strong>0 次下修</strong>
+            <em>EPS 9 上／0 下 · 營收 36 上／0 下</em>
+          </div>
+        </div>
+        <p class="note">材料沒有獨立月銷。外年、尤其 Dec28 六個月大幅上修，反映的是 AI 敘事定價，不自動改這張表的概率；它提高的是「共識已經樂觀」之後的回撤風險。概率維持判斷值，等 Q3 實績與 CapEx／FCF 驗證。</p>
+        <p class="note">資料衝突已以截圖為準：facts.md 的 OCR 曾把毛利率／EBIT／純利率寫成 54.23%／46.08%／40.92%；截圖是 64.23%／56.08%／49.92%。Q2 毛利率 67.7% 也支持 TTM 毛利率約 64% 的區間。</p>
+      </section>
+
+      <section id="valuation">
+        <p class="kicker">03 — 估值</p>
+        <h2>對自己的歷史偏貴；增長調整後才看起來不貴</h2>
+        <p class="sec-lead">絕對估值（DCF）本版未能提供，不納入基準。主軸是相對倍數、三年情境，以及現金流核對。對行業中位的銷售與帳面倍數幾乎沒有意義——TSMC 是結構性溢價代工，只對自身歷史。</p>
+
+        <h3 style="margin-top:22px">相對自身五年平均的溢價</h3>
+        <p class="note">橫條長度按最大溢價（EV／Sales TTM +62%）縮放。銅棕色是銷售倍數，深青是盈利倍數。股息率不在這張圖：0.90% 對五年 1.54%，壓縮 41.69%，已排除出回歸。</p>
+        <div class="bars" role="img" aria-label="相對五年平均溢價：EV/Sales TTM 加 62.44%，EV/EBITDA TTM 加 55.64%，EV/Sales 前瞻加 51.25%，P/S 前瞻加 50.54%，EV/EBITDA 前瞻加 40.80%，EV/EBIT TTM 加 34.69%，非 GAAP 本益比 TTM 加 31.94%，非 GAAP 前瞻本益比加 22.77%，GAAP 前瞻本益比加 21.03%，EV/EBIT 前瞻加 20.31%。">
+          <div class="prow"><span>EV／Sales TTM</span><i class="fill sales" style="width:100%"></i><b>+62.4%</b></div>
+          <div class="prow"><span>EV／EBITDA TTM</span><i class="fill" style="width:89.1%"></i><b>+55.6%</b></div>
+          <div class="prow"><span>EV／Sales 前瞻</span><i class="fill sales" style="width:82.1%"></i><b>+51.3%</b></div>
+          <div class="prow"><span>P／S 前瞻</span><i class="fill sales" style="width:80.9%"></i><b>+50.5%</b></div>
+          <div class="prow"><span>EV／EBITDA 前瞻</span><i class="fill" style="width:65.3%"></i><b>+40.8%</b></div>
+          <div class="prow"><span>EV／EBIT TTM</span><i class="fill" style="width:55.6%"></i><b>+34.7%</b></div>
+          <div class="prow"><span>P／E 非 GAAP TTM</span><i class="fill" style="width:51.2%"></i><b>+31.9%</b></div>
+          <div class="prow"><span>P／E 非 GAAP 前瞻</span><i class="fill" style="width:36.5%"></i><b>+22.8%</b></div>
+          <div class="prow"><span>P／E GAAP 前瞻</span><i class="fill" style="width:33.7%"></i><b>+21.0%</b></div>
+          <div class="prow"><span>EV／EBIT 前瞻</span><i class="fill" style="width:32.5%"></i><b>+20.3%</b></div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <caption>倍數全表。差距是現值相對五年平均。橫線代表截圖沒有五年平均，或該列不適合直接相減。</caption>
+            <thead>
+              <tr>
+                <th>指標</th>
+                <th class="num">現值</th>
+                <th class="num">五年平均</th>
+                <th class="num">差距</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>P／E 非 GAAP（TTM）</td><td class="num">32.71</td><td class="num">24.79</td><td class="num">+31.94%</td></tr>
+              <tr><td>P／E 非 GAAP（前瞻）</td><td class="num">26.74</td><td class="num">21.78</td><td class="num">+22.77%</td></tr>
+              <tr><td>P／E GAAP（TTM）</td><td class="num">29.67</td><td class="num">—</td><td class="num">—</td></tr>
+              <tr><td>P／E GAAP（前瞻）</td><td class="num">26.56</td><td class="num">21.94</td><td class="num">+21.03%</td></tr>
+              <tr><td>PEG 非 GAAP（前瞻）</td><td class="num">0.70</td><td class="num">—</td><td>對行業中位 1.26 折讓約 44%</td></tr>
+              <tr><td>EV／Sales（TTM）</td><td class="num">14.29</td><td class="num">8.80</td><td class="num">+62.44%</td></tr>
+              <tr><td>EV／Sales（前瞻）</td><td class="num">11.66</td><td class="num">7.71</td><td class="num">+51.25%</td></tr>
+              <tr><td>EV／EBITDA（TTM）</td><td class="num">20.04</td><td class="num">12.87</td><td class="num">+55.64%</td></tr>
+              <tr><td>EV／EBITDA（前瞻）</td><td class="num">15.75</td><td class="num">11.19</td><td class="num">+40.80%</td></tr>
+              <tr><td>EV／EBIT（TTM）</td><td class="num">25.49</td><td class="num">18.92</td><td class="num">+34.69%</td></tr>
+              <tr><td>EV／EBIT（前瞻）</td><td class="num">19.86</td><td class="num">16.50</td><td class="num">+20.31%</td></tr>
+              <tr><td>P／S（TTM）</td><td class="num">14.81</td><td class="num">—</td><td class="num">—</td></tr>
+              <tr><td>P／S（前瞻）</td><td class="num">12.08</td><td class="num">8.03</td><td class="num">+50.54%</td></tr>
+              <tr><td>P／B（TTM）</td><td class="num">10.22</td><td class="num">—</td><td class="num">—</td></tr>
+              <tr><td>P／B（前瞻）</td><td class="num">19.23</td><td class="num">—</td><td>異常偏高，排除</td></tr>
+              <tr><td>P／CF（TTM）</td><td class="num">24.96</td><td class="num">—</td><td class="num">—</td></tr>
+              <tr><td>P／CF（前瞻）</td><td class="num">20.61</td><td class="num">—</td><td class="num">—</td></tr>
+              <tr><td>股息率（TTM）</td><td class="num">0.90%</td><td class="num">1.54%</td><td class="num">−41.69%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="premises">
+          <li>PEG 非 GAAP 前瞻 0.70，對行業中位 1.26，質性正面（B+）。它依賴增長估計，不進入歷史回歸中位。</li>
+          <li>盈利能力高於自身五年：毛利率 64.23%（五年 56.82%，+13%）、EBIT 56.08%（+20%）、EBITDA 71.33%、純利率 49.92%（+20%）、ROE 40.26%（五年 32.73%）、ROTC 23.63%、ROA 23.64%。</li>
+          <li>Levered FCF 利潤率 16.46%（五年 12.73%，+29%），仍遠低於約 50% 的純利率。CapEx／Sales 33.58%（五年 41.11%，−18%）：TTM 低於歷史高峰，絕對水平仍極高，而且全年指引在上修。資產周轉 0.54 倍，低於行業。</li>
+        </ul>
+
+        <h3 style="margin-top:32px">三年情境</h3>
+        <p class="sec-lead">起點 EPS（TTM，估算）= $455.65／32.71 = <span class="num">$13.93</span>。股息率 0.90%。基準終點 EPS $29.20 等於共識 Dec28。概率是判斷，可以改。</p>
+        <div class="prob" aria-hidden="true">
+          <span class="bear">Bear 30%</span>
+          <span class="base">Base 45%</span>
+          <span class="bull">Bull 25%</span>
+        </div>
+        <div class="scenarios" role="group" aria-label="標出情境在敏感度表的交叉格">
+          <button class="scenario bear" type="button" data-scenario="bear" aria-pressed="false">
+            <small>BEAR · 30%</small>
+            <strong>−14.1%</strong>
+            <span class="ret">終點 EPS $20.0 · 14x · 退出 $280</span>
+          </button>
+          <button class="scenario base" type="button" data-scenario="base" aria-pressed="false">
+            <small>BASE · 45%</small>
+            <strong>+7.7%</strong>
+            <span class="ret">終點 EPS $29.2 · 19x · 退出 $555</span>
+          </button>
+          <button class="scenario bull" type="button" data-scenario="bull" aria-pressed="false">
+            <small>BULL · 25%</small>
+            <strong>+21.1%</strong>
+            <span class="ret">終點 EPS $36.0 · 22x · 退出 $792</span>
+          </button>
+        </div>
+        <p class="note">按一下情境，會在下方敏感度表圈出對應的一格。再按一次取消。概率加權退出價約 $532，由現價看年化約 +6.2%。CAGR：Bear 12.8%、Base 28.0%、Bull 37.2%。</p>
+        <ul class="premises">
+          <li>只求每年 8%（純價格）時，基準終點 EPS 需要的退出倍數約 19.7 倍，貼著 Base 的 19 倍。倍數難再擴張，回報主要押 EPS 路徑。</li>
+          <li>Bear 同時砍增長（終點 $20，低於 Dec27 共識 22.30）與倍數（14 倍，低於五年前瞻 21.78，也低於重評帶 17.2–18.7）。這是 AI 消化與晶圓周期雙殺。</li>
+          <li>Bull 終點 $36，高於 Dec28 共識，對應更強的 Agentic／先進產能；退出 22 倍，約等於五年前瞻 21.78。</li>
+        </ul>
+
+        <div class="table-wrap">
+          <table class="heat">
+            <caption>敏感度：終點 EPS × 退出 trailing P／E → 價格（美元）。顏色愈深，退出價愈高。現價約 $456。</caption>
+            <thead>
+              <tr>
+                <th>P／E ＼ EPS</th>
+                <th>20.0</th>
+                <th>29.2</th>
+                <th>36.0</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>14x</th>
+                <td class="s1" data-scenario-cell="bear" title="Bear：EPS 20 × 14 倍">$280</td>
+                <td class="s2">$409</td>
+                <td class="s3">$504</td>
+              </tr>
+              <tr>
+                <th>17x</th>
+                <td class="s1">$340</td>
+                <td class="s2">$496</td>
+                <td class="s4">$612</td>
+              </tr>
+              <tr>
+                <th>19x</th>
+                <td class="s1">$380</td>
+                <td class="s3" data-scenario-cell="base" title="Base：EPS 29.2 × 19 倍">$555</td>
+                <td class="s4">$684</td>
+              </tr>
+              <tr>
+                <th>22x</th>
+                <td class="s2">$440</td>
+                <td class="s4">$642</td>
+                <td class="s5" data-scenario-cell="bull" title="Bull：EPS 36 × 22 倍">$792</td>
+              </tr>
+              <tr>
+                <th>26x</th>
+                <td class="s3">$520</td>
+                <td class="s5">$759</td>
+                <td class="s5">$936</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="margin-top:32px">基準內在價值約 $320</h3>
+        <p class="sec-lead">歷史回歸取 10 項：價格 × 五年平均 ÷ 現值。中位與均值都是 $331，十項區間 $281–$379。重評鏡頭把前瞻本益比放到五年非 GAAP 前瞻 21.78 倍的約 79–86%，即 17.2–18.7 倍，乘上 Dec26 共識 EPS 17.04，得到 $293–$319，中位 $306。</p>
+        <div class="formula">
+          <article>
+            <span class="mini">歷史回歸中位 · 權重 60%</span>
+            <strong>~$331</strong>
+            <div class="weight" aria-hidden="true"><i style="width:60%"></i></div>
+          </article>
+          <article>
+            <span class="mini">重評中位 · 權重 40%</span>
+            <strong>~$306</strong>
+            <div class="weight" aria-hidden="true"><i style="width:40%"></i></div>
+          </article>
+          <article class="result">
+            <span class="mini">加權基準</span>
+            <strong>~$320</strong>
+            <p>區間約 $290–$375。現價高約 42%。</p>
+          </article>
+        </div>
+        <div class="range">
+          <div class="range-scale" role="img" aria-label="青帶是基準區間 290 至 375 美元。銅線是現價約 456 美元，落在區間右側之外。刻度左端約 240 美元，右端約 520 美元。">
+            <div class="range-band" style="left:17.9%; width:30.3%"></div>
+            <i class="range-pin" style="left:77%"></i>
+          </div>
+          <div class="range-ticks" aria-hidden="true">
+            <span style="left:17.9%">$290</span>
+            <span style="left:48.2%">$375</span>
+            <span class="now" style="left:77%">現價 $456</span>
+          </div>
+        </div>
+        <p class="note">青帶是基準區間 $290–$375。刻度左端約 $240、右端約 $520，只用來讀位置。現價在區間右側之外。</p>
+        <p class="note">維持默認 60／40 的理由：FCF 同比只有 5.20%、對 EPS 前瞻 46%，CapEx 上修至 $60–64B 且未來三年顯著更高，加上 N2／海外毛利率稀釋。這被視為體制轉變的證據。若認為 AI 增長足以完全抵銷 FCF 滯後，可把重評權重降到 20–30% 並收窄折讓；本表不採納。</p>
+
+        <div class="table-wrap">
+          <table>
+            <caption>納入歷史回歸的 10 項。回歸價 = 現價 × 五年平均 ÷ 現值。</caption>
+            <thead>
+              <tr>
+                <th>指標</th>
+                <th class="num">現值</th>
+                <th class="num">五年平均</th>
+                <th class="num">回歸價</th>
+                <th>備註</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>P／E 非 GAAP（TTM）</td><td class="num">32.71</td><td class="num">24.79</td><td class="num">$345</td><td></td></tr>
+              <tr><td>P／E 非 GAAP（前瞻）</td><td class="num">26.74</td><td class="num">21.78</td><td class="num">$371</td><td></td></tr>
+              <tr><td>P／E GAAP（前瞻）</td><td class="num">26.56</td><td class="num">21.94</td><td class="num">$376</td><td>GAAP 接近非 GAAP，可納入</td></tr>
+              <tr><td>EV／EBITDA（TTM）</td><td class="num">20.04</td><td class="num">12.87</td><td class="num">$293</td><td></td></tr>
+              <tr><td>EV／EBITDA（前瞻）</td><td class="num">15.75</td><td class="num">11.19</td><td class="num">$324</td><td></td></tr>
+              <tr><td>EV／EBIT（TTM）</td><td class="num">25.49</td><td class="num">18.92</td><td class="num">$338</td><td></td></tr>
+              <tr><td>EV／EBIT（前瞻）</td><td class="num">19.86</td><td class="num">16.50</td><td class="num">$379</td><td></td></tr>
+              <tr><td>EV／Sales（TTM）</td><td class="num">14.29</td><td class="num">8.80</td><td class="num">$281</td><td>AI／HPC 組合推高銷售倍數，討論用</td></tr>
+              <tr><td>EV／Sales（前瞻）</td><td class="num">11.66</td><td class="num">7.71</td><td class="num">$301</td><td>同上</td></tr>
+              <tr><td>P／S（前瞻）</td><td class="num">12.08</td><td class="num">8.03</td><td class="num">$303</td><td>同上</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">排除：PEG（依賴增長估計，無可用五年平均）、股息率（收益率不是盈利倍數）、P／B（帳面受現金堆積與晶圓資產密度扭曲；前瞻 19.23 異常，且無可用五年平均）。P／CF 的 TTM 24.96、前瞻 20.61 因截圖沒有五年平均，未納入回歸。</p>
+
+        <h3 style="margin-top:28px">現金流核對（估算）</h3>
+        <div class="metrics">
+          <div><span>TTM 每股銷售</span><strong>$30.77</strong><em>$455.65／P／S 14.81</em></div>
+          <div><span>每股 Levered FCF</span><strong>$5.06</strong><em>× 利潤率 16.46%</em></div>
+          <div><span>P／FCF</span><strong>~90x</strong><em>現價／每股 FCF</em></div>
+          <div><span>FCF 收益率</span><strong>1.11%</strong><em>倍數若改用壓縮後的 FCF，上行會收窄</em></div>
+        </div>
+        <p class="note">若倍數不變、EPS 由約 $13.93 走到 $29.20，價格仍有上升的空間。若市場改用壓縮後的 FCF 倍數定價，上行會大幅收窄。這與重評折讓、以及上面那條響亮的現金落差一致。</p>
+      </section>
+
+      <section id="action">
+        <p class="kicker">04 — 行動價位與倉位</p>
+        <h2>現價在減貨帶裡，不在買入帶裡</h2>
+        <p class="sec-lead">基準 $320。質量複合機的安全邊際用 5%／12%／20%——經典的 20–30% 對這類公司過嚴，所以用較淺的梯，但梯本身要講明。加倉只在 A 類下跌。價位 = 基準 ×（1 − 安全邊際）。減貨線取歷史回歸最高納入值，約 $379，取整 $380。</p>
+
+        <div class="rail">
+          <div class="rail-wrap">
+            <span class="rail-flag iv" style="left:41.94%">基準 $320</span>
+            <span class="rail-flag now" style="left:85.69%">現價 $456</span>
+            <div class="rail-track" role="img" aria-label="由壓力價 190 美元到 500 美元。基準 320 在持有帶左側，現價 456 在減貨帶內。">
+            <span class="z1" style="flex:65" title="≤ $255 滿倉，僅 A 類"></span>
+            <span class="z2" style="flex:25" title="$255–$280 建至 2/3"></span>
+            <span class="z3" style="flex:25" title="$280–$305 Starter"></span>
+            <span class="z4" style="flex:25" title="$305–$330 觀察"></span>
+            <span class="z5" style="flex:50" title="$330–$380 持有、唔好加倉"></span>
+            <span class="z6" style="flex:120" title="≥ $380 再減貨"></span>
+          </div>
+          </div>
+          <div class="rail-label"><span>$190 壓力價</span><span>$500</span></div>
+          <ul class="zone-key">
+            <li>深青 ≤$255 滿倉</li>
+            <li>$255–280 至 2/3</li>
+            <li>$280–305 Starter</li>
+            <li>$305–330 觀察</li>
+            <li>$330–380 持有</li>
+            <li>淺銅 ≥$380 減貨</li>
+          </ul>
+        </div>
+        <p class="note">色帶橫軸由壓力價 $190 到 $500，用來看出現價落在哪一格，不是機率分布。</p>
+
+        <ol class="ladder">
+          <li class="here">
+            <span class="px">≥ $380</span>
+            <span>對基準 +19% 或以上 · 約前瞻 ≥22x · 概率加權年化約 13% 或更低</span>
+            <b>再減貨約 1/3</b>
+          </li>
+          <li>
+            <span class="px">$330–$380</span>
+            <span>+3% 至 +19% · 19–22x · 年化 13–18%</span>
+            <b>持有核心、唔好加倉</b>
+          </li>
+          <li>
+            <span class="px">$305–$330</span>
+            <span>約 18–19x · 年化 18–21%</span>
+            <b>觀察</b>
+          </li>
+          <li>
+            <span class="px">$280–$305</span>
+            <span>安全邊際 5–12% · 16–18x · 年化 21–25%</span>
+            <b>Starter 1/3</b>
+          </li>
+          <li>
+            <span class="px">$255–$280</span>
+            <span>安全邊際 12–20% · 15–16x · 年化 25–29%</span>
+            <b>建至 2/3</b>
+          </li>
+          <li>
+            <span class="px">≤ $255</span>
+            <span>安全邊際 &gt;20% · ≤15x · 年化 &gt;29%</span>
+            <b>可至滿倉（僅 A 類）</b>
+          </li>
+        </ol>
+        <p class="note">估算現價 $455.65 落在最上一格，遠高於「持有、唔好加倉」。高倍數、長久期的 AI／半導體成長股彼此相關，倉位要與其他同類重倉合併計算。</p>
+
+        <h3 style="margin-top:28px">壓力價約 $190，現價倉位上限約 1.7%</h3>
+        <p class="sec-lead">壓力價 = FY+1 EPS 削減 25% × 15 倍（低於五年前瞻 21.78，也低於重評帶）：$17.04 × 0.75 × 15 ≈ $190。高確信單一股票上限是 8%；下表是另一條約束——在給定壓力虧損下，1% 或 0.5% 風險預算能承受的倉位。</p>
+        <div class="table-wrap">
+          <table>
+            <caption>入場價、對壓力價的虧損，以及風險預算下的倉位上限。百分比是總資產佔比。</caption>
+            <thead>
+              <tr>
+                <th class="num">入場價</th>
+                <th class="num">壓力虧損</th>
+                <th class="num">上限 @ 1.0% 風險預算</th>
+                <th class="num">上限 @ 0.5% 風險預算</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="num">$456</td>
+                <td class="num">−58.3%</td>
+                <td class="num">1.7%</td>
+                <td class="num">0.9%</td>
+              </tr>
+              <tr>
+                <td class="num">$305</td>
+                <td class="num">−37.7%</td>
+                <td class="num">2.7%</td>
+                <td class="num">1.3%</td>
+              </tr>
+              <tr>
+                <td class="num">$280</td>
+                <td class="num">−32.1%</td>
+                <td class="num">3.1%</td>
+                <td class="num">1.6%</td>
+              </tr>
+              <tr>
+                <td class="num">$255</td>
+                <td class="num">−25.5%</td>
+                <td class="num">3.9%</td>
+                <td class="num">2.0%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">持倉若在現價已超過約 1.7% 總資產（1% 風險預算），應減至上限以內，可與「減貨三分之一」一併執行。</p>
+      </section>
+
+      <section id="kill">
+        <p class="kicker">05 — KILL CRITERIA</p>
+        <h2>示範門檻：先持續，再行動</h2>
+        <p class="sec-lead">以下水平是示範，要用 TSMC 自身約十年區間校準。先剔除一次性項目。需要持續——通常兩季或三季——才觸發。現況欄是本季讀數，不是已經亮起的警報。</p>
+        <div class="rules">
+          <article>
+            <strong>任一 Kill</strong>
+            <p>一個月內至少減半，不要等打和。</p>
+          </article>
+          <article>
+            <strong>兩個 Kill</strong>
+            <p>清倉。警戒（B 類）則凍結加倉，並在兩季內重評。</p>
+          </article>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <caption>八項指標。選取理由：半導體／硬件的庫存、毛利率、先進產能與需求、資本開支、客戶集中，加上現金轉換、ROTC，以及管治。</caption>
+            <thead>
+              <tr>
+                <th>指標</th>
+                <th>現況</th>
+                <th>警戒（B 類）</th>
+                <th>Kill（C 類）</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>庫存天數</td>
+                <td>87 天（+7，N2 爬坡）</td>
+                <td>連續兩季上升，而且營收增速明顯放緩，不能只用新節點爬坡解釋</td>
+                <td>庫存或渠道堆積，伴隨營收兩季衰退，或大額減記</td>
+              </tr>
+              <tr>
+                <td>毛利率<br>N2／海外稀釋</td>
+                <td>Q2 67.7%；Q3 指引 65–67%；TTM 64.23%</td>
+                <td>連續兩季低於指引下限至少 150 bps，或跌破 63% 且不只是匯率或一次性</td>
+                <td>跌破約 60% 並持續兩季，而且營業利潤率同步失守</td>
+              </tr>
+              <tr>
+                <td>先進製程／HPC 需求</td>
+                <td>≤7nm 77%；HPC 66%；FY26 略高於 +40%</td>
+                <td>先進佔比連續兩季下滑至少 5 個百分點，或全年收入指引下修至少 10 個百分點</td>
+                <td>HPC／AI 需求敘事大幅撤銷；先進產能利用率明顯垮掉，連續兩季</td>
+              </tr>
+              <tr>
+                <td>CapEx／Sales</td>
+                <td>TTM 33.58%（五年 41.11%）；FY26 指引 $60–64B</td>
+                <td>CapEx 再明顯上修而收入指引同步下修；或比率回到 &gt;40% 且 FCF 轉負</td>
+                <td>CapEx 失控上修，收入路徑下修，管理層放棄「可盈利成長」框架</td>
+              </tr>
+              <tr>
+                <td>Levered FCF 對 EPS</td>
+                <td>FCF 同比 5.20%；EPS 前瞻 46.22%；FCF 利潤率 16.46%</td>
+                <td>TTM FCF 利潤率 &lt;12%，或 FCF 同比連續兩季為負而 EPS 仍高增</td>
+                <td>TTM FCF 利潤率 &lt;8%，或 Levered FCF 連續兩季大幅為負</td>
+              </tr>
+              <tr>
+                <td>ROTC／ROE</td>
+                <td>ROTC 23.63%；ROE 40.26%，均高於五年</td>
+                <td>ROTC 跌破 18%，或 ROE 跌破 30%，連續兩季</td>
+                <td>ROTC 跌破 14% 並持續四個季度</td>
+              </tr>
+              <tr>
+                <td>客戶集中</td>
+                <td>管理層稱不是顧慮；新 AI 玩家多</td>
+                <td>年報前五大佔比急升，或單一客戶公開取消／推遲至少一個世代的先進節點</td>
+                <td>失去任何一個超大客戶（hyperscaler 或主要 AI 加速器客戶）的先進節點量產</td>
+              </tr>
+              <tr>
+                <td>管治／會計</td>
+                <td>本季無重述訊號。ADR 與本地披露差異仍要留意</td>
+                <td>反覆修正關鍵 KPI、非 GAAP 調節異常擴大、重大關聯交易</td>
+                <td>重述、核數師變更、異常關聯交易 → 即時覆核，當 Kill 處理</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="risk">
+        <p class="kicker">06 — 風險</p>
+        <h2>什麼會證明這張表看錯</h2>
+        <p class="sec-lead">看空六條、看多三條。最後是會讓判斷改方向的證據，而不是再加一層敘事。</p>
+        <div class="risks">
+          <div class="bear-col">
+            <h3>最強看空</h3>
+            <ol>
+              <li><b>AI 資本開支消化。</b>雲端與實驗室放慢部署，FY26 +40% 與外年共識失效，倍數與盈利雙殺。Bear 情境退出約 $280。</li>
+              <li><b>FCF 性格惡化被固化。</b>未來三年資本開支顯著更高，令 Levered FCF 長期落後 EPS。市場改用大約 90 倍的 P／FCF 去壓縮估值。</li>
+              <li><b>毛利率結構性下移。</b>N2 陡坡加上海外廠稀釋（數年 3–4 個百分點），令「約 68% 就開心」的帶失守，估值倍數跟着下移。</li>
+              <li><b>客戶集中或技術替代。</b>頭部 AI 客戶轉向自研製程，競品先進節點突破，或封裝／HBM 瓶頸造成有需求、無出貨。</li>
+              <li><b>庫存由爬坡變成堆積。</b>庫存天數 87 若在需求放緩時繼續升，渠道與減記風險上升。</li>
+              <li><b>估值已含樂觀的外年。</b>Dec28 共識六個月 +51.9%，而且零下修。失望時，殺估值會快過殺盈利。現價已較基準貴約 42%。</li>
+            </ol>
+          </div>
+          <div class="bull-col">
+            <h3>最強看多</h3>
+            <ol>
+              <li><b>實質壟斷仍在。</b>先進製程加上 HPC／AI（含 Agentic CPU）的多年需求。FY26 略高於 +40%，Q3 指引強，共識零下修。</li>
+              <li><b>盈利能力全面高於五年。</b>毛利率、EBIT、純利率、ROE 都是。若 FCF 隨產能爬坡趕上，重評折讓可以收窄。</li>
+              <li><b>增長調整後的倍數不貴。</b>PEG 0.70。若路徑靠近 Dec28 的 $29.20，而且退出倍數守住約 19–22 倍，三年絕對回報仍可觀。Bull 約每年 +21%。</li>
+            </ol>
+          </div>
+        </div>
+        <div class="flip">
+          <article class="up">
+            <h3>轉樂觀</h3>
+            <p>可以上調概率，或收窄重評折讓。</p>
+            <ul>
+              <li>連續兩季 Levered FCF 同比回到雙位數，而且靠近 EPS 增長。</li>
+              <li>毛利率企穩在指引上半部，或靠近 68%。</li>
+              <li>CapEx 指引出現見頂的語言。</li>
+              <li>外年共識上修的同時，月營收或產能利用率有實貨。</li>
+            </ul>
+          </article>
+          <article class="down">
+            <h3>轉悲觀</h3>
+            <p>觸發 B 類警戒或 C 類 Kill。</p>
+            <ul>
+              <li>Q3 或全年指引顯示收入／毛利率路徑下修。</li>
+              <li>FCF 利潤率再下一個台階。</li>
+              <li>庫存天數急升，需求語言轉弱。</li>
+              <li>頭部客戶公開推遲先進節點。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <p>來源：FY26 Q2 電話會議事實摘錄（2026-07-16；Wendell Huang／C.C. Wei），以及 Seeking Alpha 的相對估值、增長、盈利能力與 EPS 修訂截圖。標成估算的價格、每股銷售、每股自由現金流與 TTM EPS，是由這些輸入推算。未提供 DCF。Kill 與警戒線是示範水平。</p>
+    <p>本頁對應 Thesis Sheet 的結論先行與第 1–6 節。第 7 節監察分類、第 8 節待補資料沒有放進這頁。</p>
+    <p>一般分析框架討論，並非針對個別投資者的投資建議。第三方數據未經獨立核實。</p>
+  </footer>
+
+  <script>
+    (function () {
+      var links = Array.prototype.slice.call(document.querySelectorAll(".toc a"));
+      var sections = links.map(function (a) {
+        return document.querySelector(a.getAttribute("href"));
+      }).filter(Boolean);
+
+      if ("IntersectionObserver" in window) {
+        var obs = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            var id = "#" + entry.target.id;
+            links.forEach(function (a) {
+              a.setAttribute("aria-current", a.getAttribute("href") === id ? "true" : "false");
+            });
+          });
+        }, { rootMargin: "-15% 0px -75% 0px", threshold: 0 });
+        sections.forEach(function (s) { obs.observe(s); });
+      }
+
+      var cells = Array.prototype.slice.call(document.querySelectorAll("[data-scenario-cell]"));
+      Array.prototype.forEach.call(document.querySelectorAll("[data-scenario]"), function (btn) {
+        btn.addEventListener("click", function () {
+          var on = btn.getAttribute("aria-pressed") === "true";
+          Array.prototype.forEach.call(document.querySelectorAll("[data-scenario]"), function (b) {
+            b.setAttribute("aria-pressed", "false");
+          });
+          cells.forEach(function (c) { c.classList.remove("is-hit"); });
+          if (on) return;
+          btn.setAttribute("aria-pressed", "true");
+          cells.forEach(function (c) {
+            if (c.getAttribute("data-scenario-cell") === btn.getAttribute("data-scenario")) {
+              c.classList.add("is-hit");
+            }
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
